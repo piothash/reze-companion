@@ -6,7 +6,9 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi"] },
+  // "docs" holds read-only ARC reference material (docs/reference/p4 is a separate
+  // Next.js codebase). It is never linted, typechecked, or bundled. See ADR-0002.
+  { ignores: ["dist", ".output", ".vinxi", "docs"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
