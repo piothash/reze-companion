@@ -30,3 +30,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ARC — never commit live operational data (belongs to the VPS)
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
