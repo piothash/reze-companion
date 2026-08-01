@@ -8,7 +8,19 @@ import tseslint from "typescript-eslint";
 export default tseslint.config(
   // "docs" holds read-only ARC reference material (docs/reference/p4 is a separate
   // Next.js codebase). It is never linted, typechecked, or bundled. See ADR-0002.
-  { ignores: ["dist", ".output", ".vinxi", "docs"] },
+  // Generated / vendored files are excluded from formatting rules: the Supabase
+  // types file and shadcn ui primitives are regenerated, not hand-maintained.
+  {
+    ignores: [
+      "dist",
+      ".output",
+      ".vinxi",
+      "docs",
+      "src/routeTree.gen.ts",
+      "src/integrations/supabase/types.ts",
+      "src/components/ui/**",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
