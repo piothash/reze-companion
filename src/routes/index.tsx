@@ -52,8 +52,8 @@ export default function Index() {
               The companion is the control plane. The VPS remains the sole trading authority.
             </h1>
             <p className="mt-5 max-w-2xl text-muted-foreground">
-              No trading decisions, market state generation, TWAP calculation, risk evaluation
-              or order execution will ever be implemented inside this application. It observes,
+              No trading decisions, market state generation, TWAP calculation, risk evaluation or
+              order execution will ever be implemented inside this application. It observes,
               configures and reports — nothing else.
             </p>
           </div>

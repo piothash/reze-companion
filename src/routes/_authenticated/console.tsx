@@ -73,13 +73,11 @@ function ConsolePage() {
 
       <main className="mx-auto grid max-w-5xl gap-4 px-6 py-8">
         <div className="rounded-lg border border-warn/40 bg-warn/10 px-4 py-3 font-mono text-xs text-foreground">
-          Control plane only. The VPS engine remains the sole trading authority — no
-          order, sizing or risk decision is ever made here.
+          Control plane only. The VPS engine remains the sole trading authority — no order, sizing
+          or risk decision is ever made here.
         </div>
 
-        {error ? (
-          <p className="font-mono text-sm text-destructive">{error.message}</p>
-        ) : null}
+        {error ? <p className="font-mono text-sm text-destructive">{error.message}</p> : null}
 
         <Panel title="Engine endpoints">
           {isPending ? (
