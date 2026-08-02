@@ -118,7 +118,13 @@ function buildStream(): EventEnvelope[] {
       executionIntentId: "int-1",
       type: TRADE_EVENT_TYPES.orderSubmitted,
       reasonCode: "EXE_ORDER_SUBMITTED",
-      payload: { order: { orderId: "ord-1", state: "SUBMITTED", executionIntentId: "int-1" } },
+      payload: {
+        orderId: "ord-1",
+        executionIntentId: "int-1",
+        state: "SUBMITTED",
+        filledQuantity: 0,
+      },
+
     }),
   );
   events.push(
