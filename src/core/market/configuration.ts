@@ -8,6 +8,12 @@
 import { z } from "zod";
 
 import { digest128 } from "../shared/ids";
+import {
+  FEED_GENERATIONS,
+  FEED_PROVIDER_IDS,
+  resolveFeedProvider,
+} from "./feed-provider";
+
 
 export const MARKET_CONFIG_VERSION = "1.0.0";
 
@@ -39,9 +45,15 @@ export const discoveryConfigSchema = z.object({
 });
 
 export const feedConfigSchema = z.object({
+  /** Transport the Feed Engine constructs. */
   provider: z.enum(FEED_PROVIDERS).default("http-json"),
+  /** Semantic provider in force (ADR-0005): testnet, mainnet, data streams. */
+  providerId: z.enum(FEED_PROVIDER_IDS).default("testnet"),
+  /** V1 = testnet qualification, V2 = mainnet production. */
+  generation: z.enum(FEED_GENERATIONS).default("V1"),
   feedId: z.string().min(1),
   network: z.string().min(1).default("testnet"),
+
   /** Endpoint template; `{feedId}` and `{network}` are substituted. */
   endpointTemplate: z.string().min(1).optional(),
   /** Dotted path to the numeric price inside the provider response. */
@@ -137,14 +149,16 @@ function defined<T extends object>(input: T): Partial<T> {
 
 /**
  * Every environment variable the Market State Domain understands.
- * Mainnet migration is `TWAP_NETWORK=mainnet` plus endpoint values — no code
- * change is ever required.
+ * Mainnet migration is `TWAP_FEED_PROVIDER`, `TWAP_FEED_ID` and `NETWORK` —
+ * no code change is ever required (ADR-0005).
  */
 export const MARKET_ENV_KEYS = [
   "MARKET_DISCOVERY_BASE_URL",
   "MARKET_DISCOVERY_MARKETS_PATH",
   "MARKET_DISCOVERY_SLUG_PARAM",
   "MARKET_SLUG_TEMPLATE",
+  "NETWORK",
+
   "MARKET_SLOT_DURATION_MS",
   "MARKET_CLOSING_LEAD_MS",
   "MARKET_DISCOVERY_TIMEOUT_MS",
@@ -173,9 +187,17 @@ export const MARKET_ENV_KEYS = [
   "SIGNAL_PRECISION",
 ] as const;
 
-/** Builds a validated market-domain configuration from an environment source. */
+/**
+ * Builds a validated market-domain configuration from an environment source.
+ *
+ * The feed section is resolved through the feed provider registry (ADR-0005),
+ * so `TWAP_FEED_PROVIDER=testnet|mainnet|chainlink-datastreams` plus
+ * `TWAP_FEED_ID` and `NETWORK` are the only values that change between V1 and
+ * V2 deployments.
+ */
 export function loadMarketConfig(env: EnvSource): MarketDomainConfig {
   const precision = num(env["TWAP_PRECISION"]);
+  const feed = resolveFeedProvider(env);
 
   const document: MarketDomainConfigInput = {
     marketConfigVersion: MARKET_CONFIG_VERSION,
@@ -190,17 +212,20 @@ export function loadMarketConfig(env: EnvSource): MarketDomainConfig {
       expectedOutcomes: csv(env["MARKET_EXPECTED_OUTCOMES"]),
     }) as MarketDomainConfigInput["discovery"],
     feed: defined({
-      provider: env["TWAP_FEED_PROVIDER"] as FeedProviderKind | undefined,
-      feedId: env["TWAP_FEED_ID"],
-      network: env["TWAP_NETWORK"],
-      endpointTemplate: env["TWAP_FEED_ENDPOINT"],
-      valuePath: env["TWAP_FEED_VALUE_PATH"],
-      timestampPath: env["TWAP_FEED_TIMESTAMP_PATH"],
+      provider: feed.transport,
+      providerId: feed.providerId,
+      generation: feed.generation,
+      feedId: feed.feedId,
+      network: feed.network,
+      endpointTemplate: feed.endpointTemplate,
+      valuePath: feed.valuePath,
+      timestampPath: feed.timestampPath,
       observationIntervalMillis: num(env["TWAP_OBSERVATION_INTERVAL"]),
       maxStalenessMillis: num(env["TWAP_MAX_STALENESS"]),
       precision,
       requestTimeoutMillis: num(env["TWAP_FEED_TIMEOUT_MS"]),
     }) as MarketDomainConfigInput["feed"],
+
     twap: defined({
       windowSeconds: num(env["TWAP_WINDOW_SECONDS"]),
       minObservations: num(env["TWAP_MIN_OBSERVATIONS"]),

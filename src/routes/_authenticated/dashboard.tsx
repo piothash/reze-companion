@@ -7,6 +7,14 @@ import { Countdown, EmptyState, LoadingState, Metric, Panel, StatusPill } from "
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getHealthReport, getOperationsSnapshot, getSystemInfo } from "@/lib/operations.functions";
 import { listReplayRuns } from "@/lib/platform.functions";
+import {
+  LiveFeedPanel,
+  LiveRuntimePanel,
+  LiveWindowsPanel,
+  TelemetrySourcePill,
+  useRuntimeTelemetry,
+} from "@/components/arc/runtime-telemetry";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -35,6 +43,9 @@ function DashboardPage() {
   const fetchHealth = useServerFn(getHealthReport);
   const fetchSystem = useServerFn(getSystemInfo);
   const fetchReplay = useServerFn(listReplayRuns);
+  const telemetry = useRuntimeTelemetry();
+
+
 
   const { data, isPending } = useQuery({
     queryKey: ["arc", "operations", "snapshot"],
@@ -79,18 +90,24 @@ function DashboardPage() {
       actions={
         <div className="flex items-center gap-2">
           <StatusPill tone="neutral" label={(system.data?.environment ?? "—").toUpperCase()} />
+          <TelemetrySourcePill view={telemetry.data} />
           <StatusPill
             tone={market?.feedFresh ? "healthy" : market ? "degraded" : "neutral"}
             label={market?.feedFresh ? "FEED LIVE" : market ? "FEED STALE" : "NO FEED"}
           />
         </div>
       }
+
     >
       {isPending ? (
         <LoadingState label="Reading operational telemetry" />
       ) : (
         <div className="space-y-4">
+          <LiveFeedPanel view={telemetry.data} />
+          <LiveWindowsPanel view={telemetry.data} />
+          <LiveRuntimePanel view={telemetry.data} />
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
             <Metric
               label="System Status"
               value={worst.toUpperCase()}
