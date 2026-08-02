@@ -126,8 +126,10 @@ describe("health", () => {
   });
 
   it("classifies staleness against a budget", () => {
-    expect(stalenessStatus(100, 1_000)).toBe("healthy");
-    expect(stalenessStatus(5_000, 1_000)).not.toBe("healthy");
+    const now = 10_000;
+    expect(stalenessStatus(new Date(now - 100).toISOString(), 1_000, now).status).toBe("healthy");
+    expect(stalenessStatus(new Date(now - 9_000).toISOString(), 1_000, now).status).toBe("unavailable");
+    expect(stalenessStatus(null, 1_000, now).status).toBe("unavailable");
   });
 
   it("picks the worst status", () => {

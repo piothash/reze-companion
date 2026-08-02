@@ -25,7 +25,11 @@ export function toIsoUtc(epochMillis: EpochMillis): string {
   return new Date(epochMillis).toISOString();
 }
 
+const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+
+/** Parses an ISO-8601 timestamp. UTC only: offsets are rejected, not shifted. */
 export function fromIsoUtc(iso: string): EpochMillis {
+  if (!ISO_UTC.test(iso)) throw new Error(`Invalid ISO-8601 UTC timestamp: ${iso}`);
   const parsed = Date.parse(iso);
   if (Number.isNaN(parsed)) throw new Error(`Invalid ISO-8601 UTC timestamp: ${iso}`);
   return parsed;

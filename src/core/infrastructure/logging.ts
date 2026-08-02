@@ -37,7 +37,7 @@ export function redact(
   if (Array.isArray(value)) return value.map((item) => redact(item, redactKeys, depth + 1));
   const out: Record<string, unknown> = {};
   for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
-    out[key] = redactKeys.some((needle) => key.toLowerCase().includes(needle))
+    out[key] = redactKeys.some((needle) => key.toLowerCase().includes(needle.toLowerCase()))
       ? "[redacted]"
       : redact(item, redactKeys, depth + 1);
   }
