@@ -3,7 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Metric, Panel, StatusPill, fmt, fmtInt, fmtPct, fmtTime } from "@/components/arc/primitives";
+import {
+  EmptyState,
+  Metric,
+  Panel,
+  StatusPill,
+  fmt,
+  fmtInt,
+  fmtPct,
+  fmtTime,
+} from "@/components/arc/primitives";
 import { getAnalyticsSummary, getLedgerSummary } from "@/lib/platform.functions";
 import {
   Table,
@@ -78,9 +87,15 @@ function AnalyticsPage() {
                   : `${Math.round(metrics.averageFillLatencyMillis)} ms`
               }
             />
-            <Metric label="Quota Utilization" value={fmtPct(metrics?.tradeQuotaUtilization ?? null)} />
+            <Metric
+              label="Quota Utilization"
+              value={fmtPct(metrics?.tradeQuotaUtilization ?? null)}
+            />
             <Metric label="Window Utilization" value={fmtPct(metrics?.windowUtilization ?? null)} />
-            <Metric label="Peak Reserved Exposure" value={fmt(metrics?.peakReservedExposure ?? null, 2)} />
+            <Metric
+              label="Peak Reserved Exposure"
+              value={fmt(metrics?.peakReservedExposure ?? null, 2)}
+            />
             <Metric label="Peak Live Exposure" value={fmt(metrics?.peakLiveExposure ?? null, 2)} />
             <Metric label="Realized PnL" value={fmt(metrics?.realizedPnl ?? null, 2)} />
             <Metric

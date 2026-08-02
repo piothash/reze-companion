@@ -86,9 +86,7 @@ export function SeverityBadge({ severity }: { severity: string }) {
 }
 
 export function EmptyState({ message }: { message: string }) {
-  return (
-    <p className="py-6 text-center text-sm text-muted-foreground">{message}</p>
-  );
+  return <p className="py-6 text-center text-sm text-muted-foreground">{message}</p>;
 }
 
 export function KeyValue({ rows }: { rows: [string, ReactNode][] }) {

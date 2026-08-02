@@ -43,7 +43,9 @@ function HealthPage() {
   return (
     <OperatorShell
       title="Health"
-      subtitle={data ? `Observed ${fmtTime(data.observedAtIso)} · ${data.latencyMillis} ms` : "Probing"}
+      subtitle={
+        data ? `Observed ${fmtTime(data.observedAtIso)} · ${data.latencyMillis} ms` : "Probing"
+      }
       actions={<StatusPill tone={worst} label={worst.toUpperCase()} />}
     >
       {isPending ? (

@@ -24,7 +24,10 @@ export const Route = createFileRoute("/_authenticated/configuration")({
           "ARC configuration surface: environment, network, feed provider, feature flags, engine endpoints, configuration profiles and profile versions.",
       },
       { property: "og:title", content: "Configuration — ARC Operator Platform" },
-      { property: "og:description", content: "Environment, feature flags, endpoints and versions." },
+      {
+        property: "og:description",
+        content: "Environment, feature flags, endpoints and versions.",
+      },
     ],
   }),
   component: ConfigurationPage,

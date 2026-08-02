@@ -26,7 +26,10 @@ export const Route = createFileRoute("/_authenticated/notifications")({
           "ARC operator notifications with info, warning and critical severities, search, filtering and acknowledgement.",
       },
       { property: "og:title", content: "Notifications — ARC Operator Platform" },
-      { property: "og:description", content: "Severity-filtered operator alerts with acknowledgement." },
+      {
+        property: "og:description",
+        content: "Severity-filtered operator alerts with acknowledgement.",
+      },
     ],
   }),
   component: NotificationsPage,
@@ -71,7 +74,10 @@ function NotificationsPage() {
     );
 
   return (
-    <OperatorShell title="Notifications" subtitle="Operator alerts derived from canonical reason codes">
+    <OperatorShell
+      title="Notifications"
+      subtitle="Operator alerts derived from canonical reason codes"
+    >
       <div className="space-y-4">
         <div className="grid gap-2 sm:grid-cols-[minmax(0,24rem)_10rem]">
           <Input

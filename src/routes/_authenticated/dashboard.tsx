@@ -101,11 +101,7 @@ function DashboardPage() {
               value={fmt(market?.effectiveTwap ?? null)}
               hint={`PTB ${fmt(market?.ptb ?? null)}`}
             />
-            <Metric
-              label="Notifications"
-              value={fmtInt(unread)}
-              hint="unacknowledged"
-            />
+            <Metric label="Notifications" value={fmtInt(unread)} hint="unacknowledged" />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -133,11 +129,7 @@ function DashboardPage() {
                   ok={(projection?.counts.total ?? 0) > 0}
                   detail={`${projection?.counts.total ?? 0} events`}
                 />
-                <HealthRow
-                  label="Lovable Cloud"
-                  ok
-                  detail="reachable"
-                />
+                <HealthRow label="Lovable Cloud" ok detail="reachable" />
                 <HealthRow
                   label="VPS Endpoints"
                   ok={(data?.endpoints ?? []).length > 0}

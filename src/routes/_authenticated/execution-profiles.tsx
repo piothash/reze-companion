@@ -323,7 +323,11 @@ function ExecutionProfilesPage() {
                     <Field label="Position Size Override">
                       <Input
                         type="number"
-                        value={window.positionSizeOverride === null ? "" : String(window.positionSizeOverride)}
+                        value={
+                          window.positionSizeOverride === null
+                            ? ""
+                            : String(window.positionSizeOverride)
+                        }
                         onChange={(event) =>
                           patchWindow(index, {
                             positionSizeOverride:
@@ -335,7 +339,11 @@ function ExecutionProfilesPage() {
                     <Field label="Retry Count Override">
                       <Input
                         type="number"
-                        value={window.retryCountOverride === null ? "" : String(window.retryCountOverride)}
+                        value={
+                          window.retryCountOverride === null
+                            ? ""
+                            : String(window.retryCountOverride)
+                        }
                         onChange={(event) =>
                           patchWindow(index, {
                             retryCountOverride:

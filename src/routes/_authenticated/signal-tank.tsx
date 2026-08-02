@@ -3,7 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Metric, Panel, StatusPill, fmt, fmtInt, fmtTime } from "@/components/arc/primitives";
+import {
+  EmptyState,
+  KeyValue,
+  Metric,
+  Panel,
+  StatusPill,
+  fmt,
+  fmtInt,
+  fmtTime,
+} from "@/components/arc/primitives";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 
 export const Route = createFileRoute("/_authenticated/signal-tank")({
@@ -61,7 +70,10 @@ function SignalTankPage() {
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Metric label="Effective TWAP" value={fmt(latest?.effectiveTwap ?? market?.effectiveTwap ?? null)} />
+            <Metric
+              label="Effective TWAP"
+              value={fmt(latest?.effectiveTwap ?? market?.effectiveTwap ?? null)}
+            />
             <Metric label="Price To Beat" value={fmt(latest?.ptb ?? market?.ptb ?? null)} />
             <Metric label="Applied Buffer" value={fmt(latest?.appliedBuffer ?? null)} />
             <Metric

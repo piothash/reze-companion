@@ -3,7 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Panel, StatusPill, fmt, fmtInt, fmtTime } from "@/components/arc/primitives";
+import {
+  EmptyState,
+  KeyValue,
+  Panel,
+  StatusPill,
+  fmt,
+  fmtInt,
+  fmtTime,
+} from "@/components/arc/primitives";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 import {
   Table,
@@ -50,7 +58,12 @@ function WindowsPage() {
     <OperatorShell
       title="Active Windows"
       subtitle="Window instances update from mirrored decision events"
-      actions={<StatusPill tone={windows.length > 0 ? "healthy" : "neutral"} label={`${windows.length} INSTANCES`} />}
+      actions={
+        <StatusPill
+          tone={windows.length > 0 ? "healthy" : "neutral"}
+          label={`${windows.length} INSTANCES`}
+        />
+      }
     >
       {isPending ? (
         <EmptyState message="Loading window instances…" />
@@ -84,7 +97,8 @@ function WindowsPage() {
                     <TableCell className="font-mono text-xs">{window.state}</TableCell>
                     <TableCell className="font-mono text-xs">{fmt(window.twapBuffer)}</TableCell>
                     <TableCell className="font-mono text-xs">
-                      {fmtInt(window.tradeQuotaAtCreation)} → {fmtInt(window.tradeQuotaAtCompletion)}
+                      {fmtInt(window.tradeQuotaAtCreation)} →{" "}
+                      {fmtInt(window.tradeQuotaAtCompletion)}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {window.completionReason ?? "—"}

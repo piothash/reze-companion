@@ -35,7 +35,10 @@ export const Route = createFileRoute("/_authenticated/system")({
 
 function SystemPage() {
   const fetchSystem = useServerFn(getSystemInfo);
-  const { data, isPending } = useQuery({ queryKey: ["arc", "system"], queryFn: () => fetchSystem() });
+  const { data, isPending } = useQuery({
+    queryKey: ["arc", "system"],
+    queryFn: () => fetchSystem(),
+  });
 
   return (
     <OperatorShell title="System" subtitle="Version registry and build information">
@@ -68,8 +71,12 @@ function SystemPage() {
                   <TableRow key={spec.id}>
                     <TableCell className="font-mono text-xs">{spec.id}</TableCell>
                     <TableCell className="font-mono text-xs">{spec.version}</TableCell>
-                    <TableCell className="font-mono text-xs">{spec.compatible.join(", ")}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{spec.description}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {spec.compatible.join(", ")}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {spec.description}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
