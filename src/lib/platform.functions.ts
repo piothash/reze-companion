@@ -77,7 +77,9 @@ export const listReplayRuns = createServerFn({ method: "GET" })
     const { SupabaseReplayRepository } = await import("@/core/platform/supabase-platform.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
     const repo = new SupabaseReplayRepository(context.supabase as any, context.userId);
-    return { runs: await repo.latest(10) };
+    const runs = await repo.latest(10);
+    return { runs: runs.map((run) => ({ ...run, mismatches: run.mismatches as JsonValue[] })) };
+
   });
 
 const replayInput = z.object({ correlationId: z.string().min(1) });
