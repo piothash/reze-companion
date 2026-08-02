@@ -66,7 +66,7 @@ describe("configuration — nothing business-related hardcoded", () => {
       EXECUTION_MAX_TRADES: "3",
       EXECUTION_POSITION_SIZE: "25",
       EXECUTION_TICK_SIZE: "0.01",
-      EXECUTION_WINDOWS: "60s:0.004,30s:0.002,10s:0.001",
+      EXECUTION_WINDOWS: "60s@0.004,30s@0.002,10s@0.001",
     });
     expect(profile.executionProfileId).toBe("prod");
     expect(profile.maxTrades).toBe(3);
@@ -76,7 +76,9 @@ describe("configuration — nothing business-related hardcoded", () => {
 
   it("market feed, network and venue are configurable", () => {
     const config = loadMarketConfig({
-      TWAP_FEED_PROVIDER: "pyth",
+      MARKET_DISCOVERY_BASE_URL: "https://venue.example",
+      MARKET_SLUG_TEMPLATE: "btc-{slot}",
+      TWAP_FEED_PROVIDER: "http-json",
       TWAP_NETWORK: "testnet",
       TWAP_FEED_ID: "feed-btc-usd",
       TWAP_WINDOW_SECONDS: "60",
