@@ -41,6 +41,7 @@ function outcomeTone(outcome: string) {
 
 function SignalTankPage() {
   const fetchSnapshot = useServerFn(getOperationsSnapshot);
+  const telemetry = useRuntimeTelemetry();
   const { data, isPending } = useQuery({
     queryKey: ["arc", "operations", "snapshot"],
     queryFn: () => fetchSnapshot({ data: { limit: 400 } }),
@@ -55,19 +56,26 @@ function SignalTankPage() {
   return (
     <OperatorShell
       title="Signal Tank"
-      subtitle="TWAP-native decision surface — display only"
+      subtitle="Effective TWAP ± window buffer against PTB — display only"
       actions={
-        <StatusPill
-          tone={latest ? outcomeTone(latest.outcome) : "neutral"}
-          label={latest?.outcome ?? "NO DECISION"}
-        />
+        <div className="flex items-center gap-2">
+          <TelemetrySourcePill view={telemetry.data} />
+          <StatusPill
+            tone={latest ? outcomeTone(latest.outcome) : "neutral"}
+            label={latest?.outcome ?? "NO DECISION"}
+          />
+        </div>
       }
     >
+      <div className="mb-4">
+        <LiveFeedPanel view={telemetry.data} />
+      </div>
       {isPending ? (
         <LoadingState label="Reading decision telemetry" />
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
             <Metric
               label="Effective TWAP"
               value={fmt(latest?.effectiveTwap ?? market?.effectiveTwap ?? null)}
