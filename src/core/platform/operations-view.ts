@@ -11,7 +11,7 @@ import { compareEnvelopes, type EventEnvelope } from "../contracts/event-envelop
 import { DECISION_EVENT_TYPES } from "../decision/events";
 import { MARKET_EVENT_TYPES } from "../market/events";
 import { TRADE_EVENT_TYPES } from "../trade/events";
-import { EVENT_CATALOG } from "./event-catalog";
+import { classifyEventType } from "./event-catalog";
 
 type Json = Record<string, unknown>;
 
@@ -204,7 +204,7 @@ export function projectOperations(events: readonly EventEnvelope[]): OperationsP
   };
 
   for (const event of ordered) {
-    const classification = EVENT_CATALOG[event.type]?.classification ?? "OPERATIONAL";
+    const classification = classifyEventType(event.type);
     if (classification === "BUSINESS") business += 1;
     else operational += 1;
 
