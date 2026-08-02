@@ -32,7 +32,13 @@ import {
   offsetToMillis,
 } from "@/core/decision/configuration";
 import { WINDOW_OFFSET_UNITS, type WindowOffsetUnit } from "@/core/decision/types";
-import { getExecutionProfileConfig, saveExecutionProfileConfig } from "@/lib/operations.functions";
+import { getExecutionProfileConfig } from "@/lib/operations.functions";
+import {
+  activateConfigurationVersion,
+  archiveConfigurationVersion,
+  getConfigurationRuntimeView,
+  publishConfigurationVersion,
+} from "@/lib/configuration.functions";
 
 export const Route = createFileRoute("/_authenticated/execution-profiles")({
   head: () => ({
