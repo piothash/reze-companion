@@ -74,7 +74,7 @@ function buildStream(): EventEnvelope[] {
     factory.create({
       ...base,
       type: DECISION_EVENT_TYPES.windowEvaluated,
-      reasonCode: "DEC_SIGNAL_EMITTED",
+      reasonCode: "DEC_SIGNAL_UP",
       payload: { windowInstanceId: "win-1", outcome: "SIGNAL" },
     }),
   );
@@ -320,7 +320,7 @@ describe("notifications", () => {
       correlationId: CORRELATION,
       source: "test",
       type: TRADE_EVENT_TYPES.riskDenied,
-      reasonCode: "RSK_KILL_SWITCH_ACTIVE",
+      reasonCode: "RSK_DENIED_KILL_SWITCH",
       payload: {},
     });
 
