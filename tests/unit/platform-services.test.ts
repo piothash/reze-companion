@@ -397,3 +397,10 @@ describe("synchronization policy", () => {
     expect(second.duplicates).toBe(first.written);
   });
 });
+
+describe("debug", () => {
+  it("prints mismatches", () => {
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify(replayEvents(buildStream()).mismatches, null, 1));
+  });
+});
