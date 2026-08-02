@@ -275,7 +275,10 @@ export const getHealthReport = createServerFn({ method: "GET" })
         {
           name: "Feed",
           status: status(market?.feedFresh === true, market !== null),
-          detail: market?.feedAgeMillis !== null && market ? `age ${market.feedAgeMillis} ms` : "no observations",
+          detail:
+            market?.feedAgeMillis !== null && market
+              ? `age ${market.feedAgeMillis} ms`
+              : "no observations",
         },
         {
           name: "TWAP",

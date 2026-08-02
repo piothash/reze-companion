@@ -144,7 +144,13 @@ export interface OperationsProjection {
 }
 
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELLED", "REJECTED", "EXPIRED"]);
-const ACTIVE_WINDOW_STATES = new Set(["CONFIGURED", "WAITING", "ACTIVE", "EVALUATING", "EXECUTING"]);
+const ACTIVE_WINDOW_STATES = new Set([
+  "CONFIGURED",
+  "WAITING",
+  "ACTIVE",
+  "EVALUATING",
+  "EXECUTING",
+]);
 
 function timelineEntry(event: EventEnvelope, detail: string | null): OperationsTimelineEntry {
   return {
@@ -231,7 +237,8 @@ export function projectOperations(events: readonly EventEnvelope[]): OperationsP
           effectiveTwap: num(signal["effectiveTwap"]) ?? num(signal["value"]),
           ptb: num(ptb["value"]),
           ptbValid: typeof ptb["valid"] === "boolean" ? (ptb["valid"] as boolean) : null,
-          feedFresh: typeof freshness["fresh"] === "boolean" ? (freshness["fresh"] as boolean) : null,
+          feedFresh:
+            typeof freshness["fresh"] === "boolean" ? (freshness["fresh"] as boolean) : null,
           feedAgeMillis: num(freshness["ageMillis"]),
           executionProfileId: str(configuration["executionProfileId"]),
           executionProfileVersion: str(configuration["executionProfileVersion"]),
@@ -285,7 +292,8 @@ export function projectOperations(events: readonly EventEnvelope[]): OperationsP
             )
           : [];
         signals.push({
-          windowInstanceId: str(payload["windowInstanceId"]) ?? event.metadata.windowInstanceId ?? null,
+          windowInstanceId:
+            str(payload["windowInstanceId"]) ?? event.metadata.windowInstanceId ?? null,
           outcome: str(payload["outcome"]) ?? "NO_SIGNAL",
           effectiveTwap: num(payload["effectiveTwap"]),
           ptb: num(payload["ptb"]),
@@ -309,7 +317,9 @@ export function projectOperations(events: readonly EventEnvelope[]): OperationsP
         execution.appliedBuffer = num(payload["appliedBuffer"]);
         execution.windowInstanceId = str(payload["windowInstanceId"]) ?? execution.windowInstanceId;
         execution.createdAtIso = str(payload["createdAtIso"]) ?? execution.createdAtIso;
-        execution.timeline.push(timelineEntry(event, `intent ${str(payload["side"]) ?? ""}`.trim()));
+        execution.timeline.push(
+          timelineEntry(event, `intent ${str(payload["side"]) ?? ""}`.trim()),
+        );
         break;
       }
 
@@ -322,7 +332,8 @@ export function projectOperations(events: readonly EventEnvelope[]): OperationsP
         };
         quotaHistory.push({
           atIso: event.occurredAt,
-          executionIntentId: str(payload["executionIntentId"]) ?? event.metadata.executionIntentId ?? null,
+          executionIntentId:
+            str(payload["executionIntentId"]) ?? event.metadata.executionIntentId ?? null,
           initial: quota.initial,
           remaining: quota.remaining,
           consumed: quota.consumed,
@@ -380,7 +391,8 @@ export function projectOperations(events: readonly EventEnvelope[]): OperationsP
         if (!execution) break;
         const report = asRecord(payload["report"]);
         execution.settled = event.type === TRADE_EVENT_TYPES.executionCompleted;
-        execution.retries = num(report["attempts"]) ?? num(payload["attempts"]) ?? execution.retries;
+        execution.retries =
+          num(report["attempts"]) ?? num(payload["attempts"]) ?? execution.retries;
         execution.failureReason = str(payload["failureReason"]);
         execution.averagePrice = num(report["averagePrice"]) ?? execution.averagePrice;
         execution.timeline.push(
@@ -412,7 +424,8 @@ export function projectOperations(events: readonly EventEnvelope[]): OperationsP
     signals: signals.reverse(),
     executions: executionList,
     openOrders: executionList.filter(
-      (execution) => execution.orderState !== null && !TERMINAL_ORDER_STATES.has(execution.orderState),
+      (execution) =>
+        execution.orderState !== null && !TERMINAL_ORDER_STATES.has(execution.orderState),
     ).length,
     quota,
     quotaHistory: quotaHistory.reverse(),
