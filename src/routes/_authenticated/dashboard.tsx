@@ -43,6 +43,9 @@ function DashboardPage() {
   const fetchHealth = useServerFn(getHealthReport);
   const fetchSystem = useServerFn(getSystemInfo);
   const fetchReplay = useServerFn(listReplayRuns);
+  const telemetry = useRuntimeTelemetry();
+
+
 
   const { data, isPending } = useQuery({
     queryKey: ["arc", "operations", "snapshot"],
