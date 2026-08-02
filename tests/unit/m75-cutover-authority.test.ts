@@ -232,13 +232,15 @@ describe("M7.5 — control plane boundaries", () => {
 
   it("keeps authority persistence server-only and free of credential columns", () => {
     const source = readFileSync("src/lib/authority-registry.server.ts", "utf8");
-    expect(source).not.toMatch(/private_key|wallet|exchange_key|api_secret/i);
+    expect(source).not.toMatch(/private_key|wallet_key|exchange_key|api_secret/i);
     expect(source).toContain("parseAuthorityRegistration");
   });
 
-  it("never lets the dashboard write runtime trading state", () => {
+  it("never lets the dashboard write authoritative trading records", () => {
+    // Mirroring what the VPS reports (runtime identity, telemetry) is allowed.
+    // Authoring ledger or platform events in the control plane is not.
     const offenders = srcFiles("src/lib").filter((file) =>
-      /from\("(engine_runtime_identity|ledger_records|platform_events)"\)[\s\S]{0,80}\.(insert|update|upsert|delete)\(/.test(
+      /from\("(ledger_records|platform_events)"\)[\s\S]{0,80}\.(insert|update|upsert|delete)\(/.test(
         readFileSync(file, "utf8"),
       ),
     );

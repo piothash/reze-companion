@@ -56,7 +56,7 @@ export const AUTHORITY_STALE_AFTER_MILLIS = 90_000;
 // ---------------------------------------------------------------------------
 
 const SECRET_PATTERN =
-  /(private[_-]?key|BEGIN [A-Z ]*PRIVATE KEY|secret|passphrase|mnemonic|api[_-]?key|0x[a-fA-F0-9]{64})/i;
+  /(private[ _-]?key|BEGIN [A-Z ]*PRIVATE KEY|secret|passphrase|mnemonic|api[_-]?key|0x[a-fA-F0-9]{64})/i;
 
 /**
  * The control plane stores public identity only. Wallet keys, exchange
