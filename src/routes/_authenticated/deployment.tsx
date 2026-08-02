@@ -86,8 +86,13 @@ function DeploymentPage() {
   const snapshot = evidence.data?.snapshot ?? null;
 
   const harness = scenario.data
-    ? evaluateQualificationGates(scenario.data.run, scenario.data.replay)
+    ? evaluateQualificationGates(scenario.data.run, {
+        replayDeterministic:
+          scenario.data.replay.deterministic && scenario.data.replay.mismatches.length === 0,
+        ...(snapshot?.authority?.registered ? { authorityRegistered: true } : {}),
+      })
     : [];
+
   const live = snapshot ? evaluateLiveAuthorityGates(snapshot) : [];
   const activation = snapshot ? buildActivationChecklist(snapshot) : [];
   const mainnet = evaluateMainnetReadiness({
