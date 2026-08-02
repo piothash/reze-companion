@@ -43,6 +43,9 @@ export const VERSION_REGISTRY = {
     "Market State Domain configuration format",
   ),
   marketState: v("marketState", "1.0.0", ["1.0.0"], "Authoritative market state snapshot contract"),
+  decisionEngine: v("decisionEngine", "1.0.0", ["1.0.0"], "TWAP-native decision engine contract"),
+  executionIntent: v("executionIntent", "1.0.0", ["1.0.0"], "Immutable execution intent contract"),
+  executionContext: v("executionContext", "1.0.0", ["1.0.0"], "Execution context runtime contract"),
 } as const satisfies Record<string, VersionSpec>;
 
 export type VersionKey = keyof typeof VERSION_REGISTRY;
