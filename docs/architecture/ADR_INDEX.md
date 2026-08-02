@@ -11,6 +11,7 @@ new ADR.**
 | [ADR-0001](./ADR-0001-hybrid-control-plane.md) | Hybrid control plane: the companion never trades | Accepted | 0 |
 | [ADR-0002](./ADR-0002-reference-readonly.md) | `reference/p4` is permanently read-only and never bundled | Accepted | 0 |
 | [ADR-0003](./ADR-0003-configuration-synchronization.md) | Configuration synchronization: the VPS activates, the companion records | Accepted | M6.7 |
+| [ADR-0004](./ADR-0004-authority-handshake.md) | VPS authority registration, runtime handshake and mirror staleness | Accepted | M6.8 |
 
 ## Reserved numbering
 
@@ -20,7 +21,7 @@ proposal is withdrawn.
 | ADR | Reserved for |
 |---|---|
 | ADR-0003 | *Claimed — configuration synchronization (accepted)* |
-| ADR-0004 | Mirror/cache invalidation and staleness policy |
+| ADR-0004 | *Claimed — authority registration, runtime handshake, mirror staleness (accepted)* |
 | ADR-0005 | Control-command authorisation, audit and kill-switch semantics |
 | ADR-0006 | Replay determinism boundary |
 | ADR-0007 | Observability: metrics, structured logging and health contract |

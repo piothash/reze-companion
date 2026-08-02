@@ -387,3 +387,34 @@ errors. 232 unit tests pass; typecheck clean.
   in the companion (ADR-0001).
 - Verification: 246 unit tests green (8 new synchronization tests), typecheck
   clean, architecture conformance test enforces the layering of the new module.
+
+## M6.10 — VPS authority registration & runtime handshake (ADR-0004)
+
+- **Persistence.** `engine_endpoints` expanded with API/engine/platform version,
+  handshake + health endpoints, public identifier, sync interval and last-seen.
+  New `engine_runtime_identity` mirrors the last successful handshake (engine id,
+  environment, network, versions, configuration version/hash/snapshot, scheduler
+  and feed status, current market, health grid, capabilities, uptime). RLS scoped
+  to the operator; writes limited to operator/admin.
+- **Handshake core** (`src/core/platform/authority-handshake.ts`): registration
+  schema with credential-material rejection, `handshakeResponseSchema`, dashboard
+  runtime-state vocabulary, health merge/worst-status, and saved-vs-running
+  verification with per-field drift reasons.
+- **Transport** (`src/lib/authority-handshake.server.ts`): timeout-bounded
+  handshake classified as OK / UNREACHABLE / UNAUTHORIZED / PROTOCOL_MISMATCH /
+  NOT_REGISTERED, mirror upsert on success, mirrored fallback marked not-live.
+- **Server functions** (`src/lib/engine.functions.ts`): list/save/activate/delete
+  registrations, `probeEngineHandshake` (test before registering) and
+  `getAuthorityRuntime` (the polling read).
+- **Console.** New Engine Registry route (register, edit, test handshake,
+  activate, remove; viewers read-only) and the expanded Active Runtime
+  Configuration panel on Execution Profiles. Status strip VPS/Engine cells now
+  read live handshake state. Polling uses the registered per-engine interval and
+  refetches on focus and reconnect.
+- **Security.** No credential is stored in the database or sent to the browser;
+  registration rejects pasted secret material; all mutations are audited.
+- 258 unit tests pass; typecheck clean; authenticated console verified with zero
+  console errors.
+
+**M6.10 status: complete.** No trading logic was implemented; the VPS remains the
+sole trading authority.

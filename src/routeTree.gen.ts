@@ -16,6 +16,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedConfigurationRouteImport } from './routes/_authenticated/configuration'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedEngineRegistrationRouteImport } from './routes/_authenticated/engine-registration'
 import { Route as AuthenticatedExecutionProfilesRouteImport } from './routes/_authenticated/execution-profiles'
 import { Route as AuthenticatedHealthRouteImport } from './routes/_authenticated/health'
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
@@ -66,6 +67,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEngineRegistrationRoute =
+  AuthenticatedEngineRegistrationRouteImport.update({
+    id: '/engine-registration',
+    path: '/engine-registration',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedExecutionProfilesRoute =
   AuthenticatedExecutionProfilesRouteImport.update({
     id: '/execution-profiles',
@@ -147,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuthenticatedAuditRoute
   '/configuration': typeof AuthenticatedConfigurationRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
@@ -169,6 +177,7 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditRoute
   '/configuration': typeof AuthenticatedConfigurationRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
@@ -193,6 +202,7 @@ export interface FileRoutesById {
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/configuration': typeof AuthenticatedConfigurationRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/_authenticated/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/_authenticated/health': typeof AuthenticatedHealthRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/configuration'
     | '/dashboard'
+    | '/engine-registration'
     | '/execution-profiles'
     | '/health'
     | '/markets'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/configuration'
     | '/dashboard'
+    | '/engine-registration'
     | '/execution-profiles'
     | '/health'
     | '/markets'
@@ -262,6 +274,7 @@ export interface FileRouteTypes {
     | '/_authenticated/audit'
     | '/_authenticated/configuration'
     | '/_authenticated/dashboard'
+    | '/_authenticated/engine-registration'
     | '/_authenticated/execution-profiles'
     | '/_authenticated/health'
     | '/_authenticated/markets'
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/engine-registration': {
+      id: '/_authenticated/engine-registration'
+      path: '/engine-registration'
+      fullPath: '/engine-registration'
+      preLoaderRoute: typeof AuthenticatedEngineRegistrationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/execution-profiles': {
@@ -446,6 +466,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedConfigurationRoute: typeof AuthenticatedConfigurationRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEngineRegistrationRoute: typeof AuthenticatedEngineRegistrationRoute
   AuthenticatedExecutionProfilesRoute: typeof AuthenticatedExecutionProfilesRoute
   AuthenticatedHealthRoute: typeof AuthenticatedHealthRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
@@ -462,6 +483,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedConfigurationRoute: AuthenticatedConfigurationRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEngineRegistrationRoute: AuthenticatedEngineRegistrationRoute,
   AuthenticatedExecutionProfilesRoute: AuthenticatedExecutionProfilesRoute,
   AuthenticatedHealthRoute: AuthenticatedHealthRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,

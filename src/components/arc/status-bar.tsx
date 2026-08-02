@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { Countdown, StatusDot, type StatusTone } from "./primitives";
+import { runtimeTone, useAuthorityRuntime } from "./authority-runtime";
 import { getOperatorStatusBar } from "@/lib/operations.functions";
 
 function Cell({
@@ -44,15 +45,10 @@ export function StatusBar() {
     refetchInterval: 15_000,
     retry: false,
   });
+  const runtime = useAuthorityRuntime().data;
 
   const vps = data?.vps;
-  const vpsTone: StatusTone = !data
-    ? "neutral"
-    : !vps?.registered
-      ? "unavailable"
-      : vps.connected
-        ? "healthy"
-        : "degraded";
+  const vpsTone: StatusTone = runtimeTone(runtime?.connection.state);
   const feedTone: StatusTone = !data
     ? "neutral"
     : data.feed.fresh === true
@@ -96,11 +92,16 @@ export function StatusBar() {
         label="VPS"
         tone={vpsTone}
         value={
-          !vps?.registered
-            ? "UNREGISTERED"
-            : `${vps.connected ? "CONNECTED" : "NO HEARTBEAT"} · ${vps.latencyMillis} ms · ${age(vps.lastSeenAgeMillis)}`
+          !runtime
+            ? !vps?.registered
+              ? "UNREGISTERED"
+              : "CONNECTING"
+            : !runtime.endpoint.registered
+              ? "UNREGISTERED"
+              : `${runtime.connection.state} · ${runtime.connection.latencyMillis ?? "—"} ms · ${age(vps?.lastSeenAgeMillis ?? null)}`
         }
       />
+      <Cell label="Engine" value={runtime?.identity?.engineVersion ?? "—"} />
       <Cell label="Profile" value={data?.executionProfileId ?? "—"} />
     </div>
   );

@@ -184,39 +184,170 @@ export type Database = {
       }
       engine_endpoints: {
         Row: {
+          api_version: string | null
           base_url: string
           created_at: string
+          engine_version: string | null
           environment: string
+          handshake_endpoint: string
+          health_endpoint: string
           id: string
           is_active: boolean
           last_seen_at: string | null
           name: string
+          platform_version: string | null
+          public_identifier: string | null
+          sync_interval_millis: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          api_version?: string | null
           base_url: string
           created_at?: string
+          engine_version?: string | null
           environment?: string
+          handshake_endpoint?: string
+          health_endpoint?: string
           id?: string
           is_active?: boolean
           last_seen_at?: string | null
           name: string
+          platform_version?: string | null
+          public_identifier?: string | null
+          sync_interval_millis?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          api_version?: string | null
           base_url?: string
           created_at?: string
+          engine_version?: string | null
           environment?: string
+          handshake_endpoint?: string
+          health_endpoint?: string
           id?: string
           is_active?: boolean
           last_seen_at?: string | null
           name?: string
+          platform_version?: string | null
+          public_identifier?: string | null
+          sync_interval_millis?: number
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      engine_runtime_identity: {
+        Row: {
+          api_version: string | null
+          capabilities: Json
+          configuration_hash: string | null
+          configuration_version: number | null
+          connection_state: string
+          created_at: string
+          current_market: Json
+          detail: string | null
+          endpoint_id: string | null
+          engine_id: string | null
+          engine_version: string | null
+          environment: string | null
+          feed_provider: string | null
+          feed_status: string | null
+          health: Json
+          id: string
+          latency_millis: number | null
+          network: string | null
+          observed_at: string
+          payload: Json
+          platform_version: string | null
+          public_identifier: string | null
+          reason_code: string
+          scheduler_status: string | null
+          snapshot_hash: string | null
+          snapshot_id: string | null
+          started_at: string | null
+          twap_feed: string | null
+          updated_at: string
+          uptime_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          api_version?: string | null
+          capabilities?: Json
+          configuration_hash?: string | null
+          configuration_version?: number | null
+          connection_state?: string
+          created_at?: string
+          current_market?: Json
+          detail?: string | null
+          endpoint_id?: string | null
+          engine_id?: string | null
+          engine_version?: string | null
+          environment?: string | null
+          feed_provider?: string | null
+          feed_status?: string | null
+          health?: Json
+          id?: string
+          latency_millis?: number | null
+          network?: string | null
+          observed_at?: string
+          payload?: Json
+          platform_version?: string | null
+          public_identifier?: string | null
+          reason_code?: string
+          scheduler_status?: string | null
+          snapshot_hash?: string | null
+          snapshot_id?: string | null
+          started_at?: string | null
+          twap_feed?: string | null
+          updated_at?: string
+          uptime_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          api_version?: string | null
+          capabilities?: Json
+          configuration_hash?: string | null
+          configuration_version?: number | null
+          connection_state?: string
+          created_at?: string
+          current_market?: Json
+          detail?: string | null
+          endpoint_id?: string | null
+          engine_id?: string | null
+          engine_version?: string | null
+          environment?: string | null
+          feed_provider?: string | null
+          feed_status?: string | null
+          health?: Json
+          id?: string
+          latency_millis?: number | null
+          network?: string | null
+          observed_at?: string
+          payload?: Json
+          platform_version?: string | null
+          public_identifier?: string | null
+          reason_code?: string
+          scheduler_status?: string | null
+          snapshot_hash?: string | null
+          snapshot_id?: string | null
+          started_at?: string | null
+          twap_feed?: string | null
+          updated_at?: string
+          uptime_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engine_runtime_identity_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "engine_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       engine_snapshots: {
         Row: {

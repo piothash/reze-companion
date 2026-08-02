@@ -6,6 +6,10 @@ import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
 import { EmptyState, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
+import {
+  AuthorityRuntimePanel,
+  useAuthorityRuntime,
+} from "@/components/arc/authority-runtime";
 import { fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -249,6 +253,10 @@ function ExecutionProfilesPage() {
     refetchInterval: 15_000,
   });
 
+  const authorityQuery = useAuthorityRuntime();
+
+
+
   useEffect(() => {
     if (data?.profile) setDraft(toDraft(data.profile as unknown as Record<string, unknown>));
   }, [data]);
@@ -395,6 +403,12 @@ function ExecutionProfilesPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="space-y-4">
+            <AuthorityRuntimePanel
+              runtime={authorityQuery.data}
+              isPending={authorityQuery.isPending}
+              error={authorityQuery.error as Error | null}
+            />
+
             <RuntimePanel
               view={runtimeQuery.data as RuntimeView | undefined}
               loading={runtimeQuery.isPending}
