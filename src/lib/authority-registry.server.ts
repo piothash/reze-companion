@@ -11,6 +11,7 @@ import {
   parseAuthorityRegistration,
   type AuthorityStatusView,
 } from "@/core/platform/authority-registration";
+import { recordOperatorAudit } from "./audit-trail.server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
 type AnyClient = any;
@@ -103,12 +104,11 @@ export async function upsertAuthority(
   if (error) throw new Error(`authority registration failed: ${error.message}`);
   if (!data) throw new Error("authority registration failed: no row returned");
 
-  await client.from("audit_log").insert({
-    user_id: userId,
+  await recordOperatorAudit(client, userId, {
     action: "authority.registered",
-    entity: "authority_registry",
-    entity_id: registration.authorityId,
-    metadata: {
+    resource: "authority_registry",
+    resourceId: registration.authorityId,
+    detail: {
       environment: registration.environment,
       engineVersion: registration.engineVersion,
       capabilities: registration.capabilities,
@@ -130,11 +130,9 @@ export async function revokeAuthority(
     .eq("authority_id", authorityId);
   if (error) throw new Error(`authority revocation failed: ${error.message}`);
 
-  await client.from("audit_log").insert({
-    user_id: userId,
+  await recordOperatorAudit(client, userId, {
     action: "authority.revoked",
-    entity: "authority_registry",
-    entity_id: authorityId,
-    metadata: {},
+    resource: "authority_registry",
+    resourceId: authorityId,
   });
 }

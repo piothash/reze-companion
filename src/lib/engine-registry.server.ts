@@ -12,6 +12,7 @@ import {
 } from "@/core/platform/authority-handshake";
 
 import { toEndpoint, type RegisteredEndpoint } from "./authority-handshake.server";
+import { recordOperatorAudit } from "./audit-trail.server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
 type AnyClient = any;
@@ -40,12 +41,11 @@ async function audit(
   entityId: string,
   metadata: Record<string, unknown>,
 ): Promise<void> {
-  await client.from("audit_log").insert({
-    user_id: userId,
+  await recordOperatorAudit(client, userId, {
     action,
-    entity: "engine_endpoint",
-    entity_id: entityId,
-    metadata,
+    resource: "engine_endpoint",
+    resourceId: entityId,
+    detail: metadata,
   });
 }
 

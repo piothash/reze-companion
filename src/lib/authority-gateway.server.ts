@@ -25,6 +25,7 @@ import {
   verifyAuthorityMessage,
   type AuthorityVerificationResult,
 } from "@/core/platform/authority-signature";
+import { recordOperatorAudit } from "./audit-trail.server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
 type AnyClient = any;
@@ -114,12 +115,14 @@ async function auditGateway(
   metadata: Record<string, unknown>,
 ): Promise<void> {
   if (!userId) return;
-  await client.from("audit_log").insert({
-    user_id: userId,
+  await recordOperatorAudit(client, userId, {
     action,
-    entity: "authority_registry",
-    entity_id: entityId,
-    metadata,
+    resource: "authority_registry",
+    resourceId: entityId,
+    // A refused handshake is an audit fact, not an absence of one.
+    result: action.endsWith(".rejected") ? "REJECTED" : "SUCCESS",
+    correlationId: typeof metadata["correlationId"] === "string" ? metadata["correlationId"] : null,
+    detail: metadata,
   });
 }
 
