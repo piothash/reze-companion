@@ -62,8 +62,18 @@ export type ConfigurationOrigin = (typeof CONFIGURATION_ORIGINS)[number];
  * duplicate activation for the same content.
  */
 export function configurationHash(profile: ExecutionProfile): string {
-  return `cfgh_${digest128(stableStringify(profile))}`;
+  // Window order is presentation only — priority derives from the offset — so
+  // the canonical form sorts windows and reordering never mints a new version.
+  const canonical = {
+    ...profile,
+    windows: [...profile.windows].sort(
+      (left, right) =>
+        offsetToMillis(left.offset, left.unit) - offsetToMillis(right.offset, right.unit),
+    ),
+  };
+  return `cfgh_${digest128(stableStringify(canonical))}`;
 }
+
 
 // ---------------------------------------------------------------------------
 // Pre-dispatch validation (console-side; the authority validates again)
