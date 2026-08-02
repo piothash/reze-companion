@@ -6,7 +6,7 @@ import { OPERATOR_NAV } from "./navigation";
 import { StatusBar } from "./status-bar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
