@@ -6,6 +6,13 @@ import { OperatorShell } from "@/components/arc/operator-shell";
 import { EmptyState, KeyValue, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
+import {
+  LiveFeedPanel,
+  LiveMarketPanel,
+  TelemetrySourcePill,
+  useRuntimeTelemetry,
+} from "@/components/arc/runtime-telemetry";
+
 
 export const Route = createFileRoute("/_authenticated/markets")({
   head: () => ({
