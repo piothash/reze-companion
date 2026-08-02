@@ -4,7 +4,14 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
 import { StartupEvidencePanel } from "@/components/arc/startup-evidence-panel";
-import { LoadingState, Metric, Panel, StatusPill, type StatusTone } from "@/components/arc/primitives";
+import { MainnetReadinessPanel } from "@/components/arc/mainnet-readiness-panel";
+import {
+  LoadingState,
+  Metric,
+  Panel,
+  StatusPill,
+  type StatusTone,
+} from "@/components/arc/primitives";
 import { getRuntimeTelemetry } from "@/lib/engine.functions";
 import { getConfigurationRuntimeView } from "@/lib/configuration.functions";
 import { getLiveQualificationEvidence } from "@/lib/qualification.functions";
@@ -14,6 +21,7 @@ import {
   evaluateQualificationGates,
   qualificationVerdict,
   activationComplete,
+  evaluateMainnetReadiness,
   buildActivationChecklist,
   evaluateLiveAuthorityGates,
   liveQualificationVerdict,
@@ -120,12 +128,16 @@ function QualificationPage() {
     replayDeterministic: replay.deterministic && replay.mismatches.length === 0,
   });
 
-  const liveResults = evidence.data
-    ? evaluateLiveAuthorityGates(evidence.data.snapshot)
-    : [];
+  const liveResults = evidence.data ? evaluateLiveAuthorityGates(evidence.data.snapshot) : [];
   const liveVerdict = evidence.data ? liveQualificationVerdict(liveResults) : "PENDING";
   const activation = evidence.data ? buildActivationChecklist(evidence.data.snapshot) : [];
   const activationDone = activationComplete(activation);
+  const mainnet = evaluateMainnetReadiness({
+    harness: results,
+    live: liveResults,
+    activation,
+    operations: evidence.data?.operations ?? null,
+  });
   const harnessVerdict = qualificationVerdict(results);
   const verdict: GateStatus =
     harnessVerdict === "FAIL" || liveVerdict === "FAIL"
@@ -160,6 +172,8 @@ function QualificationPage() {
             hint={`${replay.mismatches.length} mismatch(es)`}
           />
         </div>
+
+        <MainnetReadinessPanel results={mainnet} loading={evidence.isPending} />
 
         <Panel
           title="Activation Checklist — M7.9"
@@ -215,7 +229,6 @@ function QualificationPage() {
           startup={evidence.data?.snapshot.startup ?? null}
           loading={evidence.isPending}
         />
-
 
         <Panel
           title="Live Authority Gates — M7.8"
@@ -273,9 +286,7 @@ function QualificationPage() {
                 <span>
                   #{index + 1} · T-{offset / 1000}s
                 </span>
-                <span className="text-muted-foreground">
-                  {run.windowOrder[index] ?? "—"}
-                </span>
+                <span className="text-muted-foreground">{run.windowOrder[index] ?? "—"}</span>
               </li>
             ))}
           </ol>
@@ -283,7 +294,9 @@ function QualificationPage() {
 
         <Panel title="Execution Intents">
           {run.intents.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No intent was produced by this scenario.</p>
+            <p className="text-sm text-muted-foreground">
+              No intent was produced by this scenario.
+            </p>
           ) : (
             <table className="w-full font-mono text-xs">
               <thead className="label-caps text-left">

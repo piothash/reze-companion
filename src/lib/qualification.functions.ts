@@ -11,12 +11,15 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { LiveEvidenceSnapshot } from "@/core/qualification/live-gates";
+import type { OperationsEvidence } from "@/core/qualification/mainnet";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
 type AnyClient = any;
 
 export interface LiveQualificationEvidence {
   readonly snapshot: LiveEvidenceSnapshot;
+  /** M8.0 operational measurements read from the authority registry. */
+  readonly operations: OperationsEvidence | null;
   readonly observedAtIso: string;
   readonly notes: readonly string[];
 }
@@ -51,20 +54,34 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
       }
     };
 
-    const [authorities, telemetryView, runtimeView, companionStartup, finalized] = await Promise.all([
-      safe("authority registry", () => listAuthorities(client, nowMillis)),
-      safe("runtime telemetry", () => readRuntimeTelemetry(client)),
-      safe("configuration runtime", () => readRuntimeView(client, context.userId)),
-      safe("startup validator", () => startupPayload()),
-      safe("ownership", async () => {
-        const { data } = await client.rpc("ownership_finalized");
-        return data === true;
-      }),
-    ]);
+    const [authorities, telemetryView, runtimeView, companionStartup, finalized] =
+      await Promise.all([
+        safe("authority registry", () => listAuthorities(client, nowMillis)),
+        safe("runtime telemetry", () => readRuntimeTelemetry(client)),
+        safe("configuration runtime", () => readRuntimeView(client, context.userId)),
+        safe("startup validator", () => startupPayload()),
+        safe("ownership", async () => {
+          const { data } = await client.rpc("ownership_finalized");
+          return data === true;
+        }),
+      ]);
+
+    // Highest canonical sequence the control plane has durably recorded. A
+    // restart that reports a lower sequence means the engine replayed events
+    // it had already emitted (M8.0 restart-integrity check).
+    const recordedSequence = await safe("event sequence", async () => {
+      const { data } = await client
+        .from("platform_events")
+        .select("sequence")
+        .order("sequence", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const value = (data as { sequence?: number } | null)?.sequence;
+      return typeof value === "number" ? value : null;
+    });
 
     // The active authority is the newest one that is not revoked.
-    const authorityRow =
-      (authorities ?? []).find((item) => item.status !== "revoked") ?? null;
+    const authorityRow = (authorities ?? []).find((item) => item.status !== "revoked") ?? null;
 
     const authority: LiveEvidenceSnapshot["authority"] = authorityRow
       ? {
@@ -145,9 +162,25 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
       );
     }
 
+    // Operational measurements (M8.0). Reported by the PM2-managed engine; the
+    // console never asserts them. A regression in the reported event sequence
+    // is the duplicate-event signal after a restart.
+    const operations: OperationsEvidence | null = authorityRow
+      ? {
+          processUptimeSeconds: authorityRow.uptimeSeconds,
+          registrationCount: authorityRow.registrationCount,
+          eventSequence: authorityRow.eventSequence,
+          sequenceRegressed:
+            authorityRow.eventSequence !== null &&
+            recordedSequence !== null &&
+            authorityRow.eventSequence < recordedSequence,
+        }
+      : null;
+
     return {
       observedAtIso: new Date(nowMillis).toISOString(),
       notes,
+      operations,
       snapshot: {
         nowMillis,
         authority,
