@@ -49,7 +49,7 @@ function buildStream(): EventEnvelope[] {
   events.push(
     factory.create({
       ...base,
-      type: MARKET_EVENT_TYPES.marketStateUpdated,
+      type: MARKET_EVENT_TYPES.stateUpdated,
       reasonCode: "MKT_STATE_PUBLISHED",
       payload: { version: 1, marketInstanceId: "mkt-1" },
     }),
@@ -57,7 +57,7 @@ function buildStream(): EventEnvelope[] {
   events.push(
     factory.create({
       ...base,
-      type: MARKET_EVENT_TYPES.marketStateUpdated,
+      type: MARKET_EVENT_TYPES.stateUpdated,
       reasonCode: "MKT_STATE_PUBLISHED",
       payload: { version: 2, marketInstanceId: "mkt-1" },
     }),
