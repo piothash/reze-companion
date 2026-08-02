@@ -224,13 +224,21 @@ describe("event store", () => {
 });
 
 describe("ledger", () => {
-  it("reconstructs trade, fee and pnl records purely from business events", () => {
+  it("reconstructs trade records purely from business events", () => {
     const ledger = reconstructLedger(buildStream());
     const kinds = ledger.records.map((record) => record.kind);
     expect(kinds).toContain("TRADE");
+    expect(kinds).toContain("EXECUTION_SUMMARY");
     expect(ledger.summary.totalNotional).toBeCloseTo(20 * 0.52, 6);
-    expect(ledger.summary.totalFees).toBeCloseTo(0.1, 6);
+    expect(ledger.summary.totalFees).toBe(0);
   });
+
+  it("derives fees from the configured fee rate", () => {
+    const ledger = reconstructLedger(buildStream(), { feeRate: 0.01 });
+    expect(ledger.records.some((record) => record.kind === "FEE")).toBe(true);
+    expect(ledger.summary.totalFees).toBeCloseTo(20 * 0.52 * 0.01, 6);
+  });
+
 
   it("is deterministic — the same events reconstruct the same ledger", () => {
     const a = reconstructLedger(buildStream());
