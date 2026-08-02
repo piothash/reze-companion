@@ -1049,7 +1049,7 @@ interface RuntimeView {
     lastSyncedAtIso: string | null;
     live: boolean;
   } | null;
-  drift: { drifted: boolean; reasonCode: string; detail: string };
+  drift: { drifted: boolean; reasonCode: string | null; detail: string | null };
   authority: {
     registered: boolean;
     name: string | null;
