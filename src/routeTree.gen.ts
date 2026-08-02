@@ -21,6 +21,7 @@ import { Route as AuthenticatedExecutionProfilesRouteImport } from './routes/_au
 import { Route as AuthenticatedHealthRouteImport } from './routes/_authenticated/health'
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedOwnershipRouteImport } from './routes/_authenticated/ownership'
 import { Route as AuthenticatedReplayRouteImport } from './routes/_authenticated/replay'
 import { Route as AuthenticatedSignalTankRouteImport } from './routes/_authenticated/signal-tank'
 import { Route as AuthenticatedSystemRouteImport } from './routes/_authenticated/system'
@@ -95,6 +96,11 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOwnershipRoute = AuthenticatedOwnershipRouteImport.update({
+  id: '/ownership',
+  path: '/ownership',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedReplayRoute = AuthenticatedReplayRouteImport.update({
   id: '/replay',
   path: '/replay',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/ownership': typeof AuthenticatedOwnershipRoute
   '/replay': typeof AuthenticatedReplayRoute
   '/signal-tank': typeof AuthenticatedSignalTankRoute
   '/system': typeof AuthenticatedSystemRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/ownership': typeof AuthenticatedOwnershipRoute
   '/replay': typeof AuthenticatedReplayRoute
   '/signal-tank': typeof AuthenticatedSignalTankRoute
   '/system': typeof AuthenticatedSystemRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/_authenticated/health': typeof AuthenticatedHealthRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/ownership': typeof AuthenticatedOwnershipRoute
   '/_authenticated/replay': typeof AuthenticatedReplayRoute
   '/_authenticated/signal-tank': typeof AuthenticatedSignalTankRoute
   '/_authenticated/system': typeof AuthenticatedSystemRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/health'
     | '/markets'
     | '/notifications'
+    | '/ownership'
     | '/replay'
     | '/signal-tank'
     | '/system'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/health'
     | '/markets'
     | '/notifications'
+    | '/ownership'
     | '/replay'
     | '/signal-tank'
     | '/system'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/_authenticated/health'
     | '/_authenticated/markets'
     | '/_authenticated/notifications'
+    | '/_authenticated/ownership'
     | '/_authenticated/replay'
     | '/_authenticated/signal-tank'
     | '/_authenticated/system'
@@ -388,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ownership': {
+      id: '/_authenticated/ownership'
+      path: '/ownership'
+      fullPath: '/ownership'
+      preLoaderRoute: typeof AuthenticatedOwnershipRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/replay': {
       id: '/_authenticated/replay'
       path: '/replay'
@@ -471,6 +490,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHealthRoute: typeof AuthenticatedHealthRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedOwnershipRoute: typeof AuthenticatedOwnershipRoute
   AuthenticatedReplayRoute: typeof AuthenticatedReplayRoute
   AuthenticatedSignalTankRoute: typeof AuthenticatedSignalTankRoute
   AuthenticatedSystemRoute: typeof AuthenticatedSystemRoute
@@ -488,6 +508,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHealthRoute: AuthenticatedHealthRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedOwnershipRoute: AuthenticatedOwnershipRoute,
   AuthenticatedReplayRoute: AuthenticatedReplayRoute,
   AuthenticatedSignalTankRoute: AuthenticatedSignalTankRoute,
   AuthenticatedSystemRoute: AuthenticatedSystemRoute,
