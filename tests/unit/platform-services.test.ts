@@ -289,6 +289,13 @@ describe("replay", () => {
       executionIntentId: "int-1",
       type: TRADE_EVENT_TYPES.orderSubmitted,
       reasonCode: "EXE_ORDER_SUBMITTED",
+      // Re-submitting an order that already reached FILLED is illegal.
+      payload: {
+        orderId: "ord-1",
+        executionIntentId: "int-1",
+        state: "SUBMITTED",
+        filledQuantity: 0,
+      },
 
     });
     const result = replayEvents([...buildStream(), bad]);
