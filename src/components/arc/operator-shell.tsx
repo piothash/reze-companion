@@ -3,6 +3,7 @@ import { Menu } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { OPERATOR_NAV } from "./navigation";
+import { StatusBar } from "./status-bar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -99,6 +100,7 @@ export function OperatorShell({
           </div>
           <div className="flex shrink-0 items-center gap-2">{actions}</div>
         </header>
+        <StatusBar />
         <main className="p-4 sm:p-6">{children}</main>
       </div>
     </div>
