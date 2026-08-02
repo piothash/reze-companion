@@ -57,7 +57,8 @@ export async function resolveOperatorBootstrapState(): Promise<OperatorBootstrap
 
   const ownerExists = ownerResult.data === true;
   const ownershipFinalized = finalizedResult.data === true;
-  const backendMatchesProduction = normalizedUrl === REQUIRED_PRODUCTION_BACKEND;
+  const required = requiredBackend();
+  const backendMatchesProduction = required === null || normalizedUrl === required;
   const resolved = !ownerResult.error && !finalizedResult.error && settingsResponse.ok;
   const common = {
     ownerExists,
@@ -67,7 +68,7 @@ export async function resolveOperatorBootstrapState(): Promise<OperatorBootstrap
     resolved,
   };
 
-  if (resolved && backendMatchesProduction && ownerExists && ownershipFinalized) {
+  if (resolved && backendMatchesProduction && ownershipFinalized) {
     return {
       ...common,
       mode: "OWNER_FINALIZED",
@@ -76,22 +77,27 @@ export async function resolveOperatorBootstrapState(): Promise<OperatorBootstrap
     };
   }
 
-  if (resolved && backendMatchesProduction && !ownerExists && !ownershipFinalized && signupEnabled) {
+  // Registration stays open until ownership is explicitly finalized: a
+  // provisional development owner must never lock out the intended operator.
+  if (resolved && backendMatchesProduction && !ownershipFinalized && signupEnabled) {
     return {
       ...common,
       mode: "BOOTSTRAP_OPEN",
       bootstrapped: false,
-      detail: "Bootstrap registration is available.",
+      detail: ownerExists
+        ? "Bootstrap registration is available. Ownership is provisional until finalized."
+        : "Bootstrap registration is available.",
     };
   }
 
   const detail = !backendMatchesProduction
-    ? "The application is not connected to the required production backend."
+    ? "The application is not connected to the required backend."
     : !resolved
       ? "Authentication or ownership state could not be verified."
       : !signupEnabled && !ownershipFinalized
         ? "Authentication configuration mismatch. Bootstrap registration is unavailable."
         : "Ownership and authentication configuration are inconsistent.";
+
 
   return { ...common, mode: "AUTH_CONFIGURATION_ERROR", bootstrapped: true, detail };
 }
