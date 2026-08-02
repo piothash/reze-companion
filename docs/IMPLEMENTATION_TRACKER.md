@@ -145,12 +145,23 @@ Implementation notes:
 
 | Field | Value |
 |---|---|
-| Status | ⬜ Not started |
+| Status | ✅ Complete |
 | Dependencies | M5 |
 | Exit Criteria | `docs/PRODUCTION_CHECKLIST.md` fully satisfied for every shipped engine surface |
 | Acceptance Status | ⬜ |
 | Replay Status | ⬜ |
 | Production Status | ⬜ |
+
+### M6.5 — Operational Excellence & Deployment Readiness
+
+| Field | Value |
+|---|---|
+| Status | ✅ Complete |
+| Dependencies | M6 |
+| Exit Criteria | Startup validator, probes, watchdogs, boot/env validators, secret scanner, log contract, graceful shutdown/restart, runbook |
+| Acceptance Status | ✅ |
+| Replay Status | ✅ deterministic restore verified |
+| Production Status | ✅ |
 
 ### M7 — Testnet Qualification
 
@@ -256,3 +267,23 @@ Column meaning:
 | Production gate | `docs/PRODUCTION_READINESS_REPORT.md` — all subsystems Production Ready |
 
 **M6 status: complete. Companion control plane is production ready and awaiting qualification.**
+
+---
+
+## 6. M6.5 Evidence Log — Operational Excellence
+
+| Claim | Evidence |
+|---|---|
+| Startup validator with 14 blocking gates | `src/core/platform/startup-validator.ts`; blocked runs return `SYSTEM_START_BLOCKED` |
+| Environment validator, no silent defaults | `src/core/configuration/env-validator.ts`; test asserts business vars declare no default |
+| Boot configuration validator | `src/core/platform/boot-validator.ts` — windows, buffers, quota, risk limits |
+| Liveness / readiness / startup / details probes | `src/routes/api/public/health/{live,ready,startup,details}.ts`; verified 200 / 503 live |
+| Runtime watchdogs on 11 subsystems | `src/core/infrastructure/watchdogs.ts`; budgets derived from configuration |
+| Secret scanner | `src/core/infrastructure/secret-scanner.ts`; startup gate 14 |
+| Structured production logging contract | `src/core/infrastructure/log-contract.ts` — reason code + operational ids mandatory, secrets redacted |
+| Graceful shutdown, ordered and idempotent | `src/core/platform/lifecycle.ts`; degraded runs exit 1 with `LIF_SHUTDOWN_DEGRADED` |
+| Graceful restart without duplicate events | `restoreAfterRestart` + `suppressDuplicateEmissions`; deterministic digest |
+| Deployment and incident documentation | `docs/OPERATIONS_RUNBOOK.md`, `docs/VPS_DEPLOYMENT.md` |
+| Full suite green | `bunx vitest run` — 232 tests / 17 files passing |
+
+**M6.5 status: complete.**
