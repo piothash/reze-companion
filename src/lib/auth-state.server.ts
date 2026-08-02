@@ -1,5 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-
 import {
   createPublishableServerClient,
   getServerSupabaseConfig,
@@ -97,7 +95,3 @@ function errorState(detail: string): OperatorBootstrapState {
     detail,
   };
 }
-
-// `createClient` stays imported through the provider layer only; re-exported
-// here for nothing — kept out of the module surface intentionally.
-void createClient;
