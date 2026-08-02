@@ -66,7 +66,8 @@ export const marketDescriptorSchema = z.object({
   /** Human-readable market question. */
   question: z.string().default(""),
   network: z.string().min(1),
-  outcomes: z.array(outcomeTokenSchema).min(2),
+  /** Outcome tokens; may be short or empty on an INVALID market. */
+  outcomes: z.array(outcomeTokenSchema).default([]),
   /** Window open boundary, ISO-8601 UTC. */
   opensAtIso: z.string().datetime({ offset: false }),
   /** Official resolution timestamp, ISO-8601 UTC. */
