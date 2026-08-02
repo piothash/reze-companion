@@ -11,17 +11,24 @@ import { type Clock } from "../shared/time";
 import { type MarketDomainConfig } from "./configuration";
 import { MarketDiscoveryService, type HttpFetch } from "./discovery";
 import { MarketEventPublisher } from "./events";
-import { FeedEngine, createFeedProvider, type FeedProvider, type RawFeedSample } from "./feed-engine";
+import {
+  FeedEngine,
+  createFeedProvider,
+  type FeedProvider,
+  type RawFeedSample,
+} from "./feed-engine";
 import { MarketLifecycleEngine } from "./lifecycle";
 import { AuthoritativeMarketStateStore } from "./market-state";
 import { PtbEngine } from "./ptb-engine";
 import { SignalConditioning } from "./signal-conditioning";
+import { TwapEngine } from "./twap-engine";
 import { type AuthoritativeMarketState, type MarketDescriptor } from "./types";
 
 export interface MarketDomainOptions {
   config: MarketDomainConfig;
   clock: Clock;
   sink: EventSink;
+  /** Platform configuration version referenced by every published snapshot. */
   configVersion: string;
   activeExecutionProfileId?: string | null;
   httpFetch?: HttpFetch;
@@ -32,7 +39,7 @@ export interface MarketDomainOptions {
 export class MarketStateDomain {
   readonly discovery: MarketDiscoveryService | null;
   readonly feed: FeedEngine;
-  readonly twap: import("./twap-engine").TwapEngine;
+  readonly twap: TwapEngine;
   readonly ptb: PtbEngine;
   readonly signal: SignalConditioning;
   readonly lifecycle: MarketLifecycleEngine;
@@ -42,7 +49,7 @@ export class MarketStateDomain {
   private descriptor: MarketDescriptor | null = null;
   private readonly correlationId: string;
 
-  constructor(private readonly options: MarketDomainOptions) {
+  constructor(options: MarketDomainOptions) {
     const { config, clock } = options;
     const factory = new EventEnvelopeFactory(clock, "market-state");
     this.events = new MarketEventPublisher(factory, options.sink);
@@ -56,8 +63,7 @@ export class MarketStateDomain {
         ...(options.samples ? { samples: options.samples } : {}),
       });
     this.feed = new FeedEngine(config, clock, provider);
-    // Lazy import avoided: TwapEngine is a plain class in the same domain.
-    this.twap = new (require0().TwapEngine)(config, clock);
+    this.twap = new TwapEngine(config, clock);
     this.ptb = new PtbEngine(config, clock);
     this.signal = new SignalConditioning(config, clock);
     this.lifecycle = new MarketLifecycleEngine(config, clock);
@@ -71,6 +77,10 @@ export class MarketStateDomain {
     this.correlationId = Ids.correlation("market-state", config.feed.network, config.feed.feedId);
   }
 
+  get currentDescriptor(): MarketDescriptor | null {
+    return this.descriptor;
+  }
+
   private context(marketInstanceId: string) {
     return { correlationId: this.correlationId, marketInstanceId };
   }
@@ -78,9 +88,19 @@ export class MarketStateDomain {
   /** Adopts a descriptor (from discovery or a recorded replay) and publishes it. */
   async adopt(descriptor: MarketDescriptor): Promise<void> {
     this.descriptor = descriptor;
-    await this.events.marketDiscovered(descriptor, this.context(descriptor.marketInstanceId));
+    const context = this.context(descriptor.marketInstanceId);
+    await this.events.marketDiscovered(descriptor, context);
     await this.applyLifecycle(descriptor);
-    await this.events.ptbUpdated(this.ptb.resolve(descriptor), this.context(descriptor.marketInstanceId));
+    await this.events.ptbUpdated(this.ptb.resolve(descriptor), context);
+  }
+
+  /** Discovers the market resolving at a boundary and adopts it. */
+  async discoverAndAdopt(resolvesAtMillis: number): Promise<MarketDescriptor | null> {
+    if (!this.discovery) return null;
+    const descriptor = await this.discovery.discover(resolvesAtMillis);
+    if (!descriptor) return null;
+    await this.adopt(descriptor);
+    return descriptor;
   }
 
   /** Ingests one raw observation and refreshes every derived snapshot. */
@@ -126,11 +146,3 @@ export class MarketStateDomain {
     );
   }
 }
-
-// Static import kept out of the constructor path only for clarity of layering.
-function require0() {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  return { TwapEngine } as { TwapEngine: typeof TwapEngine };
-}
-
-import { TwapEngine } from "./twap-engine";
