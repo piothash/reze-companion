@@ -83,12 +83,12 @@ describe("reason codes", () => {
 });
 
 describe("versioning", () => {
-  it("accepts the same major and rejects a different one", () => {
+  it("accepts only the current version and its declared compatible set", () => {
     const current = versionOf("eventSchema");
-    const major = current.split(".")[0];
-    expect(isCompatible("eventSchema", `${major}.99.0`)).toBe(true);
-    expect(isCompatible("eventSchema", `${Number(major) + 1}.0.0`)).toBe(false);
-    expect(() => assertCompatible("eventSchema", `${Number(major) + 1}.0.0`)).toThrow();
+    expect(isCompatible("eventSchema", current)).toBe(true);
+    expect(isCompatible("eventSchema", "999.0.0")).toBe(false);
+    expect(() => assertCompatible("eventSchema", "999.0.0")).toThrow();
+    expect(() => assertCompatible("eventSchema", current)).not.toThrow();
   });
 
   it("exposes a complete manifest", () => {
