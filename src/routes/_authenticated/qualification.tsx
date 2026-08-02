@@ -21,10 +21,10 @@ import {
 } from "@/core/qualification";
 
 const ACTIVATION_TONE: Record<string, StatusTone> = {
-  DONE: "ok",
-  READY: "warn",
-  WAITING: "info",
-  BLOCKED: "muted",
+  DONE: "healthy",
+  READY: "degraded",
+  WAITING: "neutral",
+  BLOCKED: "unavailable",
 };
 
 export const Route = createFileRoute("/_authenticated/qualification")({
@@ -163,7 +163,7 @@ function QualificationPage() {
           title="Activation Checklist — M7.9"
           actions={
             <StatusPill
-              tone={activationDone ? "ok" : "warn"}
+              tone={activationDone ? "healthy" : "degraded"}
               label={
                 activation.length === 0
                   ? "PENDING"
