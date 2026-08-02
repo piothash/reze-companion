@@ -139,6 +139,8 @@ export class InMemoryEventStore implements AppendOnlyEventStore {
     const frozen = deepFreeze({ ...validated, payload: deepFreeze(validated.payload) });
     this.records.push(frozen);
     this.byIdempotencyKey.set(frozen.idempotencyKey, frozen);
+    this.byEventId.set(frozen.eventId, frozen);
+
     return { appended: true, duplicate: false, eventId: frozen.eventId };
   }
 
