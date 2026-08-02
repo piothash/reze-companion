@@ -17,7 +17,7 @@ import {
   type ConfigurationEventContext,
   type ConfigurationOrigin,
   type ConfigurationVersionStatus,
-} from "@/core/configuration/runtime-sync";
+} from "@/core/platform/configuration-sync";
 import { parseExecutionProfileOrThrow, type ExecutionProfile } from "@/core/decision/configuration";
 import { VERSION_REGISTRY } from "@/core/contracts/versions";
 import { digest128 } from "@/core/shared/ids";

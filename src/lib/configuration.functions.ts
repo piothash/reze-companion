@@ -18,7 +18,7 @@ import {
   TRIGGER_MODES,
 } from "@/core/decision/configuration";
 import { WINDOW_OFFSET_UNITS } from "@/core/decision/types";
-import { CONFIGURATION_ORIGINS } from "@/core/configuration/runtime-sync";
+import { CONFIGURATION_ORIGINS } from "@/core/platform/configuration-sync";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
 type AnyClient = any;

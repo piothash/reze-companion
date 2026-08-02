@@ -11,7 +11,7 @@ import {
   type AuthorityConfiguration,
   type AuthorityOutcome,
   type ConfigurationDispatch,
-} from "@/core/configuration/runtime-sync";
+} from "@/core/platform/configuration-sync";
 
 const DEFAULT_TIMEOUT_MILLIS = 8_000;
 
