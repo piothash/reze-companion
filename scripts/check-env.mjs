@@ -54,7 +54,9 @@ const missing = Object.entries(required).filter(([key]) => {
 });
 
 if (missing.length === 0) {
-  console.log(`ARC preflight OK — ${Object.keys(required).length} required ${ROLE} variables present.`);
+  console.log(
+    `ARC preflight OK — ${Object.keys(required).length} required ${ROLE} variables present.`,
+  );
   process.exit(0);
 }
 

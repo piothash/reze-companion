@@ -63,7 +63,11 @@ describe("M8.2 — production environment templates", () => {
       for (const line of template(file).split("\n")) {
         const key = line.split("=")[0]?.trim() ?? "";
         if (!secretKeys.some((secret) => key.startsWith(secret))) continue;
-        const value = line.slice(line.indexOf("=") + 1).split("#")[0]?.trim() ?? "";
+        const value =
+          line
+            .slice(line.indexOf("=") + 1)
+            .split("#")[0]
+            ?.trim() ?? "";
         expect({ file, key, value }).toEqual({ file, key, value: "" });
       }
     }
