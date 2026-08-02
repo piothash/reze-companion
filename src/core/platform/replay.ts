@@ -287,16 +287,27 @@ export function replayEvents(
       case TRADE_EVENT_TYPES.orderUpdated:
       case TRADE_EVENT_TYPES.orderCancelled:
       case TRADE_EVENT_TYPES.orderFilled: {
-        const snapshot = (
-          event.type === TRADE_EVENT_TYPES.orderFilled
-            ? (event.payload as { order: unknown }).order
-            : event.payload
-        ) as {
-          orderId: string;
-          executionIntentId: string;
-          state: OrderState;
-          filledQuantity: number;
+        const snapshot = ((event.type === TRADE_EVENT_TYPES.orderFilled
+          ? (event.payload as { order?: unknown }).order
+          : event.payload) ?? {}) as {
+          orderId?: string;
+          executionIntentId?: string;
+          state?: OrderState;
+          filledQuantity?: number;
         };
+        // A payload without an order id cannot be projected; record it as a
+        // divergence rather than crashing the replay run.
+        if (!snapshot.orderId) {
+          validations.FSM_TRANSITIONS = false;
+          mismatches.push({
+            validation: "FSM_TRANSITIONS",
+            reasonCode: "RPL_TRANSITION_INVALID",
+            eventId: event.eventId,
+            detail: `${event.type} payload is missing an order id`,
+          });
+          break;
+        }
+
         const projected = orders.get(snapshot.orderId) ?? {
           orderId: snapshot.orderId,
           executionIntentId: snapshot.executionIntentId,
