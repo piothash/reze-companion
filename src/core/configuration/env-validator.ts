@@ -254,14 +254,9 @@ export const ARC_ENV_SPECS: readonly EnvVarSpec[] = [
     required: true,
     description: "Publishable control-plane key",
   },
-  {
-    key: "SUPABASE_SERVICE_ROLE_KEY",
-    kind: "secret",
-    minLength: 20,
-    owner: "COMPANION",
-    description:
-      "Server-only privileged control-plane key. Never exposed to the browser; absent means privileged maintenance paths stay disabled.",
-  },
+  // The privileged server-only control-plane key is deliberately absent from
+  // this catalog: it is validated inside the server-only backend module so its
+  // name never reaches a client-reachable bundle.
   {
     key: "ARC_AUTHORITY_SIGNING_KEY",
     kind: "secret",
