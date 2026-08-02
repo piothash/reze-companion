@@ -312,6 +312,89 @@ export const REASON_CODES = {
     "info",
     "Authoritative market state snapshot published",
   ),
+
+  // Decision Domain (M2) — TWAP-native. No majority, confidence or sentiment --
+  DEC_PROFILE_RESOLVED: spec(
+    "DEC_PROFILE_RESOLVED",
+    "DECISION",
+    "info",
+    "Execution profile resolved and frozen",
+  ),
+  DEC_CONTEXT_CREATED: spec(
+    "DEC_CONTEXT_CREATED",
+    "DECISION",
+    "info",
+    "Execution context created for a market instance",
+  ),
+  DEC_WINDOW_OPENED: spec(
+    "DEC_WINDOW_OPENED",
+    "DECISION",
+    "info",
+    "Window instance created with a frozen configuration snapshot",
+  ),
+  DEC_WINDOW_ACTIVATED: spec(
+    "DEC_WINDOW_ACTIVATED",
+    "DECISION",
+    "info",
+    "Window instance became active",
+  ),
+  DEC_WINDOW_EVALUATED: spec(
+    "DEC_WINDOW_EVALUATED",
+    "DECISION",
+    "info",
+    "Window evaluated against an authoritative market state",
+  ),
+  DEC_WINDOW_COMPLETED: spec(
+    "DEC_WINDOW_COMPLETED",
+    "DECISION",
+    "info",
+    "Window instance completed exactly once",
+  ),
+  DEC_WINDOW_EXPIRED: spec(
+    "DEC_WINDOW_EXPIRED",
+    "DECISION",
+    "warning",
+    "Window expired without producing an execution intent",
+  ),
+  DEC_WINDOW_CANCELLED: spec(
+    "DEC_WINDOW_CANCELLED",
+    "DECISION",
+    "warning",
+    "Window cancelled before completion",
+  ),
+  DEC_SIGNAL_UP: spec("DEC_SIGNAL_UP", "DECISION", "info", "Decision produced BUY UP"),
+  DEC_SIGNAL_DOWN: spec("DEC_SIGNAL_DOWN", "DECISION", "info", "Decision produced BUY DOWN"),
+  DEC_NO_SIGNAL: spec("DEC_NO_SIGNAL", "DECISION", "info", "Decision produced NO SIGNAL"),
+  DEC_INTENT_CREATED: spec(
+    "DEC_INTENT_CREATED",
+    "DECISION",
+    "info",
+    "Immutable execution intent created",
+  ),
+  DEC_INTENT_SUPPRESSED: spec(
+    "DEC_INTENT_SUPPRESSED",
+    "DECISION",
+    "warning",
+    "Evaluation ignored because the window already produced an intent",
+  ),
+  DEC_QUOTA_CONSUMED: spec(
+    "DEC_QUOTA_CONSUMED",
+    "DECISION",
+    "info",
+    "Trade quota decremented by one",
+  ),
+  DEC_QUOTA_DEPLETED: spec(
+    "DEC_QUOTA_DEPLETED",
+    "DECISION",
+    "warning",
+    "Trade quota exhausted; decision engine not invoked",
+  ),
+  DEC_STATE_UNUSABLE: spec(
+    "DEC_STATE_UNUSABLE",
+    "DECISION",
+    "warning",
+    "Authoritative market state unusable for a decision",
+  ),
 } as const satisfies Record<string, ReasonCodeSpec>;
 
 export type ReasonCode = keyof typeof REASON_CODES;
