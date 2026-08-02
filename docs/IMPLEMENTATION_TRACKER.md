@@ -34,12 +34,21 @@ Legend: `⬜` not started · `🟨` in progress · `✅` complete · `N/A` not a
 
 | Field | Value |
 |---|---|
-| Status | ⬜ Not started |
+| Status | ✅ Complete (domain landed) |
 | Dependencies | M0 |
 | Exit Criteria | Market lifecycle + feed telemetry mirrored and displayed; staleness surfaced; no derived market values |
-| Acceptance Status | ⬜ |
-| Replay Status | ⬜ |
-| Production Status | ⬜ |
+| Acceptance Status | ✅ 30 market-domain unit tests green (83 total) |
+| Replay Status | ✅ Deterministic replay verified (`tests/unit/market-state.test.ts`) |
+| Production Status | 🟨 Awaiting live testnet feed wiring |
+
+**M1 evidence log**
+
+- Domain modules: `src/core/market/{types,configuration,events,discovery,lifecycle,feed-engine,twap-engine,ptb-engine,signal-conditioning,market-state,domain,index}.ts`
+- Canonical events: `ObservationReceived`, `TWAPUpdated`, `PTBUpdated`, `SignalConditioned`, `MarketLifecycleUpdated`, `AuthoritativeMarketStateUpdated` (frozen envelope, `source=market-state`).
+- Configuration-driven only: discovery base URL, slug template, `TWAP_FEED_PROVIDER`, `TWAP_FEED_ID`, `TWAP_NETWORK`, `TWAP_OBSERVATION_INTERVAL`, `TWAP_MAX_STALENESS`, `TWAP_PRECISION`, `TWAP_WINDOW_SECONDS`, `TWAP_MIN_OBSERVATIONS`, `PTB_*`, `SIGNAL_*`. Mainnet switch is `.env`-only.
+- Tests: `tests/unit/market-discovery.test.ts`, `tests/unit/market-feed-twap.test.ts`, `tests/unit/market-state.test.ts`.
+- Compliance: no decision, risk, order, window-manager or settlement logic; PTB sourced from official market metadata only.
+
 
 ### M2 — Decision Domain
 
