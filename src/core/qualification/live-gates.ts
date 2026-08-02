@@ -98,6 +98,7 @@ export interface StartupEvidence {
 
 /** The engine startup chain the authority must have completed, in order. */
 export const STARTUP_CHAIN_STEPS = [
+  "engine-online",
   "configuration-loaded",
   "feed-connected",
   "market-discovery-ready",
@@ -108,7 +109,24 @@ export const STARTUP_CHAIN_STEPS = [
   "windows-armed",
 ] as const;
 
+export type StartupChainStep = (typeof STARTUP_CHAIN_STEPS)[number];
+
+/** Operator-readable label for each startup step. */
+export const STARTUP_STEP_LABELS: Record<StartupChainStep, string> = {
+  "engine-online": "Engine process online",
+  "configuration-loaded": "Configuration loaded",
+  "feed-connected": "Price feed connected",
+  "market-discovery-ready": "Market discovery ready",
+  "ptb-available": "Price-to-beat available",
+  "twap-running": "TWAP running",
+  "signal-conditioning-ready": "Signal conditioning ready",
+  "authoritative-market-state": "Authoritative market state published",
+  "windows-armed": "Execution windows armed",
+};
+
 export interface StartupChainInput {
+  /** The engine reported a live runtime at all. Unreported means not started. */
+  readonly engineOnline?: boolean | null;
   readonly configurationVersion: number | null;
   readonly feedConnected: boolean | null;
   readonly marketCount: number;
@@ -125,7 +143,8 @@ export interface StartupChainInput {
  */
 export function deriveStartupChain(input: StartupChainInput | null): StartupEvidence | null {
   if (!input) return null;
-  const ok: Record<(typeof STARTUP_CHAIN_STEPS)[number], boolean> = {
+  const ok: Record<StartupChainStep, boolean> = {
+    "engine-online": input.engineOnline !== false,
     "configuration-loaded": input.configurationVersion !== null,
     "feed-connected": input.feedConnected === true,
     "market-discovery-ready": input.marketCount > 0,

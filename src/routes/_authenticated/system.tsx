@@ -3,9 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, LoadingState, Panel } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { getSystemInfo } from "@/lib/operations.functions";
+import { getAuthoritySigningStatus } from "@/lib/security.functions";
 import {
   Table,
   TableBody,
@@ -39,6 +40,12 @@ function SystemPage() {
   const { data, isPending } = useQuery({
     queryKey: ["arc", "system"],
     queryFn: () => fetchSystem(),
+  });
+  const fetchSigning = useServerFn(getAuthoritySigningStatus);
+  const signing = useQuery({
+    queryKey: ["arc", "authority-signing"],
+    queryFn: () => fetchSigning(),
+    refetchInterval: 60_000,
   });
 
   return (
@@ -146,6 +153,61 @@ function SystemPage() {
               </TableBody>
             </Table>
             <p className="mt-3 text-xs text-muted-foreground">{data?.migration.detail}</p>
+          </Panel>
+
+          <Panel
+            title="Authority Signing"
+            actions={
+              <StatusPill
+                tone={
+                  signing.data?.securityStatus === "ENFORCED"
+                    ? "healthy"
+                    : signing.data?.securityStatus === "WEAK"
+                      ? "degraded"
+                      : "unavailable"
+                }
+                label={signing.data?.securityStatus ?? "UNKNOWN"}
+              />
+            }
+          >
+            <KeyValue
+              rows={[
+                ["Signing Key Configured", signing.data?.configured ? "YES" : "NO"],
+                [
+                  "Meets Minimum Strength",
+                  signing.data === undefined
+                    ? "—"
+                    : signing.data.configured
+                      ? signing.data.meetsMinimumLength
+                        ? "YES"
+                        : "NO"
+                      : "N/A",
+                ],
+                [
+                  "Recommended Strength",
+                  signing.data === undefined
+                    ? "—"
+                    : signing.data.meetsRecommendedLength
+                      ? "YES"
+                      : `${signing.data.recommendedLength}+ chars recommended`,
+                ],
+                [
+                  "Signature Verification",
+                  signing.data?.securityStatus === "ENFORCED" ? "ENFORCED" : "FAIL-CLOSED",
+                ],
+                ["Last Verified Authority Message", fmtTime(signing.data?.lastVerificationIso ?? null)],
+                ["Last Verified Action", signing.data?.lastVerificationAction ?? "—"],
+                ["Ownership", signing.data?.ownershipFinalized ? "FINALIZED" : "OPEN"],
+                ["Registration", signing.data?.registrationOpen ? "ENABLED" : "DISABLED"],
+              ]}
+            />
+            <p className="mt-3 text-xs text-muted-foreground">
+              {signing.data?.detail ?? "Reading signing configuration."}
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Metadata only. The shared signing key is never displayed, stored in the database,
+              logged or sent to the browser.
+            </p>
           </Panel>
 
           <Panel title="Authentication Integration">
