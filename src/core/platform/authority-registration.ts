@@ -65,7 +65,7 @@ const SECRET_PATTERN =
 export function rejectsAuthoritySecrets(input: {
   readonly authorityId: string;
   readonly name: string;
-  readonly publicKey?: string | null;
+  readonly publicKey?: string | null | undefined;
 }): string | null {
   const fields: [string, string | null | undefined][] = [
     ["authority id", input.authorityId],
