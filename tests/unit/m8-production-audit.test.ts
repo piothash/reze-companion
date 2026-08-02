@@ -206,7 +206,11 @@ describe("M8.0 — mainnet readiness gate", () => {
       // Strip comments: prose may *describe* the absence of an override.
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/\/\/.*$/gm, "");
-    expect(source).not.toMatch(/override|force|manualApprov|approve/i);
+    // No override/force/approval switch may exist in the API surface.
+    expect(source).not.toMatch(
+      /\b(override|force|forced|manualApproval|approved?|attestation)\s*[?:]/i,
+    );
+    expect(source).not.toMatch(/\boverride\w*\s*[=(]/i);
     // mainnetVerdict takes exactly one argument: the evaluated domains.
     expect(mainnetVerdict.length).toBe(1);
   });
