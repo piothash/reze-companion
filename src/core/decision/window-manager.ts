@@ -241,7 +241,9 @@ export class ExecutionWindowManager {
     if (!context) return [];
     const outcomes: EvaluationOutcome[] = [];
     for (const window of context.orderedWindows()) {
-      if (window.state !== "ACTIVE") continue;
+      // EXECUTING windows are still visited so the suppression is explicit and
+      // auditable: one window produces at most one ExecutionIntent.
+      if (window.state !== "ACTIVE" && window.state !== "EXECUTING") continue;
       outcomes.push(await this.evaluateWindow(window, state));
     }
     return outcomes;
