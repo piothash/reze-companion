@@ -106,18 +106,16 @@ export class Logger {
   }
 
   child(options: Partial<LoggerOptions>): Logger {
+    const correlationId = options.correlationId ?? this.correlationId;
+    const causationId = options.causationId ?? this.causationId;
     return new Logger({
       engine: options.engine ?? this.engine,
       level: options.level ?? this.level,
       clock: options.clock ?? this.clock,
       transport: options.transport ?? this.transport,
       redactKeys: options.redactKeys ?? this.redactKeys,
-      ...(options.correlationId ?? this.correlationId
-        ? { correlationId: options.correlationId ?? this.correlationId }
-        : {}),
-      ...(options.causationId ?? this.causationId
-        ? { causationId: options.causationId ?? this.causationId }
-        : {}),
+      ...(correlationId === undefined ? {} : { correlationId }),
+      ...(causationId === undefined ? {} : { causationId }),
       baseFields: { ...this.baseFields, ...(options.baseFields ?? {}) },
     });
   }
