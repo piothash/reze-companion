@@ -23,6 +23,10 @@ export const REASON_DOMAINS = [
   "NOTIFICATION",
   "AUDIT",
   "SYNCHRONIZATION",
+  "STARTUP",
+  "WATCHDOG",
+  "SECURITY",
+  "LIFECYCLE",
 ] as const;
 
 export type ReasonDomain = (typeof REASON_DOMAINS)[number];
@@ -739,6 +743,134 @@ export const REASON_CODES = {
     "Runtime-only state excluded from synchronization by policy",
   ),
   SYN_FAILED: spec("SYN_FAILED", "SYNCHRONIZATION", "error", "Synchronization batch failed"),
+
+  // Startup (M6.5) ----------------------------------------------------------
+  SYS_START_VALIDATING: spec(
+    "SYS_START_VALIDATING",
+    "STARTUP",
+    "info",
+    "Startup validation sequence began",
+  ),
+  SYS_START_OK: spec("SYS_START_OK", "STARTUP", "info", "Startup validation passed"),
+  SYS_START_BLOCKED: spec(
+    "SYS_START_BLOCKED",
+    "STARTUP",
+    "fatal",
+    "Startup blocked — one or more startup gates failed",
+  ),
+  SYS_CHECK_PASSED: spec("SYS_CHECK_PASSED", "STARTUP", "info", "Startup gate passed"),
+  SYS_CHECK_WARNING: spec(
+    "SYS_CHECK_WARNING",
+    "STARTUP",
+    "warning",
+    "Startup gate passed with warnings",
+  ),
+  SYS_CHECK_FAILED: spec("SYS_CHECK_FAILED", "STARTUP", "error", "Startup gate failed"),
+  SYS_CHECK_SKIPPED: spec(
+    "SYS_CHECK_SKIPPED",
+    "STARTUP",
+    "info",
+    "Startup gate skipped — no probe supplied",
+  ),
+  SYS_ENV_INVALID: spec(
+    "SYS_ENV_INVALID",
+    "STARTUP",
+    "fatal",
+    "Environment variable failed type, enum, range, url or secret validation",
+  ),
+  SYS_ENV_MISSING: spec(
+    "SYS_ENV_MISSING",
+    "STARTUP",
+    "fatal",
+    "Required environment variable is absent — no silent default is applied",
+  ),
+  SYS_ENV_SILENT_DEFAULT: spec(
+    "SYS_ENV_SILENT_DEFAULT",
+    "STARTUP",
+    "warning",
+    "Environment variable absent and a documented default was substituted",
+  ),
+  SYS_SCHEMA_VERSION_MISMATCH: spec(
+    "SYS_SCHEMA_VERSION_MISMATCH",
+    "STARTUP",
+    "fatal",
+    "Database schema version does not match the expected version",
+  ),
+  SYS_BOOT_CONFIG_INVALID: spec(
+    "SYS_BOOT_CONFIG_INVALID",
+    "STARTUP",
+    "fatal",
+    "Business configuration failed boot validation",
+  ),
+
+  // Watchdogs (M6.5) --------------------------------------------------------
+  WDG_REGISTERED: spec("WDG_REGISTERED", "WATCHDOG", "info", "Subsystem watchdog registered"),
+  WDG_HEARTBEAT: spec("WDG_HEARTBEAT", "WATCHDOG", "info", "Subsystem heartbeat recorded"),
+  WDG_HEALTHY: spec("WDG_HEALTHY", "WATCHDOG", "info", "Subsystem watchdog healthy"),
+  WDG_WARNING: spec("WDG_WARNING", "WATCHDOG", "warning", "Subsystem watchdog in warning state"),
+  WDG_CRITICAL: spec("WDG_CRITICAL", "WATCHDOG", "error", "Subsystem watchdog in critical state"),
+  WDG_SILENT: spec(
+    "WDG_SILENT",
+    "WATCHDOG",
+    "error",
+    "Subsystem produced no heartbeat within its budget",
+  ),
+
+  // Security (M6.5) ---------------------------------------------------------
+  SEC_SCAN_CLEAN: spec("SEC_SCAN_CLEAN", "SECURITY", "info", "Secret scan found no material"),
+  SEC_SECRET_DETECTED: spec(
+    "SEC_SECRET_DETECTED",
+    "SECURITY",
+    "fatal",
+    "Candidate secret material detected in source",
+  ),
+  SEC_SCAN_FAILED: spec("SEC_SCAN_FAILED", "SECURITY", "error", "Secret scan could not complete"),
+
+  // Lifecycle (M6.5) --------------------------------------------------------
+  LIF_SHUTDOWN_REQUESTED: spec(
+    "LIF_SHUTDOWN_REQUESTED",
+    "LIFECYCLE",
+    "info",
+    "Graceful shutdown requested",
+  ),
+  LIF_STEP_COMPLETED: spec(
+    "LIF_STEP_COMPLETED",
+    "LIFECYCLE",
+    "info",
+    "Shutdown step completed cleanly",
+  ),
+  LIF_STEP_FAILED: spec("LIF_STEP_FAILED", "LIFECYCLE", "error", "Shutdown step failed"),
+  LIF_STEP_TIMEOUT: spec("LIF_STEP_TIMEOUT", "LIFECYCLE", "error", "Shutdown step exceeded budget"),
+  LIF_SHUTDOWN_COMPLETED: spec(
+    "LIF_SHUTDOWN_COMPLETED",
+    "LIFECYCLE",
+    "info",
+    "Graceful shutdown completed — process may exit",
+  ),
+  LIF_SHUTDOWN_DEGRADED: spec(
+    "LIF_SHUTDOWN_DEGRADED",
+    "LIFECYCLE",
+    "warning",
+    "Shutdown completed with failed steps",
+  ),
+  LIF_RESTORE_STARTED: spec(
+    "LIF_RESTORE_STARTED",
+    "LIFECYCLE",
+    "info",
+    "Restart restore sequence started",
+  ),
+  LIF_RESTORE_COMPLETED: spec(
+    "LIF_RESTORE_COMPLETED",
+    "LIFECYCLE",
+    "info",
+    "Restart restore sequence completed",
+  ),
+  LIF_RESTORE_FAILED: spec(
+    "LIF_RESTORE_FAILED",
+    "LIFECYCLE",
+    "error",
+    "Restart restore sequence failed",
+  ),
 } as const satisfies Record<string, ReasonCodeSpec>;
 
 export type ReasonCode = keyof typeof REASON_CODES;

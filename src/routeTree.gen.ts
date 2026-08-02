@@ -25,7 +25,7 @@ import { Route as AuthenticatedSignalTankRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSystemRouteImport } from './routes/_authenticated/system'
 import { Route as AuthenticatedTradeMonitorRouteImport } from './routes/_authenticated/trade-monitor'
 import { Route as AuthenticatedWindowsRouteImport } from './routes/_authenticated/windows'
-import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
+import { Route as ApiPublicHealthIndexRouteImport } from './routes/api/public/health/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -110,9 +110,9 @@ const AuthenticatedWindowsRoute = AuthenticatedWindowsRouteImport.update({
   path: '/windows',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
-  id: '/api/public/health',
-  path: '/api/public/health',
+const ApiPublicHealthIndexRoute = ApiPublicHealthIndexRouteImport.update({
+  id: '/api/public/health/',
+  path: '/api/public/health/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -132,7 +132,7 @@ export interface FileRoutesByFullPath {
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
-  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/health/': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,7 +150,7 @@ export interface FileRoutesByTo {
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
-  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/health': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,7 +170,7 @@ export interface FileRoutesById {
   '/_authenticated/system': typeof AuthenticatedSystemRoute
   '/_authenticated/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/_authenticated/windows': typeof AuthenticatedWindowsRoute
-  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/health/': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -190,7 +190,7 @@ export interface FileRouteTypes {
     | '/system'
     | '/trade-monitor'
     | '/windows'
-    | '/api/public/health'
+    | '/api/public/health/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -227,14 +227,14 @@ export interface FileRouteTypes {
     | '/_authenticated/system'
     | '/_authenticated/trade-monitor'
     | '/_authenticated/windows'
-    | '/api/public/health'
+    | '/api/public/health/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
+  ApiPublicHealthIndexRoute: typeof ApiPublicHealthIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -351,11 +351,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWindowsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/health': {
-      id: '/api/public/health'
+    '/api/public/health/': {
+      id: '/api/public/health/'
       path: '/api/public/health'
-      fullPath: '/api/public/health'
-      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      fullPath: '/api/public/health/'
+      preLoaderRoute: typeof ApiPublicHealthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -400,7 +400,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  ApiPublicHealthRoute: ApiPublicHealthRoute,
+  ApiPublicHealthIndexRoute: ApiPublicHealthIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
