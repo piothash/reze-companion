@@ -7,6 +7,12 @@ import { Countdown, EmptyState, KeyValue, LoadingState, Panel, StatusPill } from
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 import {
+  LiveWindowsPanel,
+  TelemetrySourcePill,
+  useRuntimeTelemetry,
+} from "@/components/arc/runtime-telemetry";
+
+import {
   Table,
   TableBody,
   TableCell,
