@@ -85,7 +85,7 @@ export const EVENT_CATALOG = {
   // Configuration synchronization (M6.7) -----------------------------------
   ConfigurationVersionCreated: entry(
     "ConfigurationVersionCreated",
-    "platform.configuration.version_created",
+    "platform.configuration.version-created",
     "OPERATIONAL",
     "configuration",
   ),
@@ -127,7 +127,7 @@ export const EVENT_CATALOG = {
   ),
   ConfigurationRolledBack: entry(
     "ConfigurationRolledBack",
-    "platform.configuration.rolled_back",
+    "platform.configuration.rolled-back",
     "OPERATIONAL",
     "configuration",
   ),

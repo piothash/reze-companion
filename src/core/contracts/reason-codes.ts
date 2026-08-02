@@ -188,6 +188,62 @@ export const REASON_CODES = {
     "info",
     "Active runtime configuration read back from the trading authority",
   ),
+  CFG_PENDING: spec(
+    "CFG_PENDING",
+    "CONFIGURATION",
+    "warning",
+    "Configuration version stored but not yet running on the trading authority",
+  ),
+  CFG_APPLYING: spec(
+    "CFG_APPLYING",
+    "CONFIGURATION",
+    "info",
+    "Configuration dispatch in flight — awaiting the authority verdict",
+  ),
+
+  // Runtime handshake (M6.8) -----------------------------------------------
+  HSK_ACCEPTED: spec(
+    "HSK_ACCEPTED",
+    "SYNCHRONIZATION",
+    "info",
+    "Runtime handshake accepted by the trading authority",
+  ),
+  HSK_CONNECTING: spec(
+    "HSK_CONNECTING",
+    "SYNCHRONIZATION",
+    "info",
+    "Runtime handshake in progress",
+  ),
+  HSK_UNREACHABLE: spec(
+    "HSK_UNREACHABLE",
+    "SYNCHRONIZATION",
+    "error",
+    "Trading authority did not answer the runtime handshake",
+  ),
+  HSK_UNAUTHORIZED: spec(
+    "HSK_UNAUTHORIZED",
+    "SYNCHRONIZATION",
+    "error",
+    "Trading authority rejected the companion credential",
+  ),
+  HSK_PROTOCOL_MISMATCH: spec(
+    "HSK_PROTOCOL_MISMATCH",
+    "SYNCHRONIZATION",
+    "error",
+    "Handshake response did not match the canonical contract",
+  ),
+  HSK_NO_ENDPOINT: spec(
+    "HSK_NO_ENDPOINT",
+    "SYNCHRONIZATION",
+    "warning",
+    "No trading engine is registered for this control plane",
+  ),
+  HSK_UNKNOWN: spec(
+    "HSK_UNKNOWN",
+    "SYNCHRONIZATION",
+    "warning",
+    "Runtime handshake has not been attempted yet",
+  ),
 
 
   // Infrastructure ----------------------------------------------------------
