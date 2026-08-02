@@ -91,6 +91,8 @@ export class InMemoryEventStore implements AppendOnlyEventStore {
 
   private readonly records: EventEnvelope[] = [];
   private readonly byIdempotencyKey = new Map<string, EventEnvelope>();
+  private readonly byEventId = new Map<string, EventEnvelope>();
+
   private readonly allowRetroactive: boolean;
 
   constructor(options: EventStoreOptions = {}) {
