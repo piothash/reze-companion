@@ -40,7 +40,13 @@ export interface EnvVarSpec {
   readonly pattern?: RegExp;
   /** Marks a variable required only when the network is mainnet. */
   readonly requiredOnMainnet?: boolean;
+  /** Which side of the deployment owns the value (documentation only). */
+  readonly owner?: EnvOwner;
 }
+
+/** COMPANION = control plane, VPS = trading authority, SHARED = both must match. */
+export type EnvOwner = "COMPANION" | "VPS" | "SHARED";
+
 
 export interface EnvIssue {
   readonly key: string;
