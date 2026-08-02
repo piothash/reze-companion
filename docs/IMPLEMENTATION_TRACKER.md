@@ -517,3 +517,22 @@ the plain `server.ts` name so the bundler refuses any client-side import of it.
 | Tests: cutover guard, target validation, migration readiness, registration contract | Done (301 total) |
 | Execute the production cutover | Pending operator run |
 | VPS calls `/authority/register` against production | Pending M7.6 |
+
+## M7.6 — VPS Trading Authority Registration & PM2 Engine Handshake
+
+| Item | Status |
+| --- | --- |
+| HMAC-SHA256 authority message authentication (canonical payload, constant-time compare) | Done |
+| Fail-closed: unconfigured signing key rejects every message (`503 KEY_UNCONFIGURED`) | Done |
+| Timestamp skew window (±60s) and replay guard (`authority_replay_guard`, 15 min) | Done |
+| `POST /api/public/authority/register` — engine-initiated, public identity only | Done |
+| `POST /api/public/authority/heartbeat` — runtime status, uptime, active market/windows, event sequence | Done |
+| `GET /api/public/authority/configuration` — engine pulls the pending version (no inbound port on the VPS) | Done |
+| `POST /api/public/authority/configuration` — signed `ACCEPTED` / `REJECTED` verdict; hash-drift guard | Done |
+| Nothing becomes ACTIVE without a verified engine verdict | Done |
+| Revoked authority stays revoked across re-registration | Done |
+| PM2 restart detection via `runtimeIdentity`, audited as `authority.restarted` | Done |
+| Registry panel: runtime status, uptime, latency, active market, config version, registrations | Done |
+| `docs/AUTHORITY_API_CONTRACT.md` control-plane section; `docs/OPERATIONS_RUNBOOK.md` §9 PM2 integration | Done |
+| Tests: signature/timestamp/replay, registration, heartbeat lifecycle, liveness, dispatch, security | Done (330 total) |
+| Live VPS engine registers against the deployed control plane | Pending operator run |
