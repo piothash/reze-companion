@@ -837,7 +837,21 @@ function ExecutionProfilesPage() {
                 </Table>
               )}
             </Panel>
+
+            <VersionHistoryPanel
+              view={runtimeQuery.data as RuntimeView | undefined}
+              busyVersion={
+                activation.isPending
+                  ? (activation.variables ?? null)
+                  : archival.isPending
+                    ? (archival.variables ?? null)
+                    : null
+              }
+              onActivate={(version) => activation.mutate(version)}
+              onArchive={(version) => archival.mutate(version)}
+            />
           </div>
+
 
           <Panel title="Profile Summary" className="h-fit xl:sticky xl:top-4">
             <dl className="grid gap-y-2">
