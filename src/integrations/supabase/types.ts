@@ -545,6 +545,33 @@ export type Database = {
         }
         Relationships: []
       }
+      operator_ownership: {
+        Row: {
+          created_at: string
+          finalized: boolean
+          finalized_at: string | null
+          id: boolean
+          owner_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          finalized?: boolean
+          finalized_at?: string | null
+          id?: boolean
+          owner_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          finalized?: boolean
+          finalized_at?: string | null
+          id?: boolean
+          owner_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_events: {
         Row: {
           attributes: Json
@@ -783,6 +810,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      finalize_ownership: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -791,6 +819,18 @@ export type Database = {
         Returns: boolean
       }
       operator_bootstrapped: { Args: never; Returns: boolean }
+      ownership_finalized: { Args: never; Returns: boolean }
+      ownership_state: {
+        Args: never
+        Returns: {
+          finalized: boolean
+          finalized_at: string
+          is_caller_owner: boolean
+          owner_email: string
+          owner_user_id: string
+        }[]
+      }
+      transfer_ownership: { Args: { _target_email: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "operator" | "viewer" | "owner"
