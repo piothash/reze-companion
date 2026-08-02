@@ -83,14 +83,19 @@ function QualificationPage() {
   const live = telemetry.data;
   const config = configuration.data;
 
+  // Live gates stay PENDING until the VPS authority actually reports; absence of
+  // evidence is never treated as a failure.
+  const liveEvidence = live?.source === "LIVE" ? true : undefined;
+  const authorityRegistered = config?.authority.registered ? true : undefined;
+  const configurationActive =
+    config?.runtime?.runtimeStatus === "LIVE" ? true : authorityRegistered ? false : undefined;
+
   const results = evaluateQualificationGates(run, {
-    ...(live ? { environmentValidated: live.source === "LIVE", telemetryCurrent: live.source === "LIVE" } : {}),
-    ...(config
-      ? {
-          authorityRegistered: config.authority.registered,
-          configurationActive: config.runtime?.runtimeStatus === "LIVE",
-        }
-      : {}),
+    ...(liveEvidence === undefined
+      ? {}
+      : { environmentValidated: liveEvidence, telemetryCurrent: liveEvidence }),
+    ...(authorityRegistered === undefined ? {} : { authorityRegistered }),
+    ...(configurationActive === undefined ? {} : { configurationActive }),
     replayDeterministic: replay.deterministic && replay.mismatches.length === 0,
   });
 
