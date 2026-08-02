@@ -134,3 +134,16 @@ export const getAuthorityRuntime = createServerFn({ method: "GET" })
     });
     return { ...view, capabilities };
   });
+
+/**
+ * Live runtime telemetry (M7.0). Every operator page renders engine-published
+ * facts through this read: markets, feed, TWAP, windows, scheduler, execution
+ * counters and process state. LIVE when the authority answers, MIRRORED when
+ * it does not — never synthesised.
+ */
+export const getRuntimeTelemetry = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { readRuntimeTelemetry } = await import("./runtime-telemetry.server");
+    return readRuntimeTelemetry(context.supabase as AnyClient);
+  });
