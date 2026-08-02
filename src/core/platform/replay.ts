@@ -307,6 +307,11 @@ export function replayEvents(
           });
           break;
         }
+        const orderId = snapshot.orderId;
+        const intentId = snapshot.executionIntentId ?? "unknown";
+        const nextState: OrderState = snapshot.state ?? "CREATED";
+        const filledQuantity = snapshot.filledQuantity ?? 0;
+
 
         const projected = orders.get(snapshot.orderId) ?? {
           orderId: snapshot.orderId,
