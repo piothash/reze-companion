@@ -212,6 +212,7 @@ export async function runQualificationScenario(
   const marketStateVersions: number[] = [];
 
   await domain.adopt(descriptor);
+  clock.advance(1);
   const context = await manager.prepare({
     marketInstanceId: descriptor.marketInstanceId,
     resolvesAtIso: spec.resolvesAtIso,
@@ -294,12 +295,14 @@ export async function runQualificationScenario(
     await coordinator.tick();
   }
 
-  await manager.tick(resolvesAt);
+  clock.advance(1);
+  await manager.tick(clock.now());
 
   // Recovery qualification: replaying a recorded intent after a restart must
   // never place a second order for the same execution intent.
   let duplicateSuppressed = false;
   if (firstIntentId) {
+    clock.advance(1);
     const replayed = await coordinator.submit(
       {
         executionIntentId: firstIntentId,
