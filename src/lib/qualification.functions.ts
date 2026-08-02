@@ -17,6 +17,8 @@ type AnyClient = any;
 
 export interface LiveQualificationEvidence {
   readonly snapshot: LiveEvidenceSnapshot;
+  /** M8.0 operational measurements read from the authority registry. */
+  readonly operations: OperationsEvidence | null;
   readonly observedAtIso: string;
   readonly notes: readonly string[];
 }
