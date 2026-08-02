@@ -157,7 +157,7 @@ export async function handleAuthorityRegistration(
       "register",
     ))
   ) {
-    return gatewayError("SIGNATURE_REPLAYED".length ? 409 : 409, "SIGNATURE_REPLAYED", "this signed registration was already accepted");
+    return gatewayError(409, "SIGNATURE_REPLAYED", "this signed registration was already accepted");
   }
 
   const ownerId = await resolveOwner(client);
