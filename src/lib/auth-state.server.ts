@@ -1,5 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
+import {
+  createPublishableServerClient,
+  getServerSupabaseConfig,
+  serverBackendMatchesTarget,
+} from "./supabase/server";
+
 export interface OperatorBootstrapState {
   readonly mode: "BOOTSTRAP_OPEN" | "OWNER_FINALIZED" | "AUTH_CONFIGURATION_ERROR";
   readonly bootstrapped: boolean;
@@ -7,46 +13,25 @@ export interface OperatorBootstrapState {
   readonly ownerExists: boolean;
   readonly ownershipFinalized: boolean;
   readonly signupEnabled: boolean;
+  /**
+   * True unless an explicit `ARC_REQUIRED_SUPABASE_URL` deployment guard is set
+   * and the active backend does not match it. No backend URL is compiled in.
+   */
   readonly backendMatchesProduction: boolean;
   readonly detail: string;
 }
 
-/**
- * Optional deployment guard. When `ARC_REQUIRED_SUPABASE_URL` is set, the
- * companion refuses to bootstrap against any other backend. No backend URL is
- * ever compiled into the application.
- */
-function requiredBackend(): string | null {
-  const value = process.env["ARC_REQUIRED_SUPABASE_URL"];
-  return value ? value.replace(/\/$/, "") : null;
-}
-
 export async function resolveOperatorBootstrapState(): Promise<OperatorBootstrapState> {
-  const url = process.env["SUPABASE_URL"];
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
-  if (!url || !key) {
+  const config = getServerSupabaseConfig();
+  const client = createPublishableServerClient();
+  if (!config.url || !config.anonKey || !client) {
     return errorState("Authentication configuration is unavailable.");
   }
-
-  const normalizedUrl = url.replace(/\/$/, "");
-  const client = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => {
-        const headers = new Headers(init?.headers);
-        if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`) {
-          headers.delete("Authorization");
-        }
-        headers.set("apikey", key);
-        return fetch(input, { ...init, headers });
-      },
-    },
-  });
 
   const [ownerResult, finalizedResult, settingsResponse] = await Promise.all([
     client.rpc("operator_bootstrapped"),
     client.rpc("ownership_finalized"),
-    fetch(`${normalizedUrl}/auth/v1/settings`, { headers: { apikey: key } }),
+    fetch(`${config.url}/auth/v1/settings`, { headers: { apikey: config.anonKey } }),
   ]);
 
   let signupEnabled = false;
@@ -57,8 +42,7 @@ export async function resolveOperatorBootstrapState(): Promise<OperatorBootstrap
 
   const ownerExists = ownerResult.data === true;
   const ownershipFinalized = finalizedResult.data === true;
-  const required = requiredBackend();
-  const backendMatchesProduction = required === null || normalizedUrl === required;
+  const backendMatchesProduction = serverBackendMatchesTarget();
   const resolved = !ownerResult.error && !finalizedResult.error && settingsResponse.ok;
   const common = {
     ownerExists,
@@ -98,7 +82,6 @@ export async function resolveOperatorBootstrapState(): Promise<OperatorBootstrap
         ? "Authentication configuration mismatch. Bootstrap registration is unavailable."
         : "Ownership and authentication configuration are inconsistent.";
 
-
   return { ...common, mode: "AUTH_CONFIGURATION_ERROR", bootstrapped: true, detail };
 }
 
@@ -114,3 +97,7 @@ function errorState(detail: string): OperatorBootstrapState {
     detail,
   };
 }
+
+// `createClient` stays imported through the provider layer only; re-exported
+// here for nothing — kept out of the module surface intentionally.
+void createClient;
