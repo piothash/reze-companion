@@ -46,6 +46,26 @@ export const VERSION_REGISTRY = {
   decisionEngine: v("decisionEngine", "1.0.0", ["1.0.0"], "TWAP-native decision engine contract"),
   executionIntent: v("executionIntent", "1.0.0", ["1.0.0"], "Immutable execution intent contract"),
   executionContext: v("executionContext", "1.0.0", ["1.0.0"], "Execution context runtime contract"),
+  riskEngine: v("riskEngine", "1.0.0", ["1.0.0"], "Risk engine ALLOW/DENY verdict contract"),
+  exposureModel: v(
+    "exposureModel",
+    "1.0.0",
+    ["1.0.0"],
+    "Exposure reservation and live-exposure model",
+  ),
+  orderContract: v("orderContract", "1.0.0", ["1.0.0"], "Order FSM and order snapshot contract"),
+  standingOrderEngine: v(
+    "standingOrderEngine",
+    "1.0.0",
+    ["1.0.0"],
+    "Strategy-agnostic standing limit order engine contract",
+  ),
+  executionAdapter: v(
+    "executionAdapter",
+    "1.0.0",
+    ["1.0.0"],
+    "ARC execution adapter contract between intents and the standing order engine",
+  ),
 } as const satisfies Record<string, VersionSpec>;
 
 export type VersionKey = keyof typeof VERSION_REGISTRY;

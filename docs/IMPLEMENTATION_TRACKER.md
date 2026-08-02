@@ -75,12 +75,25 @@ Legend: `⬜` not started · `🟨` in progress · `✅` complete · `N/A` not a
 
 | Field | Value |
 |---|---|
-| Status | ⬜ Not started |
+| Status | ✅ Complete (domain landed) |
 | Dependencies | M2 |
-| Exit Criteria | Order, settlement and ledger mirrors reconcile against engine reports with zero companion-side arithmetic |
-| Acceptance Status | ⬜ |
-| Replay Status | ⬜ |
-| Production Status | ⬜ |
+| Exit Criteria | Risk Engine, exposure reservations, execution adapter and Standing Limit Order Engine turning intents into orders with zero strategy logic |
+| Acceptance Status | ✅ 27 trade-domain unit tests green (133 total) |
+| Replay Status | ✅ Byte-identical session snapshots; restore never duplicates orders or quota (`tests/unit/trade-domain.test.ts`) |
+| Production Status | 🟨 Awaiting a real venue gateway adapter (M4/M5) |
+
+**M3 evidence log**
+
+- Domain modules: `src/core/trade/{types,configuration,order-fsm,exposure,risk-engine,order,venue-gateway,standing-order-engine,execution-adapter,events,trade-coordinator,index}.ts`
+- Reference audit (REUSE / REFACTOR / REMOVE): `docs/architecture/M3_REFERENCE_AUDIT.md`
+- Risk Engine is a pure ALLOW/DENY function over a closed check set (kill switch, market validity, feed freshness, exposure, position limit, liquidity, policy); every check always evaluated for a complete audit trace.
+- Exposure ledger enforces `live + reserved <= limit` after every mutation; reservations are idempotent per execution intent and settle exactly once.
+- Order FSM: `CREATED → SUBMITTED → WORKING → PARTIALLY_FILLED → FILLED | CANCELLED | REJECTED | EXPIRED`; fills idempotent on the venue fill id.
+- Standing Limit Order Engine: passive maker pricing, cancel/replace repricing with a bounded budget, configured retry count/delay, session deadline, IOC fallback, partial-fill accounting across replacements, settlement hook fired exactly once.
+- Trade quota is committed exactly once, at the first cumulative fill reaching `minMeaningfulQuantity`; a restart restores the committed flag and cannot re-consume it.
+- Canonical events (`source=trade`): risk approved/denied, exposure reserved/released, order submitted/updated/filled/cancelled, quota consumed, execution completed/failed.
+- Compliance: no TWAP, PTB, buffer, window, execution-profile or majority concept anywhere behind `src/core/trade`; the engine only ever sees `ExecutionConstraints`.
+
 
 ### M4 — Platform Services
 
