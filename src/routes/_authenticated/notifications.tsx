@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Panel, SeverityBadge } from "@/components/arc/primitives";
+import { EmptyState, LoadingState, Panel, SeverityBadge } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,7 +102,7 @@ function NotificationsPage() {
 
         <Panel title="Inbox">
           {isPending ? (
-            <EmptyState message="Loading notifications…" />
+            <LoadingState label="Reading notifications" />
           ) : rows.length === 0 ? (
             <EmptyState message="No notifications match the current filter." />
           ) : (

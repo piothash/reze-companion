@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 import { getLedgerSummary } from "@/lib/platform.functions";
@@ -60,10 +60,13 @@ function TradeMonitorPage() {
       }
     >
       {isPending ? (
-        <EmptyState message="Loading execution telemetry…" />
+        <LoadingState label="Reading execution telemetry" />
       ) : executions.length === 0 ? (
         <Panel title="Executions">
-          <EmptyState message="No execution intents have been mirrored yet." />
+          <EmptyState
+            message="No execution intents recorded."
+            hint="Waiting for VPS connection — the intent → risk → order → fill → settlement timeline appears here."
+          />
         </Panel>
       ) : (
         <div className="space-y-4">

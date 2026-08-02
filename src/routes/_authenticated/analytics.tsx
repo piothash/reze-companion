@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Metric, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, LoadingState, Metric, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtPct, fmtTime } from "@/lib/format";
 import { getAnalyticsSummary, getLedgerSummary } from "@/lib/platform.functions";
 import {
@@ -61,7 +61,7 @@ function AnalyticsPage() {
       actions={<StatusPill tone="neutral" label={analytics.data?.source ?? "—"} />}
     >
       {analytics.isPending ? (
-        <EmptyState message="Computing analytics…" />
+        <LoadingState label="Computing analytics" />
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -98,7 +98,7 @@ function AnalyticsPage() {
 
           <Panel title="Per Window" className="overflow-x-auto">
             {(summary?.perWindow.length ?? 0) === 0 ? (
-              <EmptyState message="No window statistics available." />
+              <EmptyState message="No window statistics available." hint="Waiting for VPS connection." />
             ) : (
               <Table>
                 <TableHeader>
@@ -131,7 +131,7 @@ function AnalyticsPage() {
 
           <Panel title="Per Execution Profile" className="overflow-x-auto">
             {(summary?.perProfile.length ?? 0) === 0 ? (
-              <EmptyState message="No profile statistics available." />
+              <EmptyState message="No profile statistics available." hint="Waiting for VPS connection." />
             ) : (
               <Table>
                 <TableHeader>
@@ -162,7 +162,7 @@ function AnalyticsPage() {
 
           <Panel title="Ledger">
             {ledger.isPending ? (
-              <EmptyState message="Loading ledger…" />
+              <LoadingState label="Reading ledger" />
             ) : (
               <KeyValue
                 rows={[

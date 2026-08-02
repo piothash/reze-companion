@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { Countdown, EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
+import { Countdown, EmptyState, KeyValue, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 import {
@@ -59,10 +59,13 @@ function WindowsPage() {
       }
     >
       {isPending ? (
-        <EmptyState message="Loading window instances…" />
+        <LoadingState label="Reading window instances" />
       ) : windows.length === 0 ? (
         <Panel title="Window Instances">
-          <EmptyState message="No window instances have been mirrored yet." />
+          <EmptyState
+            message="No execution windows are active."
+            hint="Waiting for VPS connection — window instances appear here as the engine mirrors them."
+          />
         </Panel>
       ) : (
         <div className="space-y-4">

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 
@@ -44,10 +44,13 @@ function MarketsPage() {
   return (
     <OperatorShell title="Markets" subtitle="Pure observability — no trading controls">
       {isPending ? (
-        <EmptyState message="Loading market state…" />
+        <LoadingState label="Reading market state" />
       ) : markets.length === 0 ? (
         <Panel title="Market State">
-          <EmptyState message="No authoritative market state has been mirrored yet." />
+          <EmptyState
+            message="No market is being tracked."
+            hint="Waiting for VPS connection — authoritative market state is mirrored from the engine."
+          />
         </Panel>
       ) : (
         <div className="space-y-4">

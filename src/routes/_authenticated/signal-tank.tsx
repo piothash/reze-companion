@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Metric, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, LoadingState, Metric, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 
@@ -58,7 +58,7 @@ function SignalTankPage() {
       }
     >
       {isPending ? (
-        <EmptyState message="Loading decision telemetry…" />
+        <LoadingState label="Reading decision telemetry" />
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -110,7 +110,10 @@ function SignalTankPage() {
 
           <Panel title="Latest Decision">
             {latest === null ? (
-              <EmptyState message="No decision has been evaluated yet." />
+              <EmptyState
+                message="No decision evaluated yet."
+                hint="Waiting for VPS connection — TWAP, PTB, buffer and decision reason appear here per evaluation."
+              />
             ) : (
               <>
                 <KeyValue
@@ -135,7 +138,7 @@ function SignalTankPage() {
 
           <Panel title="Decision History">
             {signals.length === 0 ? (
-              <EmptyState message="No evaluations recorded." />
+              <EmptyState message="No evaluations recorded." hint="Waiting for VPS connection." />
             ) : (
               <ul className="space-y-1.5 font-mono text-xs">
                 {signals.map((signal, index) => (

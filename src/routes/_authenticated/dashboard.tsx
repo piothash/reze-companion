@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { Countdown, EmptyState, Metric, Panel, StatusPill } from "@/components/arc/primitives";
+import { Countdown, EmptyState, LoadingState, Metric, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getHealthReport, getOperationsSnapshot, getSystemInfo } from "@/lib/operations.functions";
 import { listReplayRuns } from "@/lib/platform.functions";
@@ -87,7 +87,7 @@ function DashboardPage() {
       }
     >
       {isPending ? (
-        <EmptyState message="Loading operational telemetry…" />
+        <LoadingState label="Reading operational telemetry" />
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -225,7 +225,7 @@ function DashboardPage() {
               }
             >
               {health.isPending ? (
-                <EmptyState message="Running health probes…" />
+                <LoadingState label="Running health probes" />
               ) : (
                 <ul className="space-y-2 text-sm">
                   {(health.data?.components ?? []).map((component) => (
@@ -256,7 +256,7 @@ function DashboardPage() {
               }
             >
               {(projection?.recentEvents.length ?? 0) === 0 ? (
-                <EmptyState message="No canonical events mirrored yet." />
+                <EmptyState message="No canonical events mirrored." hint="Waiting for VPS connection." />
               ) : (
                 <ul className="space-y-1.5 font-mono text-xs">
                   {projection?.recentEvents.slice(0, 14).map((event) => (
