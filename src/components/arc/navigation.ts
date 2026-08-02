@@ -10,7 +10,7 @@ export interface NavItem {
   readonly description: string;
 }
 
-export const OPERATOR_NAV: readonly NavItem[] = [
+export const OPERATOR_NAV = [
   { to: "/dashboard", label: "Dashboard", description: "Global operational overview" },
   { to: "/markets", label: "Markets", description: "Authoritative market state" },
   { to: "/execution-profiles", label: "Execution Profiles", description: "Windows and buffers" },
