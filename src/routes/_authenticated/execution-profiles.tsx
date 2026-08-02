@@ -253,6 +253,10 @@ function ExecutionProfilesPage() {
     refetchInterval: 15_000,
   });
 
+  const authorityQuery = useAuthorityRuntime();
+
+
+
   useEffect(() => {
     if (data?.profile) setDraft(toDraft(data.profile as unknown as Record<string, unknown>));
   }, [data]);
