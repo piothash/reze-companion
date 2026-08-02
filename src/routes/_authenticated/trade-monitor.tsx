@@ -12,6 +12,11 @@ import {
   Timeline,
 } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
+import {
+  LiveRuntimePanel,
+  TelemetrySourcePill,
+  useRuntimeTelemetry,
+} from "@/components/arc/runtime-telemetry";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 import { getLedgerSummary } from "@/lib/platform.functions";
 
@@ -62,12 +67,18 @@ function TradeMonitorPage() {
       title="Trade Monitor"
       subtitle="Execution intent traceability from decision to settlement"
       actions={
-        <StatusPill
-          tone={(data?.projection.openOrders ?? 0) > 0 ? "degraded" : "healthy"}
-          label={`${data?.projection.openOrders ?? 0} OPEN`}
-        />
+        <div className="flex items-center gap-2">
+          <TelemetrySourcePill view={telemetry.data} />
+          <StatusPill
+            tone={(data?.projection.openOrders ?? 0) > 0 ? "degraded" : "healthy"}
+            label={`${data?.projection.openOrders ?? 0} OPEN`}
+          />
+        </div>
       }
     >
+      <div className="mb-4">
+        <LiveRuntimePanel view={telemetry.data} />
+      </div>
       {isPending ? (
         <LoadingState label="Reading execution telemetry" />
       ) : executions.length === 0 ? (

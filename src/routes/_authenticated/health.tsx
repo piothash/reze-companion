@@ -6,6 +6,11 @@ import { OperatorShell } from "@/components/arc/operator-shell";
 import { EmptyState, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { getHealthReport } from "@/lib/operations.functions";
+import {
+  LiveRuntimePanel,
+  TelemetrySourcePill,
+  useRuntimeTelemetry,
+} from "@/components/arc/runtime-telemetry";
 
 export const Route = createFileRoute("/_authenticated/health")({
   head: () => ({
@@ -28,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/health")({
 
 function HealthPage() {
   const fetchHealth = useServerFn(getHealthReport);
+  const telemetry = useRuntimeTelemetry();
   const { data, isPending } = useQuery({
     queryKey: ["arc", "health"],
     queryFn: () => fetchHealth(),
@@ -47,8 +53,16 @@ function HealthPage() {
       subtitle={
         data ? `Observed ${fmtTime(data.observedAtIso)} · ${data.latencyMillis} ms` : "Probing"
       }
-      actions={<StatusPill tone={worst} label={worst.toUpperCase()} />}
+      actions={
+        <div className="flex items-center gap-2">
+          <TelemetrySourcePill view={telemetry.data} />
+          <StatusPill tone={worst} label={worst.toUpperCase()} />
+        </div>
+      }
     >
+      <div className="mb-4">
+        <LiveRuntimePanel view={telemetry.data} />
+      </div>
       {isPending ? (
         <LoadingState label="Running health probes" />
       ) : (
