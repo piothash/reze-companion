@@ -25,7 +25,11 @@ import { Route as AuthenticatedSignalTankRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSystemRouteImport } from './routes/_authenticated/system'
 import { Route as AuthenticatedTradeMonitorRouteImport } from './routes/_authenticated/trade-monitor'
 import { Route as AuthenticatedWindowsRouteImport } from './routes/_authenticated/windows'
-import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
+import { Route as ApiPublicHealthIndexRouteImport } from './routes/api/public/health/index'
+import { Route as ApiPublicHealthDetailsRouteImport } from './routes/api/public/health/details'
+import { Route as ApiPublicHealthLiveRouteImport } from './routes/api/public/health/live'
+import { Route as ApiPublicHealthReadyRouteImport } from './routes/api/public/health/ready'
+import { Route as ApiPublicHealthStartupRouteImport } from './routes/api/public/health/startup'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -110,9 +114,29 @@ const AuthenticatedWindowsRoute = AuthenticatedWindowsRouteImport.update({
   path: '/windows',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
-  id: '/api/public/health',
-  path: '/api/public/health',
+const ApiPublicHealthIndexRoute = ApiPublicHealthIndexRouteImport.update({
+  id: '/api/public/health/',
+  path: '/api/public/health/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHealthDetailsRoute = ApiPublicHealthDetailsRouteImport.update({
+  id: '/api/public/health/details',
+  path: '/api/public/health/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHealthLiveRoute = ApiPublicHealthLiveRouteImport.update({
+  id: '/api/public/health/live',
+  path: '/api/public/health/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHealthReadyRoute = ApiPublicHealthReadyRouteImport.update({
+  id: '/api/public/health/ready',
+  path: '/api/public/health/ready',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHealthStartupRoute = ApiPublicHealthStartupRouteImport.update({
+  id: '/api/public/health/startup',
+  path: '/api/public/health/startup',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -132,7 +156,11 @@ export interface FileRoutesByFullPath {
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
-  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
+  '/api/public/health/live': typeof ApiPublicHealthLiveRoute
+  '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
+  '/api/public/health/startup': typeof ApiPublicHealthStartupRoute
+  '/api/public/health/': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,7 +178,11 @@ export interface FileRoutesByTo {
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
-  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
+  '/api/public/health/live': typeof ApiPublicHealthLiveRoute
+  '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
+  '/api/public/health/startup': typeof ApiPublicHealthStartupRoute
+  '/api/public/health': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,7 +202,11 @@ export interface FileRoutesById {
   '/_authenticated/system': typeof AuthenticatedSystemRoute
   '/_authenticated/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/_authenticated/windows': typeof AuthenticatedWindowsRoute
-  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
+  '/api/public/health/live': typeof ApiPublicHealthLiveRoute
+  '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
+  '/api/public/health/startup': typeof ApiPublicHealthStartupRoute
+  '/api/public/health/': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -190,7 +226,11 @@ export interface FileRouteTypes {
     | '/system'
     | '/trade-monitor'
     | '/windows'
-    | '/api/public/health'
+    | '/api/public/health/details'
+    | '/api/public/health/live'
+    | '/api/public/health/ready'
+    | '/api/public/health/startup'
+    | '/api/public/health/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -208,6 +248,10 @@ export interface FileRouteTypes {
     | '/system'
     | '/trade-monitor'
     | '/windows'
+    | '/api/public/health/details'
+    | '/api/public/health/live'
+    | '/api/public/health/ready'
+    | '/api/public/health/startup'
     | '/api/public/health'
   id:
     | '__root__'
@@ -227,14 +271,22 @@ export interface FileRouteTypes {
     | '/_authenticated/system'
     | '/_authenticated/trade-monitor'
     | '/_authenticated/windows'
-    | '/api/public/health'
+    | '/api/public/health/details'
+    | '/api/public/health/live'
+    | '/api/public/health/ready'
+    | '/api/public/health/startup'
+    | '/api/public/health/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
+  ApiPublicHealthDetailsRoute: typeof ApiPublicHealthDetailsRoute
+  ApiPublicHealthLiveRoute: typeof ApiPublicHealthLiveRoute
+  ApiPublicHealthReadyRoute: typeof ApiPublicHealthReadyRoute
+  ApiPublicHealthStartupRoute: typeof ApiPublicHealthStartupRoute
+  ApiPublicHealthIndexRoute: typeof ApiPublicHealthIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -351,11 +403,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWindowsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/health': {
-      id: '/api/public/health'
+    '/api/public/health/': {
+      id: '/api/public/health/'
       path: '/api/public/health'
-      fullPath: '/api/public/health'
-      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      fullPath: '/api/public/health/'
+      preLoaderRoute: typeof ApiPublicHealthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/health/details': {
+      id: '/api/public/health/details'
+      path: '/api/public/health/details'
+      fullPath: '/api/public/health/details'
+      preLoaderRoute: typeof ApiPublicHealthDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/health/live': {
+      id: '/api/public/health/live'
+      path: '/api/public/health/live'
+      fullPath: '/api/public/health/live'
+      preLoaderRoute: typeof ApiPublicHealthLiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/health/ready': {
+      id: '/api/public/health/ready'
+      path: '/api/public/health/ready'
+      fullPath: '/api/public/health/ready'
+      preLoaderRoute: typeof ApiPublicHealthReadyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/health/startup': {
+      id: '/api/public/health/startup'
+      path: '/api/public/health/startup'
+      fullPath: '/api/public/health/startup'
+      preLoaderRoute: typeof ApiPublicHealthStartupRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -400,7 +480,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  ApiPublicHealthRoute: ApiPublicHealthRoute,
+  ApiPublicHealthDetailsRoute: ApiPublicHealthDetailsRoute,
+  ApiPublicHealthLiveRoute: ApiPublicHealthLiveRoute,
+  ApiPublicHealthReadyRoute: ApiPublicHealthReadyRoute,
+  ApiPublicHealthStartupRoute: ApiPublicHealthStartupRoute,
+  ApiPublicHealthIndexRoute: ApiPublicHealthIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

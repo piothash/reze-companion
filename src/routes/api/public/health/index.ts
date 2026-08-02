@@ -9,7 +9,7 @@ import { versionManifest } from "@/core/contracts/versions";
  * Reports configuration validity, scheduler state and platform versions.
  * No trading data, no engine credentials, no user data.
  */
-export const Route = createFileRoute("/api/public/health")({
+export const Route = createFileRoute("/api/public/health/")({
   server: {
     handlers: {
       GET: async () => {
