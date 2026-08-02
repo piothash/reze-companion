@@ -35,7 +35,7 @@ import { MARKET_EVENT_TYPES } from "@/core/market/events";
 const CORRELATION = "corr-m4-001";
 
 function buildStream(): EventEnvelope[] {
-  const clock = new FixedClock("2026-01-01T00:00:00.000");
+  const clock = new FixedClock("2026-01-01T00:00:00.000Z");
   const factory = new EventEnvelopeFactory(clock, "test");
   const base = {
     correlationId: CORRELATION,
@@ -263,7 +263,7 @@ describe("replay", () => {
   });
 
   it("detects an illegal order FSM transition", () => {
-    const clock = new FixedClock("2026-01-01T00:00:00.000");
+    const clock = new FixedClock("2026-01-01T00:00:00.000Z");
     const factory = new EventEnvelopeFactory(clock, "test");
     const bad = factory.create({
       correlationId: CORRELATION,
@@ -314,7 +314,7 @@ describe("notifications", () => {
     const channel = new RecordingNotificationChannel();
     engine.register(channel);
 
-    const clock = new FixedClock("2026-01-01T00:00:00.000");
+    const clock = new FixedClock("2026-01-01T00:00:00.000Z");
     const factory = new EventEnvelopeFactory(clock, "test");
     const denial = factory.create({
       correlationId: CORRELATION,
@@ -344,7 +344,7 @@ describe("notifications", () => {
 describe("audit trail", () => {
   it("records configuration, profile and replay actions immutably", async () => {
     const repo = new InMemoryAuditRepository();
-    const trail = new AuditTrail(repo, new FixedClock("2026-01-01T00:00:00.000"), "operator-1");
+    const trail = new AuditTrail(repo, new FixedClock("2026-01-01T00:00:00.000Z"), "operator-1");
 
     await trail.configurationChanged("cfg-1", { field: "windows" });
     await trail.profileActivated("profile-a");
