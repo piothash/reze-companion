@@ -54,7 +54,7 @@ export class HealthRegistry {
   private readonly failures = new Map<string, number>();
 
   constructor(
-    private readonly config: HealthConfig,
+    private readonly config: ArcConfig["health"],
     private readonly clock: Clock = systemClock,
   ) {}
 
