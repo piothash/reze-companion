@@ -93,7 +93,7 @@ function QualificationPage() {
 
   if (scenario.isPending || !scenario.data) {
     return (
-      <OperatorShell title="Testnet Qualification" subtitle="M7.7–M7.8 — validation only">
+      <OperatorShell title="Testnet Qualification" subtitle="M7.7–M7.9 — validation only">
         <LoadingState label="Running deterministic qualification scenario" />
       </OperatorShell>
     );
@@ -137,7 +137,7 @@ function QualificationPage() {
   return (
     <OperatorShell
       title="Testnet Qualification"
-      subtitle="M7.7–M7.8 — validation only; the VPS remains the sole trading authority"
+      subtitle="M7.7–M7.9 — validation only; the VPS remains the sole trading authority"
       actions={<StatusPill tone={STATUS_TONE[verdict]} label={`GATE ${verdict}`} />}
     >
       <div className="space-y-4">
