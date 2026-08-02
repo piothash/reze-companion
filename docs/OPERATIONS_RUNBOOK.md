@@ -165,3 +165,81 @@ the same stream always yields the same digest.
 | `WDG_SILENT` on feed | feed provider status | upstream feed outage |
 | Duplicate events after restart | restore digest and `resumeSequence` | guard bypassed — stop and investigate |
 | Shutdown exit code `1` | shutdown report steps | a sink failed to flush; verify durability |
+
+---
+
+## 9. Authority handshake and PM2 integration (M7.6)
+
+The engine authenticates itself to the control plane. Wire this into the PM2
+lifecycle so an engine that cannot register never starts trading.
+
+### Environment
+
+| Variable | Where | Purpose |
+| --- | --- | --- |
+| `ARC_AUTHORITY_SIGNING_KEY` | companion **and** VPS | Shared HMAC key (≥32 chars). Identical on both sides. |
+| `ARC_AUTHORITY_ID` | VPS | Stable authority id, e.g. `arc-vps-authority-01` |
+| `ARC_COMPANION_URL` | VPS | Control-plane base URL |
+| `ARC_HEARTBEAT_INTERVAL_MS` | VPS | Heartbeat cadence (default `15000`) |
+
+The signing key is a shared secret: generate one strong random value
+(`openssl rand -hex 32`), store it in the companion's secrets and in the VPS
+environment. It is never written to the database and never returned by an API.
+Rotate by setting the new value on the companion first, then the VPS; requests
+signed with the old key are refused, so rotate during a maintenance window.
+
+### Startup sequence
+
+```
+pm2 start ecosystem.config.cjs --only arc
+  1. startup validator gates (section 1)
+  2. POST /api/public/authority/register
+       accepted → continue
+       403 / 503 / non-2xx → SYSTEM_START_BLOCKED, do not trade
+  3. GET  /api/public/authority/configuration
+       pending → validate → POST verdict → run the accepted version
+       none    → run the last accepted version
+  4. heartbeat loop every ARC_HEARTBEAT_INTERVAL_MS
+```
+
+`runtimeIdentity` must be regenerated on every process start (for example
+`${PM2_INSTANCE_ID}-${startedAtIso}`) so the control plane can distinguish a
+restart from a continuous run.
+
+### Restart and recovery
+
+- On restart the engine re-registers. The registry row is reused —
+  `registration_count` increments, the row is never duplicated.
+- A revoked authority stays revoked across re-registration. The operator must
+  clear the revocation; the engine cannot restore itself.
+- After a restart the engine re-pulls configuration before resuming. It does
+  not assume the last version it held is still current.
+- If heartbeats stop, the registry shows `stale` after
+  `max(90s, 3 × heartbeat interval)`. Stale means "unknown", not "safe":
+  investigate the engine before publishing configuration.
+
+### Verification
+
+```bash
+# Registration (signature computed by the engine client)
+curl -sS -X POST "$ARC_COMPANION_URL/api/public/authority/register" \
+  -H 'content-type: application/json' --data @registration.json
+
+# Pending configuration
+curl -sS "$ARC_COMPANION_URL/api/public/authority/configuration?authorityId=$ARC_AUTHORITY_ID"
+```
+
+Then confirm in the console at **Engine Registry → Trading Authority Registry**:
+status `active`, a recent heartbeat, the expected engine version, and the
+configuration version matching **Configuration → Active Runtime Configuration**.
+
+### Incident additions
+
+| Symptom | First check | Likely cause |
+|---------|-------------|--------------|
+| `503 KEY_UNCONFIGURED` | companion secret set? | signing key missing — fail-closed, as designed |
+| `401 SIGNATURE_INVALID` | keys identical on both sides? | key mismatch or non-canonical payload |
+| `401 TIMESTAMP_EXPIRED` | VPS clock (`timedatectl`) | clock drift beyond ±60s |
+| `409 SIGNATURE_REPLAYED` | duplicate retry of the same signed body | re-sign each retry with a fresh timestamp |
+| `409 CFG_HASH_MISMATCH` | published vs validated payload | engine validated a different version — republish |
+| Registry stuck at `registered` | heartbeat loop running? | registration succeeded, heartbeats never started |

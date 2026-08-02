@@ -155,3 +155,95 @@ Status is derived from the last heartbeat, never asserted by the console:
 The registry is visible read-only at **Engine Registry → Trading Authority
 Registry**. Registration and revocation are refused when the deployment's
 cutover guard does not match the active backend.
+
+---
+
+## Control-plane endpoints (M7.6)
+
+The sections above describe endpoints the **engine exposes**. These are the
+endpoints the **companion exposes** for the engine to call. They live under
+`/api/public/authority/*` so the VPS can reach them without a browser session,
+and each one authenticates the caller itself.
+
+| Endpoint | Method | Initiated by | Purpose |
+| --- | --- | --- | --- |
+| `/api/public/authority/register` | POST | VPS | Announce the authority on boot |
+| `/api/public/authority/heartbeat` | POST | VPS | Report liveness and runtime state |
+| `/api/public/authority/configuration` | GET | VPS | Pull the version it should run |
+| `/api/public/authority/configuration` | POST | VPS | Return `ACCEPTED` / `REJECTED` |
+
+### Message authentication
+
+Every request body is authenticated with three independent checks. All three
+must pass; failing any one rejects the message.
+
+1. **Signature** — `HMAC-SHA256(ARC_AUTHORITY_SIGNING_KEY, canonicalPayload)`,
+   lowercase hex, sent as `signature`. The canonical payload is
+   `JSON.stringify` over the body with keys sorted recursively, `undefined`
+   dropped, and the `signature` field itself excluded
+   (`canonicalAuthorityMessage` in `src/core/platform/authority-signature.ts`).
+2. **Timestamp** — ISO-8601 `timestamp`, within ±60s of control-plane time.
+3. **Nonce** — the SHA-256 digest of the signature is recorded in
+   `authority_replay_guard` for 15 minutes; a repeat is a replay.
+
+Comparison is constant-time. The key lives only in the server environment and
+on the VPS: never in the database, never in a response, never in the browser
+bundle. **If the key is not configured, every message is rejected with `503
+KEY_UNCONFIGURED`** — the endpoints never fall back to accepting unsigned
+traffic.
+
+### Status codes
+
+| Status | Meaning |
+| --- | --- |
+| `200` | Accepted |
+| `400` | Malformed payload, or secret material offered as identity |
+| `401` | `MISSING_SIGNATURE`, `SIGNATURE_INVALID`, `TIMESTAMP_EXPIRED`, `TIMESTAMP_FUTURE` |
+| `403` | `AUTHORITY_REVOKED` — revoked authorities cannot re-register or heartbeat |
+| `404` | `AUTHORITY_NOT_REGISTERED`, `CFG_VERSION_NOT_FOUND` |
+| `409` | `SIGNATURE_REPLAYED`, `CFG_HASH_MISMATCH`, `OPERATOR_NOT_BOOTSTRAPPED` |
+| `503` | `KEY_UNCONFIGURED` |
+
+### Heartbeat body (M7.6 fields)
+
+```jsonc
+{
+  "authorityId": "arc-vps-authority-01",
+  "environment": "testnet",
+  "engineVersion": "1.4.2",
+  "platformVersion": "1.0.0",
+  "status": "healthy",              // starting | healthy | degraded | halted
+  "uptimeSeconds": 3600,
+  "activeMarket": "BTC-UP-2026-06-01T12",
+  "activeWindows": 5,
+  "eventSequence": 4210,            // monotonic; a reset means a restart
+  "configurationVersion": 7,
+  "runtimeIdentity": "pm2-run-1",   // changes on every process start
+  "heartbeatIntervalMillis": 15000,
+  "timestamp": "2026-06-01T12:00:00.000Z",
+  "signature": "<hex hmac>"
+}
+```
+
+A changed `runtimeIdentity` is recorded as `authority.restarted` in the audit
+log. A restart is never a rejection — it is evidence, surfaced to the operator.
+
+The companion derives status from heartbeats it verified itself; the engine
+cannot assert that it is `active`. The stale deadline is
+`max(90s, 3 × heartbeatIntervalMillis)`.
+
+### Configuration dispatch
+
+```
+operator publishes version  →  status PENDING (immutable, hashed)
+engine GET  /configuration  →  { version, configHash, config }
+engine validates against its own runtime
+engine POST /configuration  →  { verdict: ACCEPTED | REJECTED, configHash }
+        ACCEPTED → version ACTIVE, runtime_configuration_state = LIVE
+        REJECTED → version REJECTED, nothing activated
+```
+
+The pull is engine-initiated so no inbound port is required on the VPS. The
+verdict must echo the exact `configHash` of the published version; a mismatch
+is refused with `CFG_HASH_MISMATCH` and the version stays `PENDING`. **No
+configuration is ever marked active without a signed engine verdict.**

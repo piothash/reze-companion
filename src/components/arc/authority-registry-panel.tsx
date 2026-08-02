@@ -1,9 +1,10 @@
 /**
- * ARC — trading authority registry panel (M7.5).
+ * ARC — trading authority registry panel (M7.5 / M7.6).
  *
- * Read-only view of the VPS trading authorities that have registered with this
- * control plane. Registration itself is engine-initiated; the console never
- * fabricates an authority and never stores credential material.
+ * Read-only view of the VPS trading authorities registered with this control
+ * plane. Registration and heartbeats are engine-initiated; the console never
+ * fabricates an authority, never asserts liveness and never stores credential
+ * material.
  */
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -11,25 +12,66 @@ import { useServerFn } from "@tanstack/react-start";
 import { EmptyState, LoadingState, Panel } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { listRegisteredAuthorities } from "@/lib/authority.functions";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
+const STATUS_TONE: Record<string, string> = {
+  active: "text-primary",
+  registered: "text-muted-foreground",
+  stale: "text-warning",
+  revoked: "text-destructive",
+};
+
+const RUNTIME_TONE: Record<string, string> = {
+  healthy: "text-primary",
+  starting: "text-muted-foreground",
+  degraded: "text-warning",
+  halted: "text-destructive",
+  unknown: "text-muted-foreground",
+};
+
+function ago(iso: string | null, nowMillis: number): string {
+  if (!iso) return "never";
+  const delta = Math.max(0, Math.round((nowMillis - Date.parse(iso)) / 1000));
+  if (delta < 60) return `${delta} second${delta === 1 ? "" : "s"} ago`;
+  if (delta < 3600) return `${Math.round(delta / 60)} min ago`;
+  return `${Math.round(delta / 3600)} h ago`;
+}
+
+function uptime(seconds: number | null): string {
+  if (seconds === null) return "—";
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+  return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+}
+
+function Field({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: string | undefined;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className={`font-mono text-sm ${tone ?? ""}`}>{value}</p>
+    </div>
+  );
+}
 
 export function AuthorityRegistryPanel() {
   const fetchAuthorities = useServerFn(listRegisteredAuthorities);
   const { data, isPending, error } = useQuery({
     queryKey: ["arc", "authority-registry"],
     queryFn: () => fetchAuthorities(),
-    refetchInterval: 30_000,
+    refetchInterval: 5_000,
   });
 
+  const now = Date.now();
+
   return (
-    <Panel title="Trading Authority Registry" className="overflow-x-auto">
+    <Panel title="Trading Authority Registry">
       {error ? (
         <p className="font-mono text-sm text-destructive">{(error as Error).message}</p>
       ) : isPending ? (
@@ -37,56 +79,87 @@ export function AuthorityRegistryPanel() {
       ) : (data ?? []).length === 0 ? (
         <EmptyState
           message="No trading authority registered."
-          hint="The VPS engine registers itself through POST /authority/register and keeps its record live with POST /authority/heartbeat. The control plane stores public identity only."
+          hint="The VPS engine registers itself through POST /api/public/authority/register on boot and keeps its record live with POST /api/public/authority/heartbeat. Until it does, no authority is allowed to trade."
         />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Authority</TableHead>
-              <TableHead>Environment</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Version</TableHead>
-              <TableHead>Registered</TableHead>
-              <TableHead>Last Seen</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {(data ?? []).map((authority) => (
-              <TableRow key={authority.authorityId}>
-                <TableCell className="font-mono text-xs">
-                  {authority.name}
-                  <span className="block text-muted-foreground">{authority.authorityId}</span>
-                </TableCell>
-                <TableCell className="font-mono text-xs uppercase">
-                  {authority.environment}
-                </TableCell>
-                <TableCell
-                  className={
-                    authority.status === "active"
-                      ? "font-mono text-xs uppercase text-primary"
-                      : authority.status === "revoked"
-                        ? "font-mono text-xs uppercase text-destructive"
-                        : "font-mono text-xs uppercase text-muted-foreground"
-                  }
+        <div className="space-y-4">
+          {(data ?? []).map((authority) => (
+            <div
+              key={authority.authorityId}
+              className="rounded border border-border bg-card/40 p-4"
+            >
+              <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+                <div>
+                  <p className="font-mono text-sm">{authority.name}</p>
+                  <p className="font-mono text-xs text-muted-foreground">
+                    {authority.authorityId}
+                  </p>
+                </div>
+                <span
+                  className={`font-mono text-xs uppercase tracking-wider ${
+                    STATUS_TONE[authority.status] ?? "text-muted-foreground"
+                  }`}
                 >
                   {authority.status}
-                </TableCell>
-                <TableCell className="font-mono text-xs">
-                  {authority.engineVersion ?? "—"}
-                </TableCell>
-                <TableCell className="font-mono text-xs">
-                  {fmtTime(authority.registeredAt)}
-                </TableCell>
-                <TableCell className="font-mono text-xs">{fmtTime(authority.lastSeen)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Field label="Environment" value={authority.environment.toUpperCase()} />
+                <Field label="Version" value={authority.engineVersion ?? "—"} />
+                <Field
+                  label="Last heartbeat"
+                  value={ago(authority.lastSeen, now)}
+                  tone={authority.status === "stale" ? "text-warning" : undefined}
+                />
+                <Field
+                  label="Latency"
+                  value={
+                    authority.latencyMillis === null ? "—" : `${authority.latencyMillis} ms`
+                  }
+                />
+                <Field
+                  label="Runtime"
+                  value={authority.runtimeStatus.toUpperCase()}
+                  tone={RUNTIME_TONE[authority.runtimeStatus]}
+                />
+                <Field label="Uptime" value={uptime(authority.uptimeSeconds)} />
+                <Field
+                  label="Active windows"
+                  value={authority.activeWindows === null ? "—" : String(authority.activeWindows)}
+                />
+                <Field
+                  label="Config version"
+                  value={
+                    authority.configurationVersion === null
+                      ? "—"
+                      : `v${authority.configurationVersion}`
+                  }
+                />
+                <Field label="Active market" value={authority.activeMarket ?? "—"} />
+                <Field
+                  label="Event sequence"
+                  value={authority.eventSequence === null ? "—" : String(authority.eventSequence)}
+                />
+                <Field label="Registered" value={fmtTime(authority.registeredAt)} />
+                <Field
+                  label="Registrations"
+                  value={String(authority.registrationCount)}
+                />
+              </div>
+
+              <p className="mt-3 font-mono text-[10px] text-muted-foreground">
+                heartbeat interval {Math.round(authority.heartbeatIntervalMillis / 1000)}s ·
+                runtime identity {authority.runtimeIdentity ?? "—"}
+              </p>
+            </div>
+          ))}
+        </div>
       )}
       <p className="mt-3 text-xs text-muted-foreground">
         Public identity only: no wallet keys, exchange credentials or execution secrets are ever
-        stored in the control plane.
+        stored in the control plane. Liveness is derived from verified heartbeats — an engine
+        cannot declare itself active.
       </p>
     </Panel>
   );

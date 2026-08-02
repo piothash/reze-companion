@@ -7,7 +7,7 @@
  * are rejected at this boundary and by a database trigger.
  */
 import {
-  deriveAuthorityStatus,
+  deriveAuthorityLiveness,
   parseAuthorityRegistration,
   type AuthorityStatusView,
 } from "@/core/platform/authority-registration";
@@ -20,13 +20,19 @@ function toView(row: Record<string, unknown>, nowMillis: number): AuthorityStatu
   const capabilities = Array.isArray(row["capabilities"])
     ? (row["capabilities"] as string[])
     : [];
+  const interval = (row["heartbeat_interval_millis"] as number | null) ?? 15_000;
+  const num = (key: string): number | null => {
+    const value = row[key];
+    return typeof value === "number" ? value : null;
+  };
   return {
     authorityId: String(row["authority_id"] ?? ""),
     name: String(row["name"] ?? ""),
     environment: (row["environment"] as AuthorityStatusView["environment"]) ?? "testnet",
-    status: deriveAuthorityStatus(
+    status: deriveAuthorityLiveness(
       (row["status"] as AuthorityStatusView["status"]) ?? "registered",
       lastSeen,
+      interval,
       nowMillis,
     ),
     engineVersion: (row["engine_version"] as string | null) ?? null,
@@ -35,6 +41,17 @@ function toView(row: Record<string, unknown>, nowMillis: number): AuthorityStatu
     capabilities,
     registeredAt: (row["registered_at"] as string | null) ?? null,
     lastSeen,
+    runtimeStatus:
+      (row["runtime_status"] as AuthorityStatusView["runtimeStatus"] | undefined) ?? "unknown",
+    uptimeSeconds: num("uptime_seconds"),
+    activeMarket: (row["active_market"] as string | null) ?? null,
+    activeWindows: num("active_windows"),
+    eventSequence: num("event_sequence"),
+    latencyMillis: num("latency_millis"),
+    heartbeatIntervalMillis: interval,
+    configurationVersion: num("configuration_version"),
+    runtimeIdentity: (row["runtime_identity"] as string | null) ?? null,
+    registrationCount: num("registration_count") ?? 0,
   };
 }
 
