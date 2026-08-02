@@ -27,6 +27,7 @@ import { Route as AuthenticatedSignalTankRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSystemRouteImport } from './routes/_authenticated/system'
 import { Route as AuthenticatedTradeMonitorRouteImport } from './routes/_authenticated/trade-monitor'
 import { Route as AuthenticatedWindowsRouteImport } from './routes/_authenticated/windows'
+import { Route as ApiPublicAuthorityRegisterRouteImport } from './routes/api/public/authority/register'
 import { Route as ApiPublicHealthIndexRouteImport } from './routes/api/public/health/index'
 import { Route as ApiPublicHealthDetailsRouteImport } from './routes/api/public/health/details'
 import { Route as ApiPublicHealthLiveRouteImport } from './routes/api/public/health/live'
@@ -127,6 +128,12 @@ const AuthenticatedWindowsRoute = AuthenticatedWindowsRouteImport.update({
   path: '/windows',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicAuthorityRegisterRoute =
+  ApiPublicAuthorityRegisterRouteImport.update({
+    id: '/api/public/authority/register',
+    path: '/api/public/authority/register',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHealthIndexRoute = ApiPublicHealthIndexRouteImport.update({
   id: '/api/public/health/',
   path: '/api/public/health/',
@@ -171,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
+  '/api/public/authority/register': typeof ApiPublicAuthorityRegisterRoute
   '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
   '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
@@ -195,6 +203,7 @@ export interface FileRoutesByTo {
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
+  '/api/public/authority/register': typeof ApiPublicAuthorityRegisterRoute
   '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
   '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
@@ -221,6 +230,7 @@ export interface FileRoutesById {
   '/_authenticated/system': typeof AuthenticatedSystemRoute
   '/_authenticated/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/_authenticated/windows': typeof AuthenticatedWindowsRoute
+  '/api/public/authority/register': typeof ApiPublicAuthorityRegisterRoute
   '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
   '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/system'
     | '/trade-monitor'
     | '/windows'
+    | '/api/public/authority/register'
     | '/api/public/health/details'
     | '/api/public/health/live'
     | '/api/public/health/ready'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/system'
     | '/trade-monitor'
     | '/windows'
+    | '/api/public/authority/register'
     | '/api/public/health/details'
     | '/api/public/health/live'
     | '/api/public/health/ready'
@@ -296,6 +308,7 @@ export interface FileRouteTypes {
     | '/_authenticated/system'
     | '/_authenticated/trade-monitor'
     | '/_authenticated/windows'
+    | '/api/public/authority/register'
     | '/api/public/health/details'
     | '/api/public/health/live'
     | '/api/public/health/ready'
@@ -307,6 +320,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicAuthorityRegisterRoute: typeof ApiPublicAuthorityRegisterRoute
   ApiPublicHealthDetailsRoute: typeof ApiPublicHealthDetailsRoute
   ApiPublicHealthLiveRoute: typeof ApiPublicHealthLiveRoute
   ApiPublicHealthReadyRoute: typeof ApiPublicHealthReadyRoute
@@ -442,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWindowsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/authority/register': {
+      id: '/api/public/authority/register'
+      path: '/api/public/authority/register'
+      fullPath: '/api/public/authority/register'
+      preLoaderRoute: typeof ApiPublicAuthorityRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/health/': {
       id: '/api/public/health/'
       path: '/api/public/health'
@@ -523,6 +544,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicAuthorityRegisterRoute: ApiPublicAuthorityRegisterRoute,
   ApiPublicHealthDetailsRoute: ApiPublicHealthDetailsRoute,
   ApiPublicHealthLiveRoute: ApiPublicHealthLiveRoute,
   ApiPublicHealthReadyRoute: ApiPublicHealthReadyRoute,
