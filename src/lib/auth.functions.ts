@@ -41,7 +41,7 @@ export const getOperatorBootstrapState = createServerFn({ method: "GET" }).handl
       },
     });
 
-    const { data, error } = await client.rpc("operator_bootstrapped");
+    const { data, error } = await client.rpc("ownership_finalized");
     // Fail closed: an unreachable probe never advertises an open registration.
     if (error) return { bootstrapped: true, resolved: false };
     return { bootstrapped: data === true, resolved: true };
