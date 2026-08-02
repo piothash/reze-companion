@@ -599,3 +599,22 @@ the plain `server.ts` name so the bundler refuses any client-side import of it.
 | Architecture compliance: no trading logic, no forbidden imports, reference tree untouched | Done |
 | `docs/qualification/M7_10_ACTIVATION_READINESS_REPORT.md` | Done |
 | Signing key configured · ownership finalized · VPS registered and ACTIVE | Pending operator run |
+
+## M8.0 — Final Production Audit & Mainnet Qualification Preparation
+
+| Item | Status |
+| --- | --- |
+| Architecture audit: dependency direction, engine/strategy/execution isolation, configuration and authority ownership | PASS |
+| Mainnet readiness gate (`src/core/qualification/mainnet.ts`) — 8 domains, one verdict, no override path | Done |
+| VPS authority validation: registered · identity · signature · heartbeat → ACTIVE / STALE / REVOKED / UNREGISTERED | Done |
+| PM2 production validation procedure | Done (`docs/deployment/M8_PM2_VALIDATION.md`) |
+| Replay qualification: deterministic replay separated from external execution simulation | PASS |
+| Recovery qualification: no duplicate intents, orders, settlements or ledger records | PASS |
+| Configuration audit: no drift, no unauthorized change, rollback and archive | PASS |
+| Security audit: secrets, HMAC + timestamp window + replay guard, ownership and audit trail | PASS |
+| Dashboard audit across all operator surfaces | PASS |
+| Production monitoring metrics and mandatory log fields | Done (`docs/operations/M8_MONITORING.md`) |
+| "Mainnet Readiness Gate — M8.0" panel on `/qualification` | Done |
+| Tests: readiness gate, no-override assertion, secret exposure, legacy purge | Done (429 total) |
+| `docs/qualification/M8_PRODUCTION_READINESS_REPORT.md` | Done |
+| Mainnet verdict | NOT QUALIFIED — pending live authority evidence |
