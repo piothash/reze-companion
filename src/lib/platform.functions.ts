@@ -36,7 +36,12 @@ export const listPlatformEvents = createServerFn({ method: "GET" })
       ...(data.classification ? { classification: data.classification } : {}),
       ...(data.since ? { since: data.since } : {}),
     });
-    return { events, count: events.length };
+    // Payloads are JSON documents on the wire; widen to a serializable type.
+    return {
+      events: events.map((event) => ({ ...event, payload: (event.payload ?? null) as JsonValue })),
+      count: events.length,
+    };
+
   });
 
 export const getLedgerSummary = createServerFn({ method: "GET" })
