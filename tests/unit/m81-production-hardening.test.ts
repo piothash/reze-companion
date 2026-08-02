@@ -72,7 +72,7 @@ function liveSnapshot(): LiveEvidenceSnapshot {
 describe("M8.1 — operator incident model", () => {
   it("raises a critical incident when no authority has ever registered", () => {
     const diagnostics = deriveOperationsDiagnostics(emptySnapshot());
-    const incident = diagnostics.incidents.find((entry) => entry.area === "Authority");
+    const incident = diagnostics.incidents.find((entry) => entry.area === "AUTHORITY");
 
     expect(incident).toBeDefined();
     expect(incident?.severity).toBe("CRITICAL");
@@ -109,7 +109,7 @@ describe("M8.1 — operator incident model", () => {
     expect(diagnostics.configuration.state).toBe("ACTIVE");
     expect(
       diagnostics.incidents.filter(
-        (incident) => incident.area === "Authority" || incident.area === "Configuration",
+        (incident) => incident.area === "AUTHORITY" || incident.area === "CONFIGURATION",
       ),
     ).toHaveLength(0);
   });
@@ -143,7 +143,7 @@ describe("M8.1 — operator incident model", () => {
 
     const diagnostics = deriveOperationsDiagnostics(drifted);
     expect(diagnostics.configuration.state).toBe("DRIFTED");
-    expect(diagnostics.incidents.some((incident) => incident.area === "Configuration")).toBe(true);
+    expect(diagnostics.incidents.some((incident) => incident.area === "CONFIGURATION")).toBe(true);
   });
 
   it("treats an absent startup chain as waiting, never as passing", () => {
@@ -224,7 +224,7 @@ describe("M8.1 — deployment checklist", () => {
 
   it("never reports ready without VPS evidence", () => {
     expect(deploymentReady(noEvidence)).toBe(false);
-    expect(noEvidence.some((check) => check.status === "PASS" && check.section === "VPS Authority"))
+    expect(noEvidence.some((check) => check.status === "PASS" && check.section === "VPS"))
       .toBe(false);
   });
 
@@ -242,7 +242,7 @@ describe("M8.1 — deployment checklist", () => {
       verdict: "BLOCKED",
     });
 
-    const authorityChecks = live.filter((check) => check.section === "VPS Authority");
+    const authorityChecks = live.filter((check) => check.section === "VPS");
     expect(authorityChecks.some((check) => check.status === "PASS")).toBe(true);
   });
 
@@ -255,7 +255,7 @@ describe("M8.1 — deployment checklist", () => {
     });
 
     expect(
-      offline.some((check) => check.section === "Environment" && check.status === "FAIL"),
+      offline.some((check) => check.section === "ENVIRONMENT" && check.status === "FAIL"),
     ).toBe(true);
   });
 });
