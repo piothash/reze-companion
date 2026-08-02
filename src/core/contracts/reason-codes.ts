@@ -208,6 +208,30 @@ export const REASON_CODES = {
     "error",
     "Persisted state failed consistency checks",
   ),
+  REC_DUPLICATE_SUPPRESSED: spec(
+    "REC_DUPLICATE_SUPPRESSED",
+    "RECOVERY",
+    "info",
+    "Duplicate emission suppressed by the recovery idempotency guard",
+  ),
+  REC_QUOTA_RESTORED: spec(
+    "REC_QUOTA_RESTORED",
+    "RECOVERY",
+    "info",
+    "Trade quota restored from the canonical event stream",
+  ),
+  REC_EXPOSURE_RESTORED: spec(
+    "REC_EXPOSURE_RESTORED",
+    "RECOVERY",
+    "info",
+    "Exposure reservations restored from the canonical event stream",
+  ),
+  REC_WINDOWS_RESTORED: spec(
+    "REC_WINDOWS_RESTORED",
+    "RECOVERY",
+    "info",
+    "Active execution windows restored from the canonical event stream",
+  ),
   REC_RECONCILED: spec(
     "REC_RECONCILED",
     "RECOVERY",
