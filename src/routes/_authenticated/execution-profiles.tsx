@@ -176,20 +176,27 @@ function ExecutionProfilesPage() {
         : current,
     );
 
+  const startNewProfile = () => {
+    const base = executionProfileSchema.omit({ windows: true }).parse({});
+    setDraft(toDraft({ ...base, windows: [] } as unknown as Record<string, unknown>));
+  };
+
+  const saveDisabled = !draft || draft.windows.length === 0 || mutation.isPending;
+
   return (
     <OperatorShell
       title="Execution Profiles"
       subtitle={
-        data
+        data?.profile
           ? `Source ${data.source} · digest ${data.digest} · ${fmtTime(data.updatedAtIso)}`
-          : "Loading profile"
+          : "No execution profile configured"
       }
       actions={
         <div className="flex items-center gap-2">
           <StatusPill tone="neutral" label={draft?.executionMode ?? "—"} />
           <Button
             size="sm"
-            disabled={!draft || mutation.isPending}
+            disabled={saveDisabled}
             onClick={() => draft && mutation.mutate(draft)}
           >
             {mutation.isPending ? "Saving…" : "Save profile"}
@@ -197,21 +204,36 @@ function ExecutionProfilesPage() {
         </div>
       }
     >
-      {error || (!isPending && !draft) ? (
+      {error ? (
         <Panel title="Execution Profile Unavailable">
-          <p className="font-mono text-sm text-destructive">
-            {(error as Error | null)?.message ??
-              "ARC execution profile invalid — configuration is not provisioned."}
-          </p>
+          <p className="font-mono text-sm text-destructive">{(error as Error).message}</p>
           <p className="mt-2 text-xs text-muted-foreground">
-            No execution profile is stored and the environment does not define one. Window offsets,
-            buffers and quotas are never hardcoded — provision them on the VPS environment or store
-            a configuration profile, then reload this page.
+            The stored profile could not be read. Window offsets, buffers and quotas are never
+            hardcoded — correct the stored configuration or the VPS environment, then reload.
           </p>
         </Panel>
-      ) : isPending || !draft ? (
-        <EmptyState message="Loading execution profile…" />
+      ) : isPending ? (
+        <Panel title="Execution Profile">
+          <LoadingState label="Reading execution profile" />
+        </Panel>
+      ) : !draft ? (
+        <Panel title="Execution Profile">
+          <EmptyState
+            message="No execution profile configured."
+            hint={
+              data?.invalidReason
+                ? `Stored profile rejected: ${data.invalidReason}. Create a new profile to begin.`
+                : "Create one to begin. Execution mode, trade quota, window offsets and buffers are all editable here — no code change is ever required."
+            }
+            action={
+              <Button size="sm" onClick={startNewProfile}>
+                Create execution profile
+              </Button>
+            }
+          />
+        </Panel>
       ) : (
+
         <div className="space-y-4">
           <Panel title="Profile">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
