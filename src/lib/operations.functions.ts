@@ -247,7 +247,7 @@ export const getSystemInfo = createServerFn({ method: "GET" })
   .handler(async () => {
     const { VERSION_REGISTRY } = await import("@/core/contracts/versions");
     const { resolveOperatorBootstrapState } = await import("@/lib/auth-state.server");
-    const { probeBackend } = await import("@/lib/supabase/server");
+    const { probeBackend } = await import("@/lib/supabase/backend.server");
     const [authentication, backend] = await Promise.all([
       resolveOperatorBootstrapState(),
       probeBackend(),

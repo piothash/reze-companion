@@ -2,7 +2,7 @@ import {
   createPublishableServerClient,
   getServerSupabaseConfig,
   serverBackendMatchesTarget,
-} from "./supabase/server";
+} from "./supabase/backend.server";
 
 export interface OperatorBootstrapState {
   readonly mode: "BOOTSTRAP_OPEN" | "OWNER_FINALIZED" | "AUTH_CONFIGURATION_ERROR";

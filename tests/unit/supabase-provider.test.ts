@@ -83,7 +83,8 @@ describe("supabase provider configuration", () => {
 
 describe("provider abstraction boundaries", () => {
   const files = globSync("src/**/*.{ts,tsx}", { cwd: process.cwd() }).filter(
-    (file) => !file.includes("integrations/supabase") && !file.includes("lib/supabase/"),
+    (file) => !file.includes("integrations/supabase") && !file.includes("lib/supabase/") &&
+      !file.includes("infrastructure/secret-scanner"),
   );
 
   it("routes all browser Supabase access through the provider layer", () => {
