@@ -7,7 +7,7 @@ import {
   isValidEnvelope,
   validateEnvelope,
 } from "@/core/contracts/event-envelope";
-import { REASON_CODES, reasonCodesByDomain, type ReasonCode } from "@/core/contracts/reason-codes";
+import { REASON_CODES, reasonCodesByDomain, REASON_DOMAINS, type ReasonCode } from "@/core/contracts/reason-codes";
 import { assertCompatible, isCompatible, versionManifest, versionOf } from "@/core/contracts/versions";
 import { FixedClock } from "@/core/shared/time";
 
@@ -76,9 +76,8 @@ describe("reason codes", () => {
   });
 
   it("groups codes by domain with no empty domain", () => {
-    const grouped = reasonCodesByDomain();
-    for (const codes of Object.values(grouped)) {
-      expect(codes.length).toBeGreaterThan(0);
+    for (const domain of REASON_DOMAINS) {
+      expect(reasonCodesByDomain(domain).length).toBeGreaterThan(0);
     }
   });
 });

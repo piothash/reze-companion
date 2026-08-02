@@ -87,7 +87,7 @@ describe("metrics", () => {
   it("renders Prometheus exposition text", () => {
     const metrics = createMetricsRegistry("arc", new FixedClock(0));
     metrics.increment("requests_total");
-    expect(metrics.toPrometheus()).toContain("arc_requests_total");
+    expect(metrics.renderPrometheus()).toContain("arc_requests_total");
   });
 });
 
