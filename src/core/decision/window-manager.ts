@@ -92,9 +92,7 @@ export function resolveWindowConfiguration(
   const configurationSnapshotId = `cfg_${digest128(
     `${executionProfileDigest(profile)}\u0000${JSON.stringify(material)}`,
   )}`;
-  return freezeDeep(
-    windowConfigurationSnapshotSchema.parse({ ...draft, configurationSnapshotId }),
-  );
+  return freezeDeep(windowConfigurationSnapshotSchema.parse({ ...draft, configurationSnapshotId }));
 }
 
 export class ExecutionWindowManager {
@@ -106,10 +104,7 @@ export class ExecutionWindowManager {
   constructor(private readonly options: WindowManagerOptions) {
     this.events =
       options.publisher ??
-      new DecisionEventPublisher(
-        new EventEnvelopeFactory(options.clock, "decision"),
-        options.sink,
-      );
+      new DecisionEventPublisher(new EventEnvelopeFactory(options.clock, "decision"), options.sink);
   }
 
   get executionContext(): ExecutionContext | null {
@@ -359,10 +354,7 @@ export class ExecutionWindowManager {
   }
 
   /** Completes a window exactly once and publishes WindowCompleted. */
-  async completeWindow(
-    windowInstanceId: string,
-    reason: WindowCompletionReason,
-  ): Promise<boolean> {
+  async completeWindow(windowInstanceId: string, reason: WindowCompletionReason): Promise<boolean> {
     const context = this.context;
     const window = context?.window(windowInstanceId);
     if (!context || !window) return false;

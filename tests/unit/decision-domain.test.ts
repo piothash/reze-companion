@@ -407,7 +407,11 @@ describe("execution window manager", () => {
     const outcomes = [];
     for (const [index, twap] of [100, 100.5, 104, 106].entries()) {
       outcomes.push(
-        (await manager.onMarketState(makeState({ version: index + 1, effectiveTwap: twap, ptb: 100 })))[0]!,
+        (
+          await manager.onMarketState(
+            makeState({ version: index + 1, effectiveTwap: twap, ptb: 100 }),
+          )
+        )[0]!,
       );
     }
 

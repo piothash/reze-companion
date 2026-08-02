@@ -35,7 +35,10 @@ export interface WindowInstanceOptions {
 }
 
 export class WindowInstance {
-  private readonly machine: StateMachine<WindowState, "OPEN" | "ACTIVATE" | "EVALUATE" | "EVALUATION_INCONCLUSIVE" | "INTENT_CREATED" | "COMPLETE">;
+  private readonly machine: StateMachine<
+    WindowState,
+    "OPEN" | "ACTIVATE" | "EVALUATE" | "EVALUATION_INCONCLUSIVE" | "INTENT_CREATED" | "COMPLETE"
+  >;
   private readonly createdAtIso: string;
   private completedAtIso: string | null = null;
   private completionReasonValue: WindowCompletionReason | null = null;

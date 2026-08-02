@@ -77,9 +77,7 @@ export type ExecutionProfileInput = z.input<typeof executionProfileSchema>;
 export class ExecutionProfileError extends Error {
   constructor(readonly issues: { path: string; message: string }[]) {
     super(
-      `ARC execution profile invalid — ${issues
-        .map((i) => `${i.path}: ${i.message}`)
-        .join("; ")}`,
+      `ARC execution profile invalid — ${issues.map((i) => `${i.path}: ${i.message}`).join("; ")}`,
     );
     this.name = "ExecutionProfileError";
   }
