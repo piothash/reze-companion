@@ -12,12 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedConfigurationRouteImport } from './routes/_authenticated/configuration'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedExecutionProfilesRouteImport } from './routes/_authenticated/execution-profiles'
 import { Route as AuthenticatedHealthRouteImport } from './routes/_authenticated/health'
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedReplayRouteImport } from './routes/_authenticated/replay'
 import { Route as AuthenticatedSignalTankRouteImport } from './routes/_authenticated/signal-tank'
 import { Route as AuthenticatedSystemRouteImport } from './routes/_authenticated/system'
 import { Route as AuthenticatedTradeMonitorRouteImport } from './routes/_authenticated/trade-monitor'
@@ -38,11 +42,22 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConfigurationRoute =
+  AuthenticatedConfigurationRouteImport.update({
+    id: '/configuration',
+    path: '/configuration',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
   id: '/console',
   path: '/console',
@@ -53,6 +68,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedExecutionProfilesRoute =
+  AuthenticatedExecutionProfilesRouteImport.update({
+    id: '/execution-profiles',
+    path: '/execution-profiles',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHealthRoute = AuthenticatedHealthRouteImport.update({
   id: '/health',
   path: '/health',
@@ -69,6 +90,11 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReplayRoute = AuthenticatedReplayRouteImport.update({
+  id: '/replay',
+  path: '/replay',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSignalTankRoute = AuthenticatedSignalTankRouteImport.update({
   id: '/signal-tank',
   path: '/signal-tank',
@@ -99,12 +125,16 @@ const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/configuration': typeof AuthenticatedConfigurationRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/replay': typeof AuthenticatedReplayRoute
   '/signal-tank': typeof AuthenticatedSignalTankRoute
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
@@ -114,12 +144,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/configuration': typeof AuthenticatedConfigurationRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/replay': typeof AuthenticatedReplayRoute
   '/signal-tank': typeof AuthenticatedSignalTankRoute
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
@@ -131,12 +165,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/configuration': typeof AuthenticatedConfigurationRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/_authenticated/health': typeof AuthenticatedHealthRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/replay': typeof AuthenticatedReplayRoute
   '/_authenticated/signal-tank': typeof AuthenticatedSignalTankRoute
   '/_authenticated/system': typeof AuthenticatedSystemRoute
   '/_authenticated/trade-monitor': typeof AuthenticatedTradeMonitorRoute
@@ -148,12 +186,16 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/analytics'
     | '/audit'
+    | '/configuration'
     | '/console'
     | '/dashboard'
+    | '/execution-profiles'
     | '/health'
     | '/markets'
     | '/notifications'
+    | '/replay'
     | '/signal-tank'
     | '/system'
     | '/trade-monitor'
@@ -163,12 +205,16 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/analytics'
     | '/audit'
+    | '/configuration'
     | '/console'
     | '/dashboard'
+    | '/execution-profiles'
     | '/health'
     | '/markets'
     | '/notifications'
+    | '/replay'
     | '/signal-tank'
     | '/system'
     | '/trade-monitor'
@@ -179,12 +225,16 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/analytics'
     | '/_authenticated/audit'
+    | '/_authenticated/configuration'
     | '/_authenticated/console'
     | '/_authenticated/dashboard'
+    | '/_authenticated/execution-profiles'
     | '/_authenticated/health'
     | '/_authenticated/markets'
     | '/_authenticated/notifications'
+    | '/_authenticated/replay'
     | '/_authenticated/signal-tank'
     | '/_authenticated/system'
     | '/_authenticated/trade-monitor'
@@ -222,11 +272,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/analytics': {
+      id: '/_authenticated/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
       path: '/audit'
       fullPath: '/audit'
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/configuration': {
+      id: '/_authenticated/configuration'
+      path: '/configuration'
+      fullPath: '/configuration'
+      preLoaderRoute: typeof AuthenticatedConfigurationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/console': {
@@ -241,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/execution-profiles': {
+      id: '/_authenticated/execution-profiles'
+      path: '/execution-profiles'
+      fullPath: '/execution-profiles'
+      preLoaderRoute: typeof AuthenticatedExecutionProfilesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/health': {
@@ -262,6 +333,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/replay': {
+      id: '/_authenticated/replay'
+      path: '/replay'
+      fullPath: '/replay'
+      preLoaderRoute: typeof AuthenticatedReplayRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/signal-tank': {
@@ -303,12 +381,16 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedConfigurationRoute: typeof AuthenticatedConfigurationRoute
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedExecutionProfilesRoute: typeof AuthenticatedExecutionProfilesRoute
   AuthenticatedHealthRoute: typeof AuthenticatedHealthRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedReplayRoute: typeof AuthenticatedReplayRoute
   AuthenticatedSignalTankRoute: typeof AuthenticatedSignalTankRoute
   AuthenticatedSystemRoute: typeof AuthenticatedSystemRoute
   AuthenticatedTradeMonitorRoute: typeof AuthenticatedTradeMonitorRoute
@@ -316,12 +398,16 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedConfigurationRoute: AuthenticatedConfigurationRoute,
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedExecutionProfilesRoute: AuthenticatedExecutionProfilesRoute,
   AuthenticatedHealthRoute: AuthenticatedHealthRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedReplayRoute: AuthenticatedReplayRoute,
   AuthenticatedSignalTankRoute: AuthenticatedSignalTankRoute,
   AuthenticatedSystemRoute: AuthenticatedSystemRoute,
   AuthenticatedTradeMonitorRoute: AuthenticatedTradeMonitorRoute,

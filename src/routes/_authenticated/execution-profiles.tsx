@@ -142,8 +142,7 @@ function ExecutionProfilesPage() {
   }, [data]);
 
   const mutation = useMutation({
-    mutationFn: (payload: ProfileDraft) =>
-      saveProfile({ data: payload as unknown as Parameters<typeof saveProfile>[0]["data"] }),
+    mutationFn: (payload: ProfileDraft) => saveProfile({ data: payload as never }),
     onSuccess: () => {
       toast.success("Execution profile saved");
       queryClient.invalidateQueries({ queryKey: ["arc", "execution-profile"] });
