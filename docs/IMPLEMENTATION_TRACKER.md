@@ -482,3 +482,20 @@ authority (ADR-0001).
 | No hardcoded operator email anywhere | Done |
 | Trusted operator session restores automatically | Done (Supabase persisted session) |
 | Live VPS qualification gates | Pending operator run against PM2 engine |
+
+## M7.4 — Supabase Provider Abstraction & Migration Readiness
+
+| Item | Status |
+| --- | --- |
+| Provider layer (`src/lib/supabase/`: config, provider, client, backend.server) | Done |
+| All browser Supabase access routed through `@/lib/supabase/client` | Done |
+| Backend selected only through environment (`SUPABASE_URL` / `SUPABASE_ANON_KEY`) | Done |
+| No compiled backend URL, project ref or key (enforced by test) | Done |
+| Optional deployment guard `ARC_REQUIRED_SUPABASE_URL` | Done |
+| System → Backend Connection diagnostics (masked URL, DB/auth health) | Done |
+| Service-role material never reaches the browser (filename-enforced) | Done |
+| Auth + ownership behaviour unchanged | Done |
+| Cutover to a dedicated Supabase project | Pending: set `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` for that project and apply the ARC migrations there |
+
+Note: `src/lib/supabase/backend.server.ts` carries the `.server.ts` suffix rather than
+the plain `server.ts` name so the bundler refuses any client-side import of it.
