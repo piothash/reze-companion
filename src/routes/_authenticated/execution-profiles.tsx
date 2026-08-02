@@ -197,9 +197,12 @@ function ExecutionProfilesPage() {
         </div>
       }
     >
-      {error ? (
+      {error || (!isPending && !draft) ? (
         <Panel title="Execution Profile Unavailable">
-          <p className="font-mono text-sm text-destructive">{(error as Error).message}</p>
+          <p className="font-mono text-sm text-destructive">
+            {(error as Error | null)?.message ??
+              "ARC execution profile invalid — configuration is not provisioned."}
+          </p>
           <p className="mt-2 text-xs text-muted-foreground">
             No execution profile is stored and the environment does not define one. Window offsets,
             buffers and quotas are never hardcoded — provision them on the VPS environment or store
