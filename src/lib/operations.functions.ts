@@ -246,6 +246,8 @@ export const getSystemInfo = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { VERSION_REGISTRY } = await import("@/core/contracts/versions");
+    const { resolveOperatorBootstrapState } = await import("@/lib/auth-state.server");
+    const authentication = await resolveOperatorBootstrapState();
     return {
       versions: Object.values(VERSION_REGISTRY).map((spec) => ({
         id: spec.id,
@@ -264,6 +266,7 @@ export const getSystemInfo = createServerFn({ method: "GET" })
       gitCommit: process.env["ARC_GIT_COMMIT"] ?? null,
       deployedAtIso: process.env["ARC_DEPLOYED_AT"] ?? null,
       buildIso: new Date().toISOString(),
+      authentication,
     };
   });
 
@@ -274,7 +277,8 @@ export const getHealthReport = createServerFn({ method: "GET" })
     const client = context.supabase as AnyClient;
     const startedAt = Date.now();
 
-    const [events, endpoints, replay] = await Promise.all([
+    const { resolveOperatorBootstrapState } = await import("@/lib/auth-state.server");
+    const [events, endpoints, replay, authentication] = await Promise.all([
       loadEvents(client, context.userId, 200).catch(() => []),
       client.from("engine_endpoints").select("name, is_active, last_seen_at, environment"),
       client
@@ -283,6 +287,7 @@ export const getHealthReport = createServerFn({ method: "GET" })
         .order("started_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
+      resolveOperatorBootstrapState(),
     ]);
 
     const projection = projectOperations(events);
@@ -356,6 +361,14 @@ export const getHealthReport = createServerFn({ method: "GET" })
           name: "Lovable Cloud",
           status: status(true),
           detail: `read latency ${latency} ms`,
+        },
+        {
+          name: "Authentication",
+          status: status(
+            authentication.mode === "OWNER_FINALIZED" && authentication.backendMatchesProduction,
+            authentication.resolved,
+          ),
+          detail: authentication.detail,
         },
         {
           name: "API",

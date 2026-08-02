@@ -31,8 +31,11 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { bootstrapped } = Route.useLoaderData();
-  const [mode, setMode] = useState<"signin" | "signup">(bootstrapped ? "signin" : "signup");
+  const bootstrap = Route.useLoaderData();
+  const registrationOpen = bootstrap.mode === "BOOTSTRAP_OPEN";
+  const [mode, setMode] = useState<"signin" | "signup">(
+    registrationOpen ? "signup" : "signin",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -51,6 +54,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
+        if (!registrationOpen) throw new Error("Bootstrap registration is unavailable.");
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -58,8 +62,7 @@ function AuthPage() {
         });
         if (error) throw error;
         if (!data.session) {
-          toast.info("Operator account created. Sign in to continue.");
-          setMode("signin");
+          toast.error("Account creation did not produce an active session.");
           return;
         }
         toast.success("Primary operator provisioned.");
@@ -109,20 +112,30 @@ function AuthPage() {
               className="font-mono"
             />
           </div>
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" disabled={busy || (mode === "signup" && !registrationOpen)}>
             {mode === "signin" ? "Sign in" : "Create account"}
           </Button>
         </form>
 
-        {bootstrapped ? (
+        {bootstrap.mode === "OWNER_FINALIZED" ? (
           <p className="mt-4 text-center font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
             Operator finalized — registration closed
           </p>
-        ) : (
+        ) : bootstrap.mode === "BOOTSTRAP_OPEN" ? (
           <p className="mt-4 text-center text-xs text-muted-foreground">
             Bootstrap mode. Register the account intended to operate this deployment, then
             finalize ownership from the console to close registration permanently.
           </p>
+        ) : (
+          <div className="mt-4 border border-destructive/50 bg-destructive/10 p-3 text-center">
+            <p className="font-mono text-xs uppercase text-destructive">
+              Authentication configuration mismatch
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{bootstrap.detail}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Bootstrap registration is unavailable.
+            </p>
+          </div>
         )}
       </div>
     </div>

@@ -11,6 +11,8 @@
  * account, identity or credential information.
  */
 import { createServerFn } from "@tanstack/react-start";
+import type { OperatorBootstrapState } from "./auth-state.server";
+
 export type { OperatorBootstrapState } from "./auth-state.server";
 
 export const getOperatorBootstrapState = createServerFn({ method: "GET" }).handler(

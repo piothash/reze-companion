@@ -186,6 +186,22 @@ Delivered this milestone:
 - Docs: `docs/TESTNET_QUALIFICATION.md`, `docs/AUTHORITY_API_CONTRACT.md`,
   ADR-0005.
 
+### M7.3 — Production Integration Qualification
+
+| Field | Value |
+|---|---|
+| Status | 🚫 Blocked — workspace backend does not match the required production project |
+| Dependencies | M7.2 ownership bootstrap and live production backend binding |
+| Exit Criteria | Authoritative auth-state resolver, intentional first-owner bootstrap, immediate session, automatic registration closure, auth health surfaces, live VPS gates |
+| Acceptance Status | 🟨 Resolver and fail-closed UI implemented; real production bootstrap unverified |
+| Replay Status | ✅ contracts unchanged |
+| Production Status | 🚫 required backend binding and live VPS are unavailable in this workspace |
+
+Observed on 2026-08-02: the connected backend is healthy but is not the required
+production backend. It contains one provisional owner, ownership is not finalized,
+and authentication has public signup disabled. ARC therefore reports
+`AUTH_CONFIGURATION_ERROR` and does not render a broken Create Account action.
+
 
 
 ### M8 — Mainnet Qualification
