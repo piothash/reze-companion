@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -760,21 +760,28 @@ function ExecutionProfilesPage() {
           </div>
 
           <Panel title="Profile Summary" className="h-fit xl:sticky xl:top-4">
-            <KeyValue
-              rows={[
-                ["Execution mode", MODE_LABEL[draft.executionMode] ?? draft.executionMode],
-                ["Trades per market", String(draft.maxTrades)],
+            <dl className="grid gap-y-2">
+              {(
                 [
-                  "Windows enabled",
-                  `${draft.windows.filter((window) => window.enabled).length} / ${draft.windows.length}`,
-                ],
-                ["Buffer mode", draft.bufferMode === "PERCENT" ? "Percentage" : "Absolute"],
-                ["Order timeout", `${draft.timeoutMillis / 1000} sec`],
-                ["Window active", `${draft.windowActiveMillis / 1000} sec`],
-                ["Repricing", draft.repricingEnabled ? "Enabled" : "Disabled"],
-                ["Compounding", draft.compounding ? "Enabled" : "Disabled"],
-              ]}
-            />
+                  ["Execution mode", MODE_LABEL[draft.executionMode] ?? draft.executionMode],
+                  ["Trades per market", String(draft.maxTrades)],
+                  [
+                    "Windows enabled",
+                    `${draft.windows.filter((window) => window.enabled).length} / ${draft.windows.length}`,
+                  ],
+                  ["Buffer mode", draft.bufferMode === "PERCENT" ? "Percentage" : "Absolute"],
+                  ["Order timeout", `${draft.timeoutMillis / 1000} sec`],
+                  ["Window active", `${draft.windowActiveMillis / 1000} sec`],
+                  ["Repricing", draft.repricingEnabled ? "Enabled" : "Disabled"],
+                  ["Compounding", draft.compounding ? "Enabled" : "Disabled"],
+                ] as [string, string][]
+              ).map(([key, value]) => (
+                <div key={key} className="flex items-baseline justify-between gap-3">
+                  <dt className="label-caps">{key}</dt>
+                  <dd className="font-mono text-sm">{value}</dd>
+                </div>
+              ))}
+            </dl>
             <div className="mt-3 border-t border-border pt-3">
               <p className="label-caps pb-2">Buffers</p>
               {windows.length === 0 ? (
