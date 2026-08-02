@@ -10,6 +10,7 @@ export * from "./event-store";
 export * from "./events";
 export * from "./ledger";
 export * from "./replay";
+export * from "./recovery";
 export * from "./analytics";
 export * from "./notifications";
 export * from "./audit";

@@ -61,6 +61,8 @@ export interface LedgerReconstruction {
   summary: LedgerSummary;
   /** Business events observed but not ledger-relevant (risk verdicts etc). */
   ignoredBusinessEventCount: number;
+  /** Business events whose payload failed contract validation and were skipped. */
+  malformedEventCount: number;
 }
 
 export interface LedgerOptions {
@@ -118,82 +120,106 @@ export function reconstructLedger(
   const ordered = [...events].sort(compareEnvelopes);
   const records: LedgerRecord[] = [];
   let ignoredBusinessEventCount = 0;
+  let malformedEventCount = 0;
 
   for (const envelope of ordered) {
     if (classifyEventType(envelope.type) !== "BUSINESS") continue;
 
-    switch (envelope.type) {
-      case EVENT_CATALOG.OrderFilled.type: {
-        const payload = envelope.payload as {
-          fill: { quantity: number; price: number };
-          order: { outcomeKey: string };
-        };
-        const notional = round(payload.fill.quantity * payload.fill.price);
-        const fees = round(notional * feeRate);
-        records.push(
-          baseRecord("TRADE", envelope, {
-            outcomeKey: payload.order.outcomeKey,
-            quantity: payload.fill.quantity,
-            price: payload.fill.price,
-            notional,
-          }),
-        );
-        if (fees > 0) {
+    // A malformed payload must never crash reconstruction: the ledger is read
+    // on every dashboard load and during recovery. Skip and count instead.
+    const before = records.length;
+    try {
+      switch (envelope.type) {
+        case EVENT_CATALOG.OrderFilled.type: {
+          const payload = envelope.payload as {
+            fill: { quantity: number; price: number };
+            order: { outcomeKey: string };
+          };
+          const notional = round(payload.fill.quantity * payload.fill.price);
+          const fees = round(notional * feeRate);
           records.push(
-            baseRecord("FEE", envelope, {
+            baseRecord("TRADE", envelope, {
               outcomeKey: payload.order.outcomeKey,
+              quantity: payload.fill.quantity,
+              price: payload.fill.price,
               notional,
-              fees,
             }),
           );
+          if (fees > 0) {
+            records.push(
+              baseRecord("FEE", envelope, {
+                outcomeKey: payload.order.outcomeKey,
+                notional,
+                fees,
+              }),
+            );
+          }
+          break;
         }
-        break;
+        case EVENT_CATALOG.ExecutionCompleted.type: {
+          const report = envelope.payload as {
+            outcomeKey: string;
+            cumulativeFilledQuantity: number;
+            cumulativeNotional: number;
+            averagePrice: number;
+          };
+          records.push(
+            baseRecord("EXECUTION_SUMMARY", envelope, {
+              outcomeKey: report.outcomeKey,
+              quantity: report.cumulativeFilledQuantity,
+              price: report.averagePrice,
+              notional: round(report.cumulativeNotional),
+            }),
+          );
+          break;
+        }
+        case EVENT_CATALOG.TradeSettled.type: {
+          const settlement = envelope.payload as SettlementRecord;
+          records.push(
+            baseRecord("SETTLEMENT", envelope, {
+              outcomeKey: settlement.outcomeKey,
+              quantity: settlement.quantity,
+              price: settlement.averagePrice,
+              notional: round(settlement.notional),
+              fees: round(settlement.fees),
+              occurredAtIso: envelope.occurredAt,
+              metadata: { settlementId: settlement.settlementId },
+            }),
+          );
+          records.push(
+            baseRecord("PNL", envelope, {
+              outcomeKey: settlement.outcomeKey,
+              realizedPnl: round(settlement.realizedPnl),
+              metadata: { settlementId: settlement.settlementId },
+            }),
+          );
+          break;
+        }
+        default:
+          ignoredBusinessEventCount += 1;
       }
-      case EVENT_CATALOG.ExecutionCompleted.type: {
-        const report = envelope.payload as {
-          outcomeKey: string;
-          cumulativeFilledQuantity: number;
-          cumulativeNotional: number;
-          averagePrice: number;
-        };
-        records.push(
-          baseRecord("EXECUTION_SUMMARY", envelope, {
-            outcomeKey: report.outcomeKey,
-            quantity: report.cumulativeFilledQuantity,
-            price: report.averagePrice,
-            notional: round(report.cumulativeNotional),
-          }),
-        );
-        break;
-      }
-      case EVENT_CATALOG.TradeSettled.type: {
-        const settlement = envelope.payload as SettlementRecord;
-        records.push(
-          baseRecord("SETTLEMENT", envelope, {
-            outcomeKey: settlement.outcomeKey,
-            quantity: settlement.quantity,
-            price: settlement.averagePrice,
-            notional: round(settlement.notional),
-            fees: round(settlement.fees),
-            occurredAtIso: envelope.occurredAt,
-            metadata: { settlementId: settlement.settlementId },
-          }),
-        );
-        records.push(
-          baseRecord("PNL", envelope, {
-            outcomeKey: settlement.outcomeKey,
-            realizedPnl: round(settlement.realizedPnl),
-            metadata: { settlementId: settlement.settlementId },
-          }),
-        );
-        break;
-      }
-      default:
-        ignoredBusinessEventCount += 1;
+    } catch {
+      records.length = before;
+      malformedEventCount += 1;
     }
   }
 
-  return { records, summary: summariseLedger(records), ignoredBusinessEventCount };
+  // Re-delivered events (restart, retry, replay) must never double-count: the
+  // record id is deterministic per source event, so dedupe on it.
+  const deduped: LedgerRecord[] = [];
+  const seenRecordIds = new Set<string>();
+  for (const record of records) {
+    if (seenRecordIds.has(record.recordId)) continue;
+    seenRecordIds.add(record.recordId);
+    deduped.push(record);
+  }
+
+  return {
+    records: deduped,
+    summary: summariseLedger(deduped),
+    ignoredBusinessEventCount,
+    malformedEventCount,
+  };
 }
 
 export function summariseLedger(records: readonly LedgerRecord[]): LedgerSummary {
