@@ -251,13 +251,7 @@ export type ExecutionConstraints = z.infer<typeof executionConstraintsSchema>;
 // Execution session
 // ---------------------------------------------------------------------------
 
-export const EXECUTION_STATES = [
-  "PENDING",
-  "WORKING",
-  "COMPLETED",
-  "FAILED",
-  "CANCELLED",
-] as const;
+export const EXECUTION_STATES = ["PENDING", "WORKING", "COMPLETED", "FAILED", "CANCELLED"] as const;
 export type ExecutionState = (typeof EXECUTION_STATES)[number];
 
 export const EXECUTION_FAILURE_REASONS = [

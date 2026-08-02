@@ -30,12 +30,16 @@ export interface BookSnapshot {
 }
 
 export type SubmitResult =
-  | { accepted: true; venueOrderId: string; immediateFillQuantity?: number; immediateFillPrice?: number }
+  | {
+      accepted: true;
+      venueOrderId: string;
+      immediateFillQuantity?: number;
+      immediateFillPrice?: number;
+    }
   | { accepted: false; rejectionReason: string; retryable: boolean };
 
 export type CancelResult =
-  | { cancelled: true }
-  | { cancelled: false; reason: string; alreadyTerminal: boolean };
+  { cancelled: true } | { cancelled: false; reason: string; alreadyTerminal: boolean };
 
 export interface VenueGateway {
   submit(request: OrderRequest): Promise<SubmitResult>;

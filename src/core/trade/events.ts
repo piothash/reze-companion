@@ -121,12 +121,7 @@ export class TradeEventPublisher {
   }
 
   exposureReserved(payload: ExposureReservedPayload, context: TradeEventContext) {
-    return this.emit(
-      TRADE_EVENT_TYPES.exposureReserved,
-      "RSK_EXPOSURE_RESERVED",
-      payload,
-      context,
-    );
+    return this.emit(TRADE_EVENT_TYPES.exposureReserved, "RSK_EXPOSURE_RESERVED", payload, context);
   }
 
   exposureReleased(payload: ExposureReleasedPayload, context: TradeEventContext) {
@@ -162,12 +157,7 @@ export class TradeEventPublisher {
   }
 
   tradeQuotaConsumed(payload: TradeQuotaConsumedPayload, context: TradeEventContext) {
-    return this.emit(
-      TRADE_EVENT_TYPES.tradeQuotaConsumed,
-      "EXE_QUOTA_COMMITTED",
-      payload,
-      context,
-    );
+    return this.emit(TRADE_EVENT_TYPES.tradeQuotaConsumed, "EXE_QUOTA_COMMITTED", payload, context);
   }
 
   executionCompleted(report: ExecutionReport, context: TradeEventContext) {

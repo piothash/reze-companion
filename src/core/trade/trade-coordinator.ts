@@ -166,7 +166,10 @@ export class TradeCoordinator {
     return { accepted: true, session, verdict };
   }
 
-  private buildObserver(context: TradeEventContext, minMeaningfulQuantity: number): StandingOrderObserver {
+  private buildObserver(
+    context: TradeEventContext,
+    minMeaningfulQuantity: number,
+  ): StandingOrderObserver {
     const options = this.options;
     const events = this.events;
     const ledger = this.ledger;

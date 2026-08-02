@@ -74,7 +74,9 @@ export type TradeDomainConfigInput = z.input<typeof tradeDomainConfigSchema>;
 
 export class TradeConfigError extends Error {
   constructor(readonly issues: { path: string; message: string }[]) {
-    super(`ARC trade configuration invalid — ${issues.map((i) => `${i.path}: ${i.message}`).join("; ")}`);
+    super(
+      `ARC trade configuration invalid — ${issues.map((i) => `${i.path}: ${i.message}`).join("; ")}`,
+    );
     this.name = "TradeConfigError";
   }
 }

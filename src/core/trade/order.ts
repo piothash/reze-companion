@@ -50,7 +50,10 @@ function round(value: number): number {
 
 export class Order {
   readonly orderId: string;
-  private readonly machine: StateMachine<OrderState, "SUBMIT" | "ACKNOWLEDGE" | "PARTIAL_FILL" | "FILL" | "CANCEL" | "REJECT" | "EXPIRE">;
+  private readonly machine: StateMachine<
+    OrderState,
+    "SUBMIT" | "ACKNOWLEDGE" | "PARTIAL_FILL" | "FILL" | "CANCEL" | "REJECT" | "EXPIRE"
+  >;
   private readonly fillsById = new Map<string, Fill>();
   private filled = 0;
   private notional = 0;
@@ -227,7 +230,12 @@ export class Order {
 
   /** Replay-only: restores a persisted terminal/interim state verbatim. */
   private forceState(state: OrderState): void {
-    const path: Record<OrderState, readonly ("SUBMIT" | "ACKNOWLEDGE" | "PARTIAL_FILL" | "FILL" | "CANCEL" | "REJECT" | "EXPIRE")[]> = {
+    const path: Record<
+      OrderState,
+      readonly (
+        "SUBMIT" | "ACKNOWLEDGE" | "PARTIAL_FILL" | "FILL" | "CANCEL" | "REJECT" | "EXPIRE"
+      )[]
+    > = {
       CREATED: [],
       SUBMITTED: ["SUBMIT"],
       WORKING: ["SUBMIT", "ACKNOWLEDGE"],

@@ -47,7 +47,12 @@ export const VERSION_REGISTRY = {
   executionIntent: v("executionIntent", "1.0.0", ["1.0.0"], "Immutable execution intent contract"),
   executionContext: v("executionContext", "1.0.0", ["1.0.0"], "Execution context runtime contract"),
   riskEngine: v("riskEngine", "1.0.0", ["1.0.0"], "Risk engine ALLOW/DENY verdict contract"),
-  exposureModel: v("exposureModel", "1.0.0", ["1.0.0"], "Exposure reservation and live-exposure model"),
+  exposureModel: v(
+    "exposureModel",
+    "1.0.0",
+    ["1.0.0"],
+    "Exposure reservation and live-exposure model",
+  ),
   orderContract: v("orderContract", "1.0.0", ["1.0.0"], "Order FSM and order snapshot contract"),
   standingOrderEngine: v(
     "standingOrderEngine",

@@ -41,7 +41,12 @@ import { type BookSnapshot, type VenueGateway } from "./venue-gateway";
 export interface StandingOrderObserver {
   onOrderSubmitted?(order: OrderSnapshot): Promise<void> | void;
   onOrderUpdated?(order: OrderSnapshot, note: string): Promise<void> | void;
-  onOrderFilled?(order: OrderSnapshot, fill: Fill, cumulative: number, complete: boolean): Promise<void> | void;
+  onOrderFilled?(
+    order: OrderSnapshot,
+    fill: Fill,
+    cumulative: number,
+    complete: boolean,
+  ): Promise<void> | void;
   onOrderCancelled?(order: OrderSnapshot): Promise<void> | void;
   /** Fired at most once per session, before the terminal report. */
   onFirstMeaningfulFill?(cumulative: number): Promise<void> | void;
@@ -403,7 +408,8 @@ export class StandingOrderSession {
       partiallyFilled: !filled && this.cumulativeFilled > 0,
       cumulativeFilledQuantity: this.cumulativeFilledQuantity,
       cumulativeNotional: round(this.cumulativeNotional),
-      averagePrice: this.cumulativeFilled > 0 ? round(this.cumulativeNotional / this.cumulativeFilled) : 0,
+      averagePrice:
+        this.cumulativeFilled > 0 ? round(this.cumulativeNotional / this.cumulativeFilled) : 0,
       requestedQuantity: this.constraints.quantity,
       failureReason: this.failure,
       orders: this.orders.map((order) => order.snapshot()),

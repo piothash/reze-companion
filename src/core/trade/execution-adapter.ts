@@ -11,11 +11,7 @@
  * the price ceiling is supplied by the caller from venue data.
  */
 import { deterministicId } from "../shared/ids";
-import {
-  executionConstraintsSchema,
-  freezeDeep,
-  type ExecutionConstraints,
-} from "./types";
+import { executionConstraintsSchema, freezeDeep, type ExecutionConstraints } from "./types";
 import { type OrderExecutionConfig } from "./configuration";
 
 /** Intent fields the adapter is allowed to read. Nothing strategic here. */

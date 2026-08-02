@@ -68,7 +68,13 @@ function evaluateCheck(
 
     case "FEED_FRESHNESS": {
       if (input.feedFreshnessState === "UNAVAILABLE") {
-        return result(check, false, "feed unavailable", input.feedAgeMillis, profile.maxFeedAgeMillis);
+        return result(
+          check,
+          false,
+          "feed unavailable",
+          input.feedAgeMillis,
+          profile.maxFeedAgeMillis,
+        );
       }
       if (input.feedFreshnessState === "STALE" && profile.denyOnStaleFeed) {
         return result(check, false, "feed stale", input.feedAgeMillis, profile.maxFeedAgeMillis);
@@ -152,7 +158,13 @@ function evaluateCheck(
           profile.maxSpread,
         );
       }
-      return result(check, true, "book liquidity and spread within policy", availableLiquidity, profile.minLiquidity);
+      return result(
+        check,
+        true,
+        "book liquidity and spread within policy",
+        availableLiquidity,
+        profile.minLiquidity,
+      );
     }
 
     case "POLICY": {
