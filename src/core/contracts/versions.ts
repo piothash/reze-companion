@@ -66,6 +66,18 @@ export const VERSION_REGISTRY = {
     ["1.0.0"],
     "ARC execution adapter contract between intents and the standing order engine",
   ),
+  eventStore: v("eventStore", "1.0.0", ["1.0.0"], "Append-only canonical event store contract"),
+  ledger: v("ledger", "1.0.0", ["1.0.0"], "Business-only ledger record contract"),
+  analytics: v("analytics", "1.0.0", ["1.0.0"], "Analytics summary contract computed from events"),
+  notification: v("notification", "1.0.0", ["1.0.0"], "Internal notification framework contract"),
+  auditTrail: v("auditTrail", "1.0.0", ["1.0.0"], "Platform audit trail record contract"),
+  synchronization: v(
+    "synchronization",
+    "1.0.0",
+    ["1.0.0"],
+    "Companion↔Cloud synchronization policy contract",
+  ),
+  platformApi: v("platformApi", "1.0.0", ["1.0.0"], "Read-only platform API contract"),
 } as const satisfies Record<string, VersionSpec>;
 
 export type VersionKey = keyof typeof VERSION_REGISTRY;

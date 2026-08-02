@@ -99,12 +99,27 @@ Legend: `⬜` not started · `🟨` in progress · `✅` complete · `N/A` not a
 
 | Field | Value |
 |---|---|
-| Status | ⬜ Not started |
-| Dependencies | M0 |
-| Exit Criteria | Health, metrics, notifications, persistence retention and structured logging operational |
-| Acceptance Status | ⬜ |
-| Replay Status | N/A |
-| Production Status | ⬜ |
+| Status | ✅ Complete (platform services landed) |
+| Dependencies | M0–M3 |
+| Exit Criteria | Append-only event store, deterministic replay, ledger, analytics, notifications, audit trail, read-only API and Cloud synchronization policy |
+| Acceptance Status | ✅ 21 platform unit tests green (154 total) |
+| Replay Status | ✅ Deterministic: identical events produce an identical projection digest, order-insensitive (`tests/unit/platform-services.test.ts`) |
+| Production Status | 🟨 Awaiting a live engine feed to populate the stores |
+
+**M4 evidence log**
+
+- Platform modules: `src/core/platform/{event-catalog,event-store,events,ledger,replay,analytics,notifications,audit,sync,index}.ts`
+- Persistence adapters: `src/core/platform/supabase-platform.server.ts` over `platform_events`, `ledger_records`, `analytics_summaries`, `replay_runs` (SELECT/INSERT only on events — immutability enforced by the database).
+- Event store: append-only, idempotent on `idempotencyKey`, rejects retroactive insertion, rejects reuse of an `eventId` with different content, deep-freezes every stored envelope.
+- Event catalog classifies every canonical event as BUSINESS (ledger-bearing) or OPERATIONAL (telemetry).
+- Ledger is a pure reconstruction from BUSINESS events only — TRADE, FEE, EXECUTION_SUMMARY, SETTLEMENT, PNL records; no balance is ever mutated in place.
+- Replay is read-only and pure: no clock, no randomness, no IO; validates event ordering, market-state version monotonicity, order FSM legality, correlation ids, execution ids and quota monotonicity, and emits a stable digest.
+- Analytics derives fill rate, partial-fill rate, retry rate, fill latency, slippage vs reference effective TWAP, buffer efficiency, quota/window utilization and peak exposure — observation only, never fed back into any engine.
+- Notifications: severity derived from reason codes, category routing, dedup per notification id, in-process channels only (no Telegram/email in this milestone).
+- Audit trail records configuration, profile, replay, auth and platform actions immutably.
+- Synchronization policy mirrors durable records only; Execution Context, active orders, runtime state, open reservations and venue credentials are never synchronized (ADR-0001).
+- Read API: `src/lib/platform.functions.ts` — authenticated, read-only server functions (events, ledger, analytics, replay runs, replay execution). No control or trading path exists.
+
 
 ### M5 — Operations
 

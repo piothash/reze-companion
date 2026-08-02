@@ -17,6 +17,12 @@ export const REASON_DOMAINS = [
   "RECOVERY",
   "REPLAY",
   "MARKET",
+  "PLATFORM",
+  "LEDGER",
+  "ANALYTICS",
+  "NOTIFICATION",
+  "AUDIT",
+  "SYNCHRONIZATION",
 ] as const;
 
 export type ReasonDomain = (typeof REASON_DOMAINS)[number];
@@ -565,6 +571,150 @@ export const REASON_CODES = {
     "info",
     "Execution state rebuilt from a persisted snapshot after restart",
   ),
+
+  // Platform services (M4) --------------------------------------------------
+  EVT_APPENDED: spec("EVT_APPENDED", "PLATFORM", "info", "Event appended to the append-only store"),
+  EVT_DUPLICATE_SUPPRESSED: spec(
+    "EVT_DUPLICATE_SUPPRESSED",
+    "PLATFORM",
+    "info",
+    "Duplicate event suppressed by idempotency key",
+  ),
+  EVT_RETROACTIVE_REJECTED: spec(
+    "EVT_RETROACTIVE_REJECTED",
+    "PLATFORM",
+    "error",
+    "Retroactive event insertion rejected by the append-only store",
+  ),
+  EVT_MUTATION_REJECTED: spec(
+    "EVT_MUTATION_REJECTED",
+    "PLATFORM",
+    "error",
+    "Attempt to mutate or delete a stored event rejected",
+  ),
+  EVT_INVALID: spec("EVT_INVALID", "PLATFORM", "error", "Event failed envelope validation"),
+  EVT_STREAM_READ: spec("EVT_STREAM_READ", "PLATFORM", "info", "Event stream read"),
+  PLT_TRADE_SETTLED: spec("PLT_TRADE_SETTLED", "PLATFORM", "info", "Trade settlement recorded"),
+  PLT_SCHEDULER_TICK: spec("PLT_SCHEDULER_TICK", "PLATFORM", "info", "Scheduler tick observed"),
+  PLT_HEALTH_CHANGED: spec("PLT_HEALTH_CHANGED", "PLATFORM", "info", "Health status changed"),
+  PLT_FEED_CONNECTED: spec("PLT_FEED_CONNECTED", "PLATFORM", "info", "Feed connection established"),
+  PLT_FEED_DISCONNECTED: spec(
+    "PLT_FEED_DISCONNECTED",
+    "PLATFORM",
+    "warning",
+    "Feed connection lost",
+  ),
+  PLT_WINDOW_CLOSED: spec("PLT_WINDOW_CLOSED", "PLATFORM", "info", "Execution window closed"),
+  PLT_API_READ: spec("PLT_API_READ", "PLATFORM", "info", "Read-only platform API served"),
+
+  // Ledger ------------------------------------------------------------------
+  LDG_RECORDED: spec("LDG_RECORDED", "LEDGER", "info", "Ledger record written"),
+  LDG_RECONSTRUCTED: spec(
+    "LDG_RECONSTRUCTED",
+    "LEDGER",
+    "info",
+    "Ledger reconstructed from business events",
+  ),
+  LDG_OPERATIONAL_REJECTED: spec(
+    "LDG_OPERATIONAL_REJECTED",
+    "LEDGER",
+    "error",
+    "Operational event rejected by the ledger",
+  ),
+  LDG_INCONSISTENT: spec(
+    "LDG_INCONSISTENT",
+    "LEDGER",
+    "error",
+    "Ledger reconstruction produced inconsistent totals",
+  ),
+
+  // Replay (M4 additions) ---------------------------------------------------
+  RPL_STARTED: spec("RPL_STARTED", "REPLAY", "info", "Replay run started"),
+  RPL_ORDERING_VIOLATION: spec(
+    "RPL_ORDERING_VIOLATION",
+    "REPLAY",
+    "error",
+    "Replay detected an event ordering violation",
+  ),
+  RPL_VERSION_REGRESSION: spec(
+    "RPL_VERSION_REGRESSION",
+    "REPLAY",
+    "error",
+    "Replay detected a market state version regression",
+  ),
+  RPL_TRANSITION_INVALID: spec(
+    "RPL_TRANSITION_INVALID",
+    "REPLAY",
+    "error",
+    "Replay detected an illegal FSM transition",
+  ),
+  RPL_QUOTA_REGRESSION: spec(
+    "RPL_QUOTA_REGRESSION",
+    "REPLAY",
+    "error",
+    "Replay detected non-monotonic trade quota progression",
+  ),
+  RPL_CORRELATION_MISSING: spec(
+    "RPL_CORRELATION_MISSING",
+    "REPLAY",
+    "error",
+    "Replay detected an event without a usable correlation id",
+  ),
+  RPL_UNKNOWN_EXECUTION: spec(
+    "RPL_UNKNOWN_EXECUTION",
+    "REPLAY",
+    "error",
+    "Replay observed an execution id that was never created",
+  ),
+
+  // Analytics ---------------------------------------------------------------
+  ANL_COMPUTED: spec("ANL_COMPUTED", "ANALYTICS", "info", "Analytics summary computed from events"),
+  ANL_INSUFFICIENT_DATA: spec(
+    "ANL_INSUFFICIENT_DATA",
+    "ANALYTICS",
+    "warning",
+    "Analytics metric undefined for the observed event window",
+  ),
+
+  // Notifications -----------------------------------------------------------
+  NTF_RAISED: spec(
+    "NTF_RAISED",
+    "NOTIFICATION",
+    "info",
+    "Notification raised from a canonical event",
+  ),
+  NTF_SUPPRESSED: spec(
+    "NTF_SUPPRESSED",
+    "NOTIFICATION",
+    "info",
+    "Notification suppressed by deduplication or category filter",
+  ),
+  NTF_DELIVERY_FAILED: spec(
+    "NTF_DELIVERY_FAILED",
+    "NOTIFICATION",
+    "warning",
+    "Notification channel failed to accept a notification",
+  ),
+
+  // Audit -------------------------------------------------------------------
+  AUD_RECORDED: spec("AUD_RECORDED", "AUDIT", "info", "Audit record written"),
+  AUD_WRITE_FAILED: spec("AUD_WRITE_FAILED", "AUDIT", "error", "Audit record could not be written"),
+
+  // Synchronization ---------------------------------------------------------
+  SYN_STARTED: spec("SYN_STARTED", "SYNCHRONIZATION", "info", "Synchronization batch started"),
+  SYN_COMPLETED: spec(
+    "SYN_COMPLETED",
+    "SYNCHRONIZATION",
+    "info",
+    "Synchronization batch completed",
+  ),
+  SYN_SKIPPED_RUNTIME_STATE: spec(
+    "SYN_SKIPPED_RUNTIME_STATE",
+    "SYNCHRONIZATION",
+    "info",
+    "Runtime-only state excluded from synchronization by policy",
+  ),
+  SYN_FAILED: spec("SYN_FAILED", "SYNCHRONIZATION", "error", "Synchronization batch failed"),
 } as const satisfies Record<string, ReasonCodeSpec>;
 
 export type ReasonCode = keyof typeof REASON_CODES;

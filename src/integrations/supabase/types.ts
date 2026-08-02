@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_summaries: {
+        Row: {
+          computed_at: string
+          created_at: string
+          event_count: number
+          id: string
+          metrics: Json
+          period_end: string
+          period_start: string
+          scope: string
+          scope_key: string
+          user_id: string
+        }
+        Insert: {
+          computed_at?: string
+          created_at?: string
+          event_count?: number
+          id?: string
+          metrics?: Json
+          period_end: string
+          period_start: string
+          scope: string
+          scope_key?: string
+          user_id: string
+        }
+        Update: {
+          computed_at?: string
+          created_at?: string
+          event_count?: number
+          id?: string
+          metrics?: Json
+          period_end?: string
+          period_start?: string
+          scope?: string
+          scope_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -219,6 +258,66 @@ export type Database = {
         }
         Relationships: []
       }
+      ledger_records: {
+        Row: {
+          created_at: string
+          execution_intent_id: string | null
+          fees: number
+          id: string
+          kind: string
+          market_instance_id: string | null
+          metadata: Json
+          notional: number
+          occurred_at: string
+          outcome_key: string | null
+          price: number
+          quantity: number
+          realized_pnl: number
+          record_id: string
+          source_event_id: string | null
+          user_id: string
+          window_instance_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          execution_intent_id?: string | null
+          fees?: number
+          id?: string
+          kind: string
+          market_instance_id?: string | null
+          metadata?: Json
+          notional?: number
+          occurred_at: string
+          outcome_key?: string | null
+          price?: number
+          quantity?: number
+          realized_pnl?: number
+          record_id: string
+          source_event_id?: string | null
+          user_id: string
+          window_instance_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          execution_intent_id?: string | null
+          fees?: number
+          id?: string
+          kind?: string
+          market_instance_id?: string | null
+          metadata?: Json
+          notional?: number
+          occurred_at?: string
+          outcome_key?: string | null
+          price?: number
+          quantity?: number
+          realized_pnl?: number
+          record_id?: string
+          source_event_id?: string | null
+          user_id?: string
+          window_instance_id?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -249,6 +348,72 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_events: {
+        Row: {
+          attributes: Json
+          causation_id: string | null
+          classification: string
+          correlation_id: string
+          created_at: string
+          event_id: string
+          execution_intent_id: string | null
+          id: string
+          idempotency_key: string
+          market_instance_id: string | null
+          occurred_at: string
+          payload: Json
+          reason_code: string
+          schema_version: string
+          sequence: number
+          source: string
+          type: string
+          user_id: string
+          window_instance_id: string | null
+        }
+        Insert: {
+          attributes?: Json
+          causation_id?: string | null
+          classification?: string
+          correlation_id: string
+          created_at?: string
+          event_id: string
+          execution_intent_id?: string | null
+          id?: string
+          idempotency_key: string
+          market_instance_id?: string | null
+          occurred_at: string
+          payload?: Json
+          reason_code: string
+          schema_version: string
+          sequence: number
+          source: string
+          type: string
+          user_id: string
+          window_instance_id?: string | null
+        }
+        Update: {
+          attributes?: Json
+          causation_id?: string | null
+          classification?: string
+          correlation_id?: string
+          created_at?: string
+          event_id?: string
+          execution_intent_id?: string | null
+          id?: string
+          idempotency_key?: string
+          market_instance_id?: string | null
+          occurred_at?: string
+          payload?: Json
+          reason_code?: string
+          schema_version?: string
+          sequence?: number
+          source?: string
+          type?: string
+          user_id?: string
+          window_instance_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -270,6 +435,57 @@ export type Database = {
           email?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      replay_runs: {
+        Row: {
+          completed_at: string | null
+          correlation_id: string | null
+          created_at: string
+          deterministic: boolean
+          event_count: number
+          id: string
+          mismatches: Json
+          run_id: string
+          source_from: string | null
+          source_to: string | null
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          deterministic?: boolean
+          event_count?: number
+          id?: string
+          mismatches?: Json
+          run_id: string
+          source_from?: string | null
+          source_to?: string | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          deterministic?: boolean
+          event_count?: number
+          id?: string
+          mismatches?: Json
+          run_id?: string
+          source_from?: string | null
+          source_to?: string | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
