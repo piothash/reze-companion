@@ -39,6 +39,7 @@ export const Route = createFileRoute("/_authenticated/windows")({
 
 function WindowsPage() {
   const fetchSnapshot = useServerFn(getOperationsSnapshot);
+  const telemetry = useRuntimeTelemetry();
   const { data, isPending } = useQuery({
     queryKey: ["arc", "operations", "snapshot"],
     queryFn: () => fetchSnapshot({ data: { limit: 400 } }),
@@ -50,24 +51,31 @@ function WindowsPage() {
   return (
     <OperatorShell
       title="Active Windows"
-      subtitle="Window instances update from mirrored decision events"
+      subtitle="Live window debugger — countdowns from the trading authority"
       actions={
-        <StatusPill
-          tone={windows.length > 0 ? "healthy" : "neutral"}
-          label={`${windows.length} INSTANCES`}
-        />
+        <div className="flex items-center gap-2">
+          <TelemetrySourcePill view={telemetry.data} />
+          <StatusPill
+            tone={windows.length > 0 ? "healthy" : "neutral"}
+            label={`${windows.length} INSTANCES`}
+          />
+        </div>
       }
     >
+      <div className="mb-4">
+        <LiveWindowsPanel view={telemetry.data} />
+      </div>
       {isPending ? (
         <LoadingState label="Reading window instances" />
       ) : windows.length === 0 ? (
         <Panel title="Window Instances">
           <EmptyState
-            message="No execution windows are active."
-            hint="Waiting for VPS connection — window instances appear here as the engine mirrors them."
+            message="No execution windows have been mirrored yet."
+            hint="Mirrored window instances are rebuilt from canonical decision events."
           />
         </Panel>
       ) : (
+
         <div className="space-y-4">
           <Panel title="Lifecycle Overview" className="overflow-x-auto">
             <Table>
