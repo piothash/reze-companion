@@ -18,6 +18,7 @@ export const OPERATOR_NAV = [
   { to: "/trade-monitor", label: "Trade Monitor", description: "Intents, orders, settlement" },
   { to: "/signal-tank", label: "Signal Tank", description: "TWAP vs PTB decisions" },
   { to: "/replay", label: "Replay", description: "Deterministic reconstruction" },
+  { to: "/qualification", label: "Qualification", description: "Testnet gate checklist" },
   { to: "/analytics", label: "Analytics", description: "Execution performance" },
   { to: "/health", label: "Health", description: "Component health" },
   { to: "/notifications", label: "Notifications", description: "Operator alerts" },
