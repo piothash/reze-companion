@@ -35,7 +35,7 @@ function AuthPage() {
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
-        navigate({ to: "/console" });
+        navigate({ to: "/dashboard" });
       }
     });
     return () => data.subscription.unsubscribe();
