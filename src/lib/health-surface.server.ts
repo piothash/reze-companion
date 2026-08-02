@@ -65,7 +65,6 @@ function watchdogSnapshot(runtime: ArcRuntime): WatchdogReport {
   // mirrored engine plane, not from inside this process. Absent a mirror the
   // watchdogs correctly read as "no heartbeat".
   registry.heartbeat("api");
-  registry.heartbeat("scheduler");
   return registry.report();
 }
 
