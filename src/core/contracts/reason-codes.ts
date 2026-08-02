@@ -97,7 +97,13 @@ export const REASON_CODES = {
   RPL_FORMAT_UNSUPPORTED: spec("RPL_FORMAT_UNSUPPORTED", "REPLAY", "error", "Replay format version unsupported"),
   RPL_DIVERGENCE: spec("RPL_DIVERGENCE", "REPLAY", "error", "Replay output diverged from recorded output"),
   RPL_COMPLETED: spec("RPL_COMPLETED", "REPLAY", "info", "Replay run completed deterministically"),
+
+  // State machines (infrastructure framework) -------------------------------
+  FSM_TRANSITION: spec("FSM_TRANSITION", "INFRASTRUCTURE", "info", "State machine transitioned"),
+  FSM_TRANSITION_REJECTED: spec("FSM_TRANSITION_REJECTED", "INFRASTRUCTURE", "error", "State machine rejected an undeclared transition"),
+  FSM_DEFINITION_INVALID: spec("FSM_DEFINITION_INVALID", "INFRASTRUCTURE", "fatal", "State machine definition failed validation"),
 } as const satisfies Record<string, ReasonCodeSpec>;
+
 
 export type ReasonCode = keyof typeof REASON_CODES;
 
