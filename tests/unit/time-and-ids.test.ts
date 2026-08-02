@@ -46,22 +46,22 @@ describe("time foundation", () => {
 
 describe("domain identifiers", () => {
   it("is deterministic for identical inputs", () => {
-    expect(deterministicId("order", "a", "b")).toBe(deterministicId("order", "a", "b"));
-    expect(deterministicId("order", "a", "b")).not.toBe(deterministicId("order", "a", "c"));
+    expect(deterministicId("OrderId", "a", "b")).toBe(deterministicId("OrderId", "a", "b"));
+    expect(deterministicId("OrderId", "a", "b")).not.toBe(deterministicId("OrderId", "a", "c"));
   });
 
   it("separates parts so concatenation cannot collide", () => {
     expect(digest128("ab|c")).not.toBe(digest128("a|bc"));
-    expect(deterministicId("order", "ab", "c")).not.toBe(deterministicId("order", "a", "bc"));
+    expect(deterministicId("OrderId", "ab", "c")).not.toBe(deterministicId("OrderId", "a", "bc"));
   });
 
   it("prefixes every identifier kind and validates round-trip", () => {
     const id = Ids.order("market-1", "intent-1");
     expect(id.startsWith("ord_")).toBe(true);
-    expect(isId("order", id)).toBe(true);
-    expect(isId("event", id)).toBe(false);
-    expect(parseId("order", id)).toBe(id);
-    expect(() => parseId("event", id)).toThrow();
+    expect(isId("OrderId", id)).toBe(true);
+    expect(isId("EventId", id)).toBe(false);
+    expect(parseId("OrderId", id)).toBe(id);
+    expect(() => parseId("EventId", id)).toThrow();
   });
 
   it("keeps identifier kinds mutually distinct for the same input", () => {
