@@ -397,6 +397,12 @@ function ExecutionProfilesPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="space-y-4">
+            <RuntimePanel
+              view={runtimeQuery.data as RuntimeView | undefined}
+              loading={runtimeQuery.isPending}
+              error={runtimeQuery.error as Error | null}
+            />
+
             {issues.length > 0 ? (
               <Panel title="Validation">
                 <ul className="space-y-1">
