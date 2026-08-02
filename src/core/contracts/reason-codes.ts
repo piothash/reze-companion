@@ -84,6 +84,112 @@ export const REASON_CODES = {
   ),
   CFG_FLAG_EVALUATED: spec("CFG_FLAG_EVALUATED", "CONFIGURATION", "info", "Feature flag evaluated"),
 
+  // Configuration synchronization (M6.7) ------------------------------------
+  CFG_VERSION_CREATED: spec(
+    "CFG_VERSION_CREATED",
+    "CONFIGURATION",
+    "info",
+    "Immutable configuration version created",
+  ),
+  CFG_CHANGED: spec(
+    "CFG_CHANGED",
+    "CONFIGURATION",
+    "info",
+    "Operator configuration change dispatched to the trading authority",
+  ),
+  CFG_VALIDATED: spec(
+    "CFG_VALIDATED",
+    "CONFIGURATION",
+    "info",
+    "Configuration accepted by the trading authority validator",
+  ),
+  CFG_APPLIED: spec(
+    "CFG_APPLIED",
+    "CONFIGURATION",
+    "info",
+    "Configuration applied to the runtime engine",
+  ),
+  CFG_REJECTED: spec(
+    "CFG_REJECTED",
+    "CONFIGURATION",
+    "error",
+    "Configuration rejected by the trading authority",
+  ),
+  CFG_ARCHIVED: spec("CFG_ARCHIVED", "CONFIGURATION", "info", "Configuration version archived"),
+  CFG_ROLLED_BACK: spec(
+    "CFG_ROLLED_BACK",
+    "CONFIGURATION",
+    "warning",
+    "Runtime configuration rolled back to a previous version",
+  ),
+  CFG_APPLY_FAILED: spec(
+    "CFG_APPLY_FAILED",
+    "CONFIGURATION",
+    "error",
+    "Configuration dispatch to the trading authority failed",
+  ),
+  CFG_AUTHORITY_UNREACHABLE: spec(
+    "CFG_AUTHORITY_UNREACHABLE",
+    "CONFIGURATION",
+    "error",
+    "Trading authority endpoint unreachable — configuration remains pending",
+  ),
+  CFG_AUTHORITY_UNREGISTERED: spec(
+    "CFG_AUTHORITY_UNREGISTERED",
+    "CONFIGURATION",
+    "warning",
+    "No trading authority endpoint registered — configuration remains pending",
+  ),
+  CFG_PROFILE_EMPTY: spec(
+    "CFG_PROFILE_EMPTY",
+    "CONFIGURATION",
+    "error",
+    "Profile contains no enabled window definitions",
+  ),
+  CFG_PROFILE_NOT_FOUND: spec(
+    "CFG_PROFILE_NOT_FOUND",
+    "CONFIGURATION",
+    "error",
+    "Requested configuration version does not exist",
+  ),
+  CFG_WINDOW_DUPLICATE: spec(
+    "CFG_WINDOW_DUPLICATE",
+    "CONFIGURATION",
+    "error",
+    "Duplicate window offset in profile",
+  ),
+  CFG_INVALID_BUFFER: spec(
+    "CFG_INVALID_BUFFER",
+    "CONFIGURATION",
+    "error",
+    "Window TWAP buffer is invalid",
+  ),
+  CFG_INVALID_TIMEOUT: spec(
+    "CFG_INVALID_TIMEOUT",
+    "CONFIGURATION",
+    "error",
+    "Order timeout is invalid",
+  ),
+  CFG_INVALID_QUOTA: spec(
+    "CFG_INVALID_QUOTA",
+    "CONFIGURATION",
+    "error",
+    "Trades per market cannot be satisfied by the enabled windows",
+  ),
+  CFG_RUNTIME_DRIFT: spec(
+    "CFG_RUNTIME_DRIFT",
+    "CONFIGURATION",
+    "warning",
+    "Runtime configuration differs from the latest active version",
+  ),
+  CFG_RUNTIME_SYNCED: spec(
+    "CFG_RUNTIME_SYNCED",
+    "CONFIGURATION",
+    "info",
+    "Active runtime configuration read back from the trading authority",
+  ),
+
+
   // Infrastructure ----------------------------------------------------------
   INF_STARTUP: spec("INF_STARTUP", "INFRASTRUCTURE", "info", "Runtime foundation started"),
   INF_SHUTDOWN: spec("INF_SHUTDOWN", "INFRASTRUCTURE", "info", "Runtime foundation stopped"),
