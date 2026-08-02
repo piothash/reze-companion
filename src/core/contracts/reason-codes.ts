@@ -17,6 +17,12 @@ export const REASON_DOMAINS = [
   "RECOVERY",
   "REPLAY",
   "MARKET",
+  "PLATFORM",
+  "LEDGER",
+  "ANALYTICS",
+  "NOTIFICATION",
+  "AUDIT",
+  "SYNCHRONIZATION",
 ] as const;
 
 export type ReasonDomain = (typeof REASON_DOMAINS)[number];
