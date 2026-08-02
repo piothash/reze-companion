@@ -103,7 +103,10 @@ const WINDOW_ORDER: readonly RecoveredWindowState[] = [
  * clock reads, no randomness, no IO.
  */
 export function recoverFromEvents(events: readonly EventEnvelope[]): RecoveryState {
-  const ordered = [...events].sort(compareEnvelopes);
+  // Restarts and retries can re-deliver events; identity is the event id.
+  const unique = new Map<string, EventEnvelope>();
+  for (const event of events) if (!unique.has(event.eventId)) unique.set(event.eventId, event);
+  const ordered = [...unique.values()].sort(compareEnvelopes);
 
   const windows = new Map<string, RecoveredWindow>();
   const intents = new Map<string, RecoveredIntent>();

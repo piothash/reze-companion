@@ -204,9 +204,19 @@ export function reconstructLedger(
     }
   }
 
+  // Re-delivered events (restart, retry, replay) must never double-count: the
+  // record id is deterministic per source event, so dedupe on it.
+  const deduped: LedgerRecord[] = [];
+  const seenRecordIds = new Set<string>();
+  for (const record of records) {
+    if (seenRecordIds.has(record.recordId)) continue;
+    seenRecordIds.add(record.recordId);
+    deduped.push(record);
+  }
+
   return {
-    records,
-    summary: summariseLedger(records),
+    records: deduped,
+    summary: summariseLedger(deduped),
     ignoredBusinessEventCount,
     malformedEventCount,
   };
