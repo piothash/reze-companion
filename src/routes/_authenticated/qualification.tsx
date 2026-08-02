@@ -6,11 +6,14 @@ import { OperatorShell } from "@/components/arc/operator-shell";
 import { LoadingState, Metric, Panel, StatusPill, type StatusTone } from "@/components/arc/primitives";
 import { getRuntimeTelemetry } from "@/lib/engine.functions";
 import { getConfigurationRuntimeView } from "@/lib/configuration.functions";
+import { getLiveQualificationEvidence } from "@/lib/qualification.functions";
 import { replayEvents } from "@/core/platform/replay";
 import {
   QUALIFICATION_SPEC,
   evaluateQualificationGates,
   qualificationVerdict,
+  evaluateLiveAuthorityGates,
+  liveQualificationVerdict,
   runQualificationScenario,
   type GateStatus,
 } from "@/core/qualification";
@@ -48,6 +51,7 @@ const STATUS_TONE: Record<GateStatus, StatusTone> = {
 function QualificationPage() {
   const fetchTelemetry = useServerFn(getRuntimeTelemetry);
   const fetchConfiguration = useServerFn(getConfigurationRuntimeView);
+  const fetchEvidence = useServerFn(getLiveQualificationEvidence);
 
   const scenario = useQuery({
     queryKey: ["arc", "qualification", "scenario"],
@@ -63,6 +67,12 @@ function QualificationPage() {
     queryKey: ["arc", "runtime-telemetry"],
     queryFn: () => fetchTelemetry(),
     refetchInterval: 15_000,
+  });
+
+  const evidence = useQuery({
+    queryKey: ["arc", "qualification", "live-evidence"],
+    queryFn: () => fetchEvidence(),
+    refetchInterval: 20_000,
   });
 
   const configuration = useQuery({
@@ -99,7 +109,17 @@ function QualificationPage() {
     replayDeterministic: replay.deterministic && replay.mismatches.length === 0,
   });
 
-  const verdict = qualificationVerdict(results);
+  const liveResults = evidence.data
+    ? evaluateLiveAuthorityGates(evidence.data.snapshot)
+    : [];
+  const liveVerdict = evidence.data ? liveQualificationVerdict(liveResults) : "PENDING";
+  const harnessVerdict = qualificationVerdict(results);
+  const verdict: GateStatus =
+    harnessVerdict === "FAIL" || liveVerdict === "FAIL"
+      ? "FAIL"
+      : harnessVerdict === "PENDING" || liveVerdict === "PENDING"
+        ? "PENDING"
+        : "PASS";
   const accepted = run.intents.filter((intent) => intent.submitted === "ACCEPTED");
 
   return (
@@ -128,7 +148,35 @@ function QualificationPage() {
           />
         </div>
 
-        <Panel title="Production Gate Checklist">
+        <Panel
+          title="Live Authority Gates — M7.8"
+          actions={<StatusPill tone={STATUS_TONE[liveVerdict]} label={liveVerdict} />}
+        >
+          {evidence.isPending ? (
+            <LoadingState label="Collecting live authority evidence" />
+          ) : (
+            <div className="divide-y divide-border">
+              {liveResults.map((gate) => (
+                <div
+                  key={gate.id}
+                  className="grid gap-2 py-3 first:pt-0 last:pb-0 sm:grid-cols-[10rem_minmax(0,1fr)_7rem] sm:items-start"
+                >
+                  <p className="label-caps">{gate.category}</p>
+                  <div>
+                    <p className="text-sm">{gate.title}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{gate.requirement}</p>
+                    <p className="mt-1 font-mono text-xs text-muted-foreground">{gate.detail}</p>
+                  </div>
+                  <div className="sm:justify-self-end">
+                    <StatusPill tone={STATUS_TONE[gate.status]} label={gate.status} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+
+        <Panel title="Deterministic Gate Checklist">
           <div className="divide-y divide-border">
             {results.map((gate) => (
               <div
