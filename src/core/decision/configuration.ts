@@ -59,7 +59,6 @@ export const DEFAULT_PROFILE_SEED = {
   ],
 } satisfies { bufferMode: "PERCENT"; windows: WindowDefinitionInput[] };
 
-
 export const executionProfileSchema = z.object({
   executionProfileId: z.string().min(1).default("default"),
   executionProfileVersion: z.string().min(1).default(EXECUTION_PROFILE_VERSION),

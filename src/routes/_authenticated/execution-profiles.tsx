@@ -201,7 +201,11 @@ function validate(draft: ProfileDraft): string[] {
   }
   if (!(draft.timeoutMillis > 0)) issues.push("Global order timeout must be greater than zero.");
   if (!(draft.maxTrades > 0)) issues.push("Trades Per Market must be at least 1.");
-  if (draft.executionMode === "MULTI_TRADE" && enabled.length > 0 && draft.maxTrades > enabled.length) {
+  if (
+    draft.executionMode === "MULTI_TRADE" &&
+    enabled.length > 0 &&
+    draft.maxTrades > enabled.length
+  ) {
     issues.push(
       `Trades Per Market (${draft.maxTrades}) exceeds the enabled window quota (${enabled.length}) — the quota can never be reached.`,
     );
@@ -279,7 +283,10 @@ function ExecutionProfilesPage() {
 
   const submit = () => {
     if (!draft) return;
-    mutation.mutate({ ...draft, windows: manualPriority ? draft.windows : orderWindows(draft.windows) });
+    mutation.mutate({
+      ...draft,
+      windows: manualPriority ? draft.windows : orderWindows(draft.windows),
+    });
   };
 
   return (
@@ -467,10 +474,15 @@ function ExecutionProfilesPage() {
                   <Input
                     type="number"
                     value={String(draft.repricingMaxAttempts)}
-                    onChange={(event) => patch({ repricingMaxAttempts: Number(event.target.value) })}
+                    onChange={(event) =>
+                      patch({ repricingMaxAttempts: Number(event.target.value) })
+                    }
                   />
                 </Field>
-                <Field label="Tick Policy" help="Rounding applied when snapping a price to the tick grid.">
+                <Field
+                  label="Tick Policy"
+                  help="Rounding applied when snapping a price to the tick grid."
+                >
                   <Select
                     value={draft.tickPolicy}
                     onValueChange={(value) => patch({ tickPolicy: value })}
@@ -509,7 +521,10 @@ function ExecutionProfilesPage() {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Price Precision" help="Decimal places used when publishing a limit price.">
+                <Field
+                  label="Price Precision"
+                  help="Decimal places used when publishing a limit price."
+                >
                   <Input
                     type="number"
                     value={String(draft.precision)}
@@ -701,7 +716,9 @@ function ExecutionProfilesPage() {
                               label={`Window ${position + 1} retry`}
                               value={window.retryCountOverride}
                               inherited={draft.retryCount}
-                              onChange={(value) => patchWindow(index, { retryCountOverride: value })}
+                              onChange={(value) =>
+                                patchWindow(index, { retryCountOverride: value })
+                              }
                             />
                           </TableCell>
                           <TableCell>
