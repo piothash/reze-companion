@@ -69,9 +69,13 @@ describe("M8.2 — production environment templates", () => {
     }
   });
 
-  it("keeps the signing key out of documentation and source", () => {
-    const body = template(".env.production.example");
-    expect(body).toContain("ARC_AUTHORITY_SIGNING_KEY=\n".slice(0, 28));
+  it("keeps the signing key value out of templates and documentation", () => {
+    for (const file of TEMPLATES) {
+      const line = template(file)
+        .split("\n")
+        .find((entry) => entry.startsWith("ARC_AUTHORITY_SIGNING_KEY="));
+      expect(line?.startsWith("ARC_AUTHORITY_SIGNING_KEY=  ")).toBe(true);
+    }
   });
 });
 
