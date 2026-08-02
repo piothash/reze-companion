@@ -29,14 +29,36 @@ const nonNegativeInt = z.number().int().nonnegative();
 /** Declarative window definition. Priority is derived, never configured. */
 export const windowDefinitionInputSchema = z.object({
   offset: z.number().finite().positive(),
-  unit: z.enum(WINDOW_OFFSET_UNITS).default("m"),
+  unit: z.enum(WINDOW_OFFSET_UNITS).default("s"),
   enabled: z.boolean().default(true),
   twapBuffer: z.number().finite().nonnegative().default(0),
   positionSizeOverride: z.number().finite().positive().nullable().default(null),
   retryCountOverride: nonNegativeInt.nullable().default(null),
+  /** Optional per-window order timeout override; inherits globally when null. */
+  timeoutMillisOverride: positiveInt.nullable().default(null),
+  /** Optional per-window maximum spread override; inherits globally when null. */
+  maxSpreadOverride: z.number().finite().nonnegative().nullable().default(null),
 });
 
 export type WindowDefinitionInput = z.input<typeof windowDefinitionInputSchema>;
+
+/**
+ * Seed used by the operator console when no profile exists yet. It is a
+ * starting point only — every value stays fully editable, and the engine never
+ * reads this constant. Offsets are seconds before market resolution and
+ * buffers are percentage fractions (0.002 = 0.20%).
+ */
+export const DEFAULT_PROFILE_SEED = {
+  bufferMode: "PERCENT" as const,
+  windows: [
+    { offset: 15, unit: "s" as const, twapBuffer: 0.002 },
+    { offset: 10, unit: "s" as const, twapBuffer: 0.0015 },
+    { offset: 7, unit: "s" as const, twapBuffer: 0.0012 },
+    { offset: 5, unit: "s" as const, twapBuffer: 0.0008 },
+    { offset: 3, unit: "s" as const, twapBuffer: 0.0005 },
+  ],
+} satisfies { bufferMode: "PERCENT"; windows: WindowDefinitionInput[] };
+
 
 export const executionProfileSchema = z.object({
   executionProfileId: z.string().min(1).default("default"),
