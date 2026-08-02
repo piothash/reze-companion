@@ -85,9 +85,83 @@ export function SeverityBadge({ severity }: { severity: string }) {
   );
 }
 
-export function EmptyState({ message }: { message: string }) {
-  return <p className="py-6 text-center text-sm text-muted-foreground">{message}</p>;
+/**
+ * Operator empty state. `message` states the fact, `hint` states the next
+ * operator action. Never used to communicate an indefinite loading state.
+ */
+export function EmptyState({
+  message,
+  hint,
+  action,
+}: {
+  message: string;
+  hint?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-2 py-8 text-center">
+      <p className="font-mono text-sm text-foreground">{message}</p>
+      {hint ? <p className="max-w-md text-xs text-muted-foreground">{hint}</p> : null}
+      {action ? <div className="pt-1">{action}</div> : null}
+    </div>
+  );
 }
+
+/** Explicit, bounded loading indicator — distinct from an empty state. */
+export function LoadingState({ label }: { label: string }) {
+  return (
+    <p className="label-caps py-8 text-center" role="status">
+      {label}
+    </p>
+  );
+}
+
+/**
+ * Vertical operator timeline. Each stage is either reached, pending or failed.
+ * Presentation only — stage semantics come from canonical events.
+ */
+export function Timeline({
+  stages,
+}: {
+  stages: {
+    label: string;
+    state: "reached" | "pending" | "failed" | "skipped";
+    detail?: ReactNode;
+  }[];
+}) {
+  return (
+    <ol className="ml-1 border-l border-border">
+      {stages.map((stage) => (
+        <li key={stage.label} className="relative grid gap-0.5 py-2 pl-5">
+          <span
+            aria-hidden
+            className={cn(
+              "absolute -left-[4.5px] top-3.5 h-2 w-2 rounded-full",
+              stage.state === "reached"
+                ? "bg-primary"
+                : stage.state === "failed"
+                  ? "bg-destructive"
+                  : stage.state === "skipped"
+                    ? "bg-border"
+                    : "bg-muted-foreground",
+            )}
+          />
+          <span
+            className={cn(
+              "label-caps",
+              stage.state === "pending" && "text-muted-foreground",
+              stage.state === "failed" && "text-destructive",
+            )}
+          >
+            {stage.label}
+          </span>
+          <span className="font-mono text-xs text-muted-foreground">{stage.detail ?? "—"}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 
 export function KeyValue({ rows }: { rows: [string, ReactNode][] }) {
   return (
