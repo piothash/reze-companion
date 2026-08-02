@@ -127,7 +127,6 @@ export class InMemoryEventStore implements AppendOnlyEventStore {
       );
     }
 
-
     const newest = this.records[this.records.length - 1];
     if (!this.allowRetroactive && newest && compareEnvelopes(validated, newest) < 0) {
       throw new EventStoreViolationError(

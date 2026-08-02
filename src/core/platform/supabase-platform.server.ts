@@ -7,7 +7,11 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { compareEnvelopes, validateEnvelope, type EventEnvelope } from "../contracts/event-envelope";
+import {
+  compareEnvelopes,
+  validateEnvelope,
+  type EventEnvelope,
+} from "../contracts/event-envelope";
 import { classifyEventType } from "./event-catalog";
 import {
   matchesQuery,
@@ -244,7 +248,11 @@ export class SupabaseAnalyticsRepository implements AnalyticsRepository {
       period_start: `${summary.periodStartIso ?? summary.periodEndIso ?? new Date().toISOString().replace("Z", "")}Z`,
       period_end: `${summary.periodEndIso ?? summary.periodStartIso ?? new Date().toISOString().replace("Z", "")}Z`,
       event_count: summary.eventCount,
-      metrics: { metrics: summary.metrics, perWindow: summary.perWindow, perProfile: summary.perProfile },
+      metrics: {
+        metrics: summary.metrics,
+        perWindow: summary.perWindow,
+        perProfile: summary.perProfile,
+      },
     });
     if (error) throw new Error(`analytics summary not saved: ${error.message}`);
   }
@@ -302,7 +310,8 @@ export class SupabaseReplayRepository {
       status: "STARTED",
       correlation_id: correlationId,
     });
-    if (error && error.code !== "23505") throw new Error(`replay run not started: ${error.message}`);
+    if (error && error.code !== "23505")
+      throw new Error(`replay run not started: ${error.message}`);
   }
 
   async complete(result: ReplayResult): Promise<void> {

@@ -124,7 +124,6 @@ function buildStream(): EventEnvelope[] {
         state: "SUBMITTED",
         filledQuantity: 0,
       },
-
     }),
   );
   events.push(
@@ -169,7 +168,6 @@ function buildStream(): EventEnvelope[] {
         cumulativeNotional: 10.4,
         orders: [{ orderId: "ord-1" }],
       },
-
     }),
   );
   events.push(
@@ -245,7 +243,6 @@ describe("ledger", () => {
     expect(ledger.summary.totalFees).toBeCloseTo(20 * 0.52 * 0.01, 6);
   });
 
-
   it("is deterministic — the same events reconstruct the same ledger", () => {
     const a = reconstructLedger(buildStream());
     const b = reconstructLedger(buildStream());
@@ -296,7 +293,6 @@ describe("replay", () => {
         state: "SUBMITTED",
         filledQuantity: 0,
       },
-
     });
     const result = replayEvents([...buildStream(), bad]);
     expect(result.deterministic).toBe(false);

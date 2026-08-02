@@ -312,7 +312,6 @@ export function replayEvents(
         const nextState: OrderState = snapshot.state ?? "CREATED";
         const filledQuantity = snapshot.filledQuantity ?? 0;
 
-
         const projected = orders.get(orderId) ?? {
           orderId,
           executionIntentId: intentId,

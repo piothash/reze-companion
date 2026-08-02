@@ -131,7 +131,10 @@ export class NotificationEngine {
       SEVERITY_RANK[notification.severity] < SEVERITY_RANK[this.preferences.minimumSeverity] &&
       !this.includeInfo
     ) {
-      this.suppressed.push({ notificationId: notification.notificationId, reason: "BELOW_MINIMUM" });
+      this.suppressed.push({
+        notificationId: notification.notificationId,
+        reason: "BELOW_MINIMUM",
+      });
       return null;
     }
     if (this.preferences.categories[notification.category] === false) {

@@ -13,7 +13,6 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 /** JSON-safe value: server functions may only return serializable data. */
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
-
 const listEventsInput = z
   .object({
     limit: z.number().int().min(1).max(500).default(100),
@@ -41,7 +40,6 @@ export const listPlatformEvents = createServerFn({ method: "GET" })
       events: events.map((event) => ({ ...event, payload: (event.payload ?? null) as JsonValue })),
       count: events.length,
     };
-
   });
 
 export const getLedgerSummary = createServerFn({ method: "GET" })
@@ -79,7 +77,6 @@ export const listReplayRuns = createServerFn({ method: "GET" })
     const repo = new SupabaseReplayRepository(context.supabase as any, context.userId);
     const runs = await repo.latest(10);
     return { runs: runs.map((run) => ({ ...run, mismatches: run.mismatches as JsonValue[] })) };
-
   });
 
 const replayInput = z.object({ correlationId: z.string().min(1) });
@@ -98,9 +95,8 @@ export const runReplay = createServerFn({ method: "POST" })
         import("@/core/platform/replay"),
         import("@/core/platform/audit"),
       ]);
-    const { SupabaseAuditRepository } = await import(
-      "@/core/infrastructure/supabase-persistence.server"
-    );
+    const { SupabaseAuditRepository } =
+      await import("@/core/infrastructure/supabase-persistence.server");
     const { SystemClock } = await import("@/core/shared/time");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic

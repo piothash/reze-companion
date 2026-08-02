@@ -677,7 +677,12 @@ export const REASON_CODES = {
   ),
 
   // Notifications -----------------------------------------------------------
-  NTF_RAISED: spec("NTF_RAISED", "NOTIFICATION", "info", "Notification raised from a canonical event"),
+  NTF_RAISED: spec(
+    "NTF_RAISED",
+    "NOTIFICATION",
+    "info",
+    "Notification raised from a canonical event",
+  ),
   NTF_SUPPRESSED: spec(
     "NTF_SUPPRESSED",
     "NOTIFICATION",
@@ -697,7 +702,12 @@ export const REASON_CODES = {
 
   // Synchronization ---------------------------------------------------------
   SYN_STARTED: spec("SYN_STARTED", "SYNCHRONIZATION", "info", "Synchronization batch started"),
-  SYN_COMPLETED: spec("SYN_COMPLETED", "SYNCHRONIZATION", "info", "Synchronization batch completed"),
+  SYN_COMPLETED: spec(
+    "SYN_COMPLETED",
+    "SYNCHRONIZATION",
+    "info",
+    "Synchronization batch completed",
+  ),
   SYN_SKIPPED_RUNTIME_STATE: spec(
     "SYN_SKIPPED_RUNTIME_STATE",
     "SYNCHRONIZATION",
