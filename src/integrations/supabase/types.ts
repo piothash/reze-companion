@@ -790,6 +790,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      operator_bootstrapped: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "operator" | "viewer" | "owner"
