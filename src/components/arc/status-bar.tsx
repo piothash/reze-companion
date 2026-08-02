@@ -92,11 +92,16 @@ export function StatusBar() {
         label="VPS"
         tone={vpsTone}
         value={
-          !vps?.registered
-            ? "UNREGISTERED"
-            : `${vps.connected ? "CONNECTED" : "NO HEARTBEAT"} · ${vps.latencyMillis} ms · ${age(vps.lastSeenAgeMillis)}`
+          !runtime
+            ? !vps?.registered
+              ? "UNREGISTERED"
+              : "CONNECTING"
+            : !runtime.endpoint.registered
+              ? "UNREGISTERED"
+              : `${runtime.connection.state} · ${runtime.connection.latencyMillis ?? "—"} ms · ${age(vps?.lastSeenAgeMillis ?? null)}`
         }
       />
+      <Cell label="Engine" value={runtime?.identity?.engineVersion ?? "—"} />
       <Cell label="Profile" value={data?.executionProfileId ?? "—"} />
     </div>
   );
