@@ -22,6 +22,7 @@ export const OPERATOR_NAV = [
   { to: "/health", label: "Health", description: "Component health" },
   { to: "/notifications", label: "Notifications", description: "Operator alerts" },
   { to: "/configuration", label: "Configuration", description: "Profiles, flags, environment" },
+  { to: "/engine-registration", label: "Engine Registry", description: "VPS authority handshake" },
   { to: "/system", label: "System", description: "Versions and build" },
   { to: "/audit", label: "Audit", description: "Immutable action trail" },
 ] as const;
