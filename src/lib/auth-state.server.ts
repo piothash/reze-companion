@@ -11,7 +11,15 @@ export interface OperatorBootstrapState {
   readonly detail: string;
 }
 
-const REQUIRED_PRODUCTION_BACKEND = "https://wwapjpucrmrocnmkvjkm.supabase.co";
+/**
+ * Optional deployment guard. When `ARC_REQUIRED_SUPABASE_URL` is set, the
+ * companion refuses to bootstrap against any other backend. No backend URL is
+ * ever compiled into the application.
+ */
+function requiredBackend(): string | null {
+  const value = process.env["ARC_REQUIRED_SUPABASE_URL"];
+  return value ? value.replace(/\/$/, "") : null;
+}
 
 export async function resolveOperatorBootstrapState(): Promise<OperatorBootstrapState> {
   const url = process.env["SUPABASE_URL"];
