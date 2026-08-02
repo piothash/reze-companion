@@ -32,6 +32,7 @@ export const transferOperatorOwnership = createServerFn({ method: "POST" })
 
 export const finalizeOperatorOwnership = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({}).parse(input ?? {}))
   .handler(async ({ context }) => {
     const { finalizeOwnership } = await import("./ownership.server");
     return finalizeOwnership(context.supabase as AnyClient);
