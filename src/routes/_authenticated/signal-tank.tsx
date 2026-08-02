@@ -65,14 +65,48 @@ function SignalTankPage() {
             <Metric
               label="Effective TWAP"
               value={fmt(latest?.effectiveTwap ?? market?.effectiveTwap ?? null)}
+              hint="TWAP with window buffer applied"
             />
-            <Metric label="Price To Beat" value={fmt(latest?.ptb ?? market?.ptb ?? null)} />
-            <Metric label="Applied Buffer" value={fmt(latest?.appliedBuffer ?? null)} />
+            <Metric
+              label="Price To Beat"
+              value={fmt(latest?.ptb ?? market?.ptb ?? null)}
+              hint={market?.ptbValid === false ? "ptb invalid" : "ptb valid"}
+            />
+            <Metric
+              label="Window Buffer"
+              value={fmt(latest?.appliedBuffer ?? null)}
+              hint={`window ${latest?.windowInstanceId ?? "—"}`}
+            />
+            <Metric
+              label="Decision"
+              value={latest?.outcome ?? "NO SIGNAL"}
+              hint={latest ? fmtTime(latest.decidedAtIso) : "no evaluation"}
+            />
             <Metric
               label="Market State Version"
               value={fmtInt(latest?.marketStateVersion ?? market?.marketStateVersion ?? null)}
             />
+            <Metric
+              label="Feed Freshness"
+              value={market ? (market.feedFresh ? "FRESH" : "STALE") : "—"}
+              hint={
+                market?.feedAgeMillis === null || market?.feedAgeMillis === undefined
+                  ? "no observations"
+                  : `age ${market.feedAgeMillis} ms`
+              }
+            />
+            <Metric
+              label="Delta (TWAP − PTB)"
+              value={fmt(latest?.delta ?? null)}
+              hint="signal margin"
+            />
+            <Metric
+              label="Decision Timestamp"
+              value={<span className="text-sm">{fmtTime(latest?.decidedAtIso ?? null)}</span>}
+              hint="UTC"
+            />
           </div>
+
 
           <Panel title="Latest Decision">
             {latest === null ? (

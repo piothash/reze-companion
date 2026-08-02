@@ -18,6 +18,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { WINDOW_OFFSET_UNITS } from "@/core/decision/types";
 import { getExecutionProfileConfig, saveExecutionProfileConfig } from "@/lib/operations.functions";
 
 export const Route = createFileRoute("/_authenticated/execution-profiles")({
@@ -133,9 +142,10 @@ function ExecutionProfilesPage() {
   const saveProfile = useServerFn(saveExecutionProfileConfig);
   const [draft, setDraft] = useState<ProfileDraft | null>(null);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, error } = useQuery({
     queryKey: ["arc", "execution-profile"],
     queryFn: () => fetchProfile(),
+    retry: false,
   });
 
   useEffect(() => {
@@ -187,7 +197,19 @@ function ExecutionProfilesPage() {
         </div>
       }
     >
-      {isPending || !draft ? (
+      {error || (!isPending && !draft) ? (
+        <Panel title="Execution Profile Unavailable">
+          <p className="font-mono text-sm text-destructive">
+            {(error as Error | null)?.message ??
+              "ARC execution profile invalid — configuration is not provisioned."}
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            No execution profile is stored and the environment does not define one. Window offsets,
+            buffers and quotas are never hardcoded — provision them on the VPS environment or store
+            a configuration profile, then reload this page.
+          </p>
+        </Panel>
+      ) : isPending || !draft ? (
         <EmptyState message="Loading execution profile…" />
       ) : (
         <div className="space-y-4">
@@ -262,119 +284,187 @@ function ExecutionProfilesPage() {
           </Panel>
 
           <Panel
-            title="Dynamic Windows"
+            title="Multi-Window Execution Table"
+            className="overflow-x-auto"
             actions={
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() =>
-                  setDraft({
-                    ...draft,
-                    windows: [
-                      ...draft.windows,
-                      {
-                        offset: 1,
-                        unit: draft.windows[0]?.unit ?? "MINUTES",
-                        enabled: true,
-                        twapBuffer: 0,
-                        positionSizeOverride: null,
-                        retryCountOverride: null,
-                      },
-                    ],
-                  })
-                }
-              >
-                Add window
-              </Button>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-muted-foreground">
+                  cfg {data?.digest ?? "—"}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={draft.executionMode === "SINGLE_TRADE"}
+                  onClick={() =>
+                    setDraft({
+                      ...draft,
+                      windows: [
+                        ...draft.windows,
+                        {
+                          offset: (draft.windows[draft.windows.length - 1]?.offset ?? 0) + 1,
+                          unit: draft.windows[0]?.unit ?? WINDOW_OFFSET_UNITS[2],
+                          enabled: true,
+                          twapBuffer: draft.windows[draft.windows.length - 1]?.twapBuffer ?? 0,
+                          positionSizeOverride: null,
+                          retryCountOverride: null,
+                        },
+                      ],
+                    })
+                  }
+                >
+                  Add window
+                </Button>
+              </div>
             }
           >
+            {draft.executionMode === "SINGLE_TRADE" ? (
+              <p className="py-4 text-sm text-muted-foreground">
+                Execution mode is <span className="font-mono">SINGLE_TRADE</span>. Only the first
+                enabled window is armed per market. Switch to{" "}
+                <span className="font-mono">MULTI_TRADE</span> to operate the full window table.
+              </p>
+            ) : null}
+
             {draft.windows.length === 0 ? (
               <EmptyState message="No windows configured." />
             ) : (
-              <div className="space-y-4">
-                {draft.windows.map((window, index) => (
-                  <div
-                    key={index}
-                    className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2 xl:grid-cols-4"
-                  >
-                    <Field label="Offset">
-                      <Input
-                        type="number"
-                        value={String(window.offset)}
-                        onChange={(event) =>
-                          patchWindow(index, { offset: Number(event.target.value) })
-                        }
-                      />
-                    </Field>
-                    <Field label="Unit">
-                      <Input
-                        value={window.unit}
-                        onChange={(event) => patchWindow(index, { unit: event.target.value })}
-                      />
-                    </Field>
-                    <Field label="TWAP Buffer">
-                      <Input
-                        type="number"
-                        value={String(window.twapBuffer)}
-                        onChange={(event) =>
-                          patchWindow(index, { twapBuffer: Number(event.target.value) })
-                        }
-                      />
-                    </Field>
-                    <Field label="Position Size Override">
-                      <Input
-                        type="number"
-                        value={
-                          window.positionSizeOverride === null
-                            ? ""
-                            : String(window.positionSizeOverride)
-                        }
-                        onChange={(event) =>
-                          patchWindow(index, {
-                            positionSizeOverride:
-                              event.target.value === "" ? null : Number(event.target.value),
-                          })
-                        }
-                      />
-                    </Field>
-                    <Field label="Retry Count Override">
-                      <Input
-                        type="number"
-                        value={
-                          window.retryCountOverride === null
-                            ? ""
-                            : String(window.retryCountOverride)
-                        }
-                        onChange={(event) =>
-                          patchWindow(index, {
-                            retryCountOverride:
-                              event.target.value === "" ? null : Number(event.target.value),
-                          })
-                        }
-                      />
-                    </Field>
-                    <ToggleField
-                      label="Enabled"
-                      checked={window.enabled}
-                      onChange={(checked) => patchWindow(index, { enabled: checked })}
-                    />
-                    <div className="flex items-end">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() =>
-                          setDraft({
-                            ...draft,
-                            windows: draft.windows.filter((_, i) => i !== index),
-                          })
-                        }
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Enabled</TableHead>
+                    <TableHead>Priority</TableHead>
+                    <TableHead>Offset</TableHead>
+                    <TableHead>Unit</TableHead>
+                    <TableHead>TWAP Buffer</TableHead>
+                    <TableHead>Position Size</TableHead>
+                    <TableHead>Retry Count</TableHead>
+                    <TableHead>Timeout</TableHead>
+                    <TableHead>Override Status</TableHead>
+                    <TableHead>Config Version</TableHead>
+                    <TableHead className="sr-only">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {draft.windows.map((window, index) => {
+                    const overrides = [
+                      window.positionSizeOverride === null ? null : "SIZE",
+                      window.retryCountOverride === null ? null : "RETRY",
+                    ].filter(Boolean) as string[];
+                    return (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <Switch
+                            checked={window.enabled}
+                            aria-label={`Window ${index + 1} enabled`}
+                            onCheckedChange={(checked) => patchWindow(index, { enabled: checked })}
+                          />
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">{index + 1}</TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            className="w-24"
+                            aria-label={`Window ${index + 1} offset`}
+                            value={String(window.offset)}
+                            onChange={(event) =>
+                              patchWindow(index, { offset: Number(event.target.value) })
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={window.unit}
+                            onValueChange={(value) => patchWindow(index, { unit: value })}
+                          >
+                            <SelectTrigger className="w-20" aria-label={`Window ${index + 1} unit`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {WINDOW_OFFSET_UNITS.map((unit) => (
+                                <SelectItem key={unit} value={unit}>
+                                  {unit}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            className="w-24"
+                            aria-label={`Window ${index + 1} TWAP buffer`}
+                            value={String(window.twapBuffer)}
+                            onChange={(event) =>
+                              patchWindow(index, { twapBuffer: Number(event.target.value) })
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            className="w-28"
+                            placeholder={`${draft.positionSize}`}
+                            aria-label={`Window ${index + 1} position size override`}
+                            value={
+                              window.positionSizeOverride === null
+                                ? ""
+                                : String(window.positionSizeOverride)
+                            }
+                            onChange={(event) =>
+                              patchWindow(index, {
+                                positionSizeOverride:
+                                  event.target.value === "" ? null : Number(event.target.value),
+                              })
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            className="w-24"
+                            placeholder={`${draft.retryCount}`}
+                            aria-label={`Window ${index + 1} retry override`}
+                            value={
+                              window.retryCountOverride === null
+                                ? ""
+                                : String(window.retryCountOverride)
+                            }
+                            onChange={(event) =>
+                              patchWindow(index, {
+                                retryCountOverride:
+                                  event.target.value === "" ? null : Number(event.target.value),
+                              })
+                            }
+                          />
+                        </TableCell>
+                        <TableCell className="font-mono text-xs text-muted-foreground">
+                          {draft.timeoutMillis} ms
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {overrides.length === 0 ? "INHERITED" : overrides.join(" + ")}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs text-muted-foreground">
+                          {data?.digest ?? "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() =>
+                              setDraft({
+                                ...draft,
+                                windows: draft.windows.filter((_, i) => i !== index),
+                              })
+                            }
+                          >
+                            Remove
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             )}
           </Panel>
         </div>

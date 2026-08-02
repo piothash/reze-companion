@@ -287,3 +287,26 @@ Column meaning:
 | Full suite green | `bunx vitest run` — 232 tests / 17 files passing |
 
 **M6.5 status: complete.**
+
+## 7. M6.6 Evidence Log — Operator Dashboard Finalization & UX Validation
+
+| Surface | Capability exposed | Status |
+| --- | --- | --- |
+| Dashboard | System status, environment, platform/engine/schema versions, resolution countdown, market lifecycle, feed + TWAP health, current/effective TWAP, PTB, market state version, active window, trade quota, exposure, open orders, replay status, notifications, scheduler, VPS authority | complete |
+| Execution Profiles | Multi-window table (enabled, priority, offset, unit, TWAP buffer, position size, retry count, timeout, override status, config version) with SINGLE/MULTI mode semantics and configuration digest | complete |
+| Active Windows | Live activation and expiry countdowns, execution intent linkage | complete |
+| Trade Monitor | Reconstructed ledger entries per execution intent alongside the execution timeline | complete |
+| Signal Tank | Effective TWAP, PTB, applied buffer, decision outcome, market state version, feed freshness | complete |
+| Analytics | Structured ledger summary (records, trades, settlements, quantity, notional, fees, realized PnL, first/last record), execution latency | complete |
+| Configuration | TWAP feed provider + feed ID, execution defaults, per-window inheritance/override table, configuration digest | complete |
+| System | Platform identity (platform/engine/configuration/replay/event-schema versions) and build information (network, runtime, git commit, deployment timestamp) | complete |
+
+Unconfigured-state handling: surfaces that depend on an execution profile now render an explicit
+"Execution Profile Unavailable" state (configuration is never hardcoded) instead of an indefinite
+loading state.
+
+Visual validation: authenticated walkthrough captured for dashboard, execution profiles, active
+windows, trade monitor, signal tank, analytics, configuration, system and health with zero console
+errors. 232 unit tests pass; typecheck clean.
+
+**M6.6 status: complete.** No backend or trading-engine behaviour was modified.

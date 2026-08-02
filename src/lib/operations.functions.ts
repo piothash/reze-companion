@@ -211,6 +211,7 @@ export const getConfigurationView = createServerFn({ method: "GET" })
       environment: process.env["ARC_ENVIRONMENT"] ?? "development",
       network: process.env["ARC_NETWORK"] ?? "testnet",
       feedProvider: process.env["ARC_FEED_PROVIDER"] ?? "unconfigured",
+      feedId: process.env["ARC_FEED_ID"] ?? "unconfigured",
       versions: {
         executionProfile: EXECUTION_PROFILE_VERSION,
         bufferProfile: BUFFER_PROFILE_VERSION,
@@ -234,9 +235,16 @@ export const getSystemInfo = createServerFn({ method: "GET" })
         description: spec.description,
         compatible: [...spec.compatible],
       })),
+      platformVersion: VERSION_REGISTRY.platform.version,
+      engineVersion: VERSION_REGISTRY.engine.version,
+      configurationVersion: VERSION_REGISTRY.configuration.version,
+      replayVersion: VERSION_REGISTRY.replayFormat.version,
+      eventSchemaVersion: VERSION_REGISTRY.eventSchema.version,
       environment: process.env["ARC_ENVIRONMENT"] ?? "development",
       network: process.env["ARC_NETWORK"] ?? "testnet",
       runtime: "Lovable Cloud edge worker",
+      gitCommit: process.env["ARC_GIT_COMMIT"] ?? null,
+      deployedAtIso: process.env["ARC_DEPLOYED_AT"] ?? null,
       buildIso: new Date().toISOString(),
     };
   });

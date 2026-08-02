@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -99,5 +99,37 @@ export function KeyValue({ rows }: { rows: [string, ReactNode][] }) {
         </div>
       ))}
     </dl>
+  );
+}
+
+/**
+ * Live countdown to an ISO deadline. Display-only: no scheduling authority
+ * lives in the companion (ADR-0001).
+ */
+export function Countdown({ toIso, prefix }: { toIso: string | null; prefix?: string }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1_000);
+    return () => clearInterval(timer);
+  }, []);
+
+  if (!toIso) return <span className="font-mono">—</span>;
+  const target = new Date(toIso.endsWith("Z") ? toIso : `${toIso}Z`).getTime();
+  if (Number.isNaN(target)) return <span className="font-mono">—</span>;
+
+  const remaining = target - now;
+  const expired = remaining <= 0;
+  const total = Math.floor(Math.abs(remaining) / 1000);
+  const hours = String(Math.floor(total / 3600)).padStart(2, "0");
+  const minutes = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+  const seconds = String(total % 60).padStart(2, "0");
+
+  return (
+    <span className={cn("font-mono", expired && "text-muted-foreground")}>
+      {prefix ? `${prefix} ` : ""}
+      {expired ? "-" : ""}
+      {hours}:{minutes}:{seconds}
+    </span>
   );
 }
