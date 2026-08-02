@@ -44,15 +44,10 @@ export function StatusBar() {
     refetchInterval: 15_000,
     retry: false,
   });
+  const runtime = useAuthorityRuntime().data;
 
   const vps = data?.vps;
-  const vpsTone: StatusTone = !data
-    ? "neutral"
-    : !vps?.registered
-      ? "unavailable"
-      : vps.connected
-        ? "healthy"
-        : "degraded";
+  const vpsTone: StatusTone = runtimeTone(runtime?.connection.state);
   const feedTone: StatusTone = !data
     ? "neutral"
     : data.feed.fresh === true
