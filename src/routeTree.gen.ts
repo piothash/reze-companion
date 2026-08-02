@@ -15,7 +15,6 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedConfigurationRouteImport } from './routes/_authenticated/configuration'
-import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedExecutionProfilesRouteImport } from './routes/_authenticated/execution-profiles'
 import { Route as AuthenticatedHealthRouteImport } from './routes/_authenticated/health'
@@ -58,11 +57,6 @@ const AuthenticatedConfigurationRoute =
     path: '/configuration',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
-  id: '/console',
-  path: '/console',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -128,7 +122,6 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/configuration': typeof AuthenticatedConfigurationRoute
-  '/console': typeof AuthenticatedConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
@@ -147,7 +140,6 @@ export interface FileRoutesByTo {
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/configuration': typeof AuthenticatedConfigurationRoute
-  '/console': typeof AuthenticatedConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
@@ -168,7 +160,6 @@ export interface FileRoutesById {
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/configuration': typeof AuthenticatedConfigurationRoute
-  '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/_authenticated/health': typeof AuthenticatedHealthRoute
@@ -189,7 +180,6 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/audit'
     | '/configuration'
-    | '/console'
     | '/dashboard'
     | '/execution-profiles'
     | '/health'
@@ -208,7 +198,6 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/audit'
     | '/configuration'
-    | '/console'
     | '/dashboard'
     | '/execution-profiles'
     | '/health'
@@ -228,7 +217,6 @@ export interface FileRouteTypes {
     | '/_authenticated/analytics'
     | '/_authenticated/audit'
     | '/_authenticated/configuration'
-    | '/_authenticated/console'
     | '/_authenticated/dashboard'
     | '/_authenticated/execution-profiles'
     | '/_authenticated/health'
@@ -291,13 +279,6 @@ declare module '@tanstack/react-router' {
       path: '/configuration'
       fullPath: '/configuration'
       preLoaderRoute: typeof AuthenticatedConfigurationRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/console': {
-      id: '/_authenticated/console'
-      path: '/console'
-      fullPath: '/console'
-      preLoaderRoute: typeof AuthenticatedConsoleRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -384,7 +365,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedConfigurationRoute: typeof AuthenticatedConfigurationRoute
-  AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExecutionProfilesRoute: typeof AuthenticatedExecutionProfilesRoute
   AuthenticatedHealthRoute: typeof AuthenticatedHealthRoute
@@ -401,7 +381,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedConfigurationRoute: AuthenticatedConfigurationRoute,
-  AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExecutionProfilesRoute: AuthenticatedExecutionProfilesRoute,
   AuthenticatedHealthRoute: AuthenticatedHealthRoute,
