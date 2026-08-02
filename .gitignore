@@ -44,3 +44,6 @@ dist-ssr
 !.env.example
 !.env.production.example
 !.env.vps.example
+
+# Build metadata
+*.tsbuildinfo
