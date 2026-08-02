@@ -27,6 +27,7 @@ import { Route as AuthenticatedSignalTankRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSystemRouteImport } from './routes/_authenticated/system'
 import { Route as AuthenticatedTradeMonitorRouteImport } from './routes/_authenticated/trade-monitor'
 import { Route as AuthenticatedWindowsRouteImport } from './routes/_authenticated/windows'
+import { Route as ApiPublicAuthorityConfigurationRouteImport } from './routes/api/public/authority/configuration'
 import { Route as ApiPublicAuthorityHeartbeatRouteImport } from './routes/api/public/authority/heartbeat'
 import { Route as ApiPublicAuthorityRegisterRouteImport } from './routes/api/public/authority/register'
 import { Route as ApiPublicHealthIndexRouteImport } from './routes/api/public/health/index'
@@ -129,6 +130,12 @@ const AuthenticatedWindowsRoute = AuthenticatedWindowsRouteImport.update({
   path: '/windows',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicAuthorityConfigurationRoute =
+  ApiPublicAuthorityConfigurationRouteImport.update({
+    id: '/api/public/authority/configuration',
+    path: '/api/public/authority/configuration',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicAuthorityHeartbeatRoute =
   ApiPublicAuthorityHeartbeatRouteImport.update({
     id: '/api/public/authority/heartbeat',
@@ -185,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
+  '/api/public/authority/configuration': typeof ApiPublicAuthorityConfigurationRoute
   '/api/public/authority/heartbeat': typeof ApiPublicAuthorityHeartbeatRoute
   '/api/public/authority/register': typeof ApiPublicAuthorityRegisterRoute
   '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
@@ -211,6 +219,7 @@ export interface FileRoutesByTo {
   '/system': typeof AuthenticatedSystemRoute
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
+  '/api/public/authority/configuration': typeof ApiPublicAuthorityConfigurationRoute
   '/api/public/authority/heartbeat': typeof ApiPublicAuthorityHeartbeatRoute
   '/api/public/authority/register': typeof ApiPublicAuthorityRegisterRoute
   '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
@@ -239,6 +248,7 @@ export interface FileRoutesById {
   '/_authenticated/system': typeof AuthenticatedSystemRoute
   '/_authenticated/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/_authenticated/windows': typeof AuthenticatedWindowsRoute
+  '/api/public/authority/configuration': typeof ApiPublicAuthorityConfigurationRoute
   '/api/public/authority/heartbeat': typeof ApiPublicAuthorityHeartbeatRoute
   '/api/public/authority/register': typeof ApiPublicAuthorityRegisterRoute
   '/api/public/health/details': typeof ApiPublicHealthDetailsRoute
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/system'
     | '/trade-monitor'
     | '/windows'
+    | '/api/public/authority/configuration'
     | '/api/public/authority/heartbeat'
     | '/api/public/authority/register'
     | '/api/public/health/details'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/system'
     | '/trade-monitor'
     | '/windows'
+    | '/api/public/authority/configuration'
     | '/api/public/authority/heartbeat'
     | '/api/public/authority/register'
     | '/api/public/health/details'
@@ -320,6 +332,7 @@ export interface FileRouteTypes {
     | '/_authenticated/system'
     | '/_authenticated/trade-monitor'
     | '/_authenticated/windows'
+    | '/api/public/authority/configuration'
     | '/api/public/authority/heartbeat'
     | '/api/public/authority/register'
     | '/api/public/health/details'
@@ -333,6 +346,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicAuthorityConfigurationRoute: typeof ApiPublicAuthorityConfigurationRoute
   ApiPublicAuthorityHeartbeatRoute: typeof ApiPublicAuthorityHeartbeatRoute
   ApiPublicAuthorityRegisterRoute: typeof ApiPublicAuthorityRegisterRoute
   ApiPublicHealthDetailsRoute: typeof ApiPublicHealthDetailsRoute
@@ -470,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWindowsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/authority/configuration': {
+      id: '/api/public/authority/configuration'
+      path: '/api/public/authority/configuration'
+      fullPath: '/api/public/authority/configuration'
+      preLoaderRoute: typeof ApiPublicAuthorityConfigurationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/authority/heartbeat': {
       id: '/api/public/authority/heartbeat'
       path: '/api/public/authority/heartbeat'
@@ -565,6 +586,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicAuthorityConfigurationRoute: ApiPublicAuthorityConfigurationRoute,
   ApiPublicAuthorityHeartbeatRoute: ApiPublicAuthorityHeartbeatRoute,
   ApiPublicAuthorityRegisterRoute: ApiPublicAuthorityRegisterRoute,
   ApiPublicHealthDetailsRoute: ApiPublicHealthDetailsRoute,
