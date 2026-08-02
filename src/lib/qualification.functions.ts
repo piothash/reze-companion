@@ -54,16 +54,17 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
       }
     };
 
-    const [authorities, telemetryView, runtimeView, companionStartup, finalized] = await Promise.all([
-      safe("authority registry", () => listAuthorities(client, nowMillis)),
-      safe("runtime telemetry", () => readRuntimeTelemetry(client)),
-      safe("configuration runtime", () => readRuntimeView(client, context.userId)),
-      safe("startup validator", () => startupPayload()),
-      safe("ownership", async () => {
-        const { data } = await client.rpc("ownership_finalized");
-        return data === true;
-      }),
-    ]);
+    const [authorities, telemetryView, runtimeView, companionStartup, finalized] =
+      await Promise.all([
+        safe("authority registry", () => listAuthorities(client, nowMillis)),
+        safe("runtime telemetry", () => readRuntimeTelemetry(client)),
+        safe("configuration runtime", () => readRuntimeView(client, context.userId)),
+        safe("startup validator", () => startupPayload()),
+        safe("ownership", async () => {
+          const { data } = await client.rpc("ownership_finalized");
+          return data === true;
+        }),
+      ]);
 
     // Highest canonical sequence the control plane has durably recorded. A
     // restart that reports a lower sequence means the engine replayed events
@@ -80,8 +81,7 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
     });
 
     // The active authority is the newest one that is not revoked.
-    const authorityRow =
-      (authorities ?? []).find((item) => item.status !== "revoked") ?? null;
+    const authorityRow = (authorities ?? []).find((item) => item.status !== "revoked") ?? null;
 
     const authority: LiveEvidenceSnapshot["authority"] = authorityRow
       ? {

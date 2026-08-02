@@ -284,9 +284,7 @@ export function evaluateMainnetReadiness(
  * every domain must be PASS on observed evidence or the answer is NOT
  * QUALIFIED.
  */
-export function mainnetVerdict(
-  results: readonly MainnetDomainResult[],
-): MainnetVerdict {
+export function mainnetVerdict(results: readonly MainnetDomainResult[]): MainnetVerdict {
   const complete =
     results.length === MAINNET_DOMAIN_SPECS.length &&
     results.every((result) => result.status === "PASS");
