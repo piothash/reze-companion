@@ -17,10 +17,11 @@ import {
   evaluateLiveAuthorityGates,
   liveQualificationVerdict,
   runQualificationScenario,
+  type ActivationStatus,
   type GateStatus,
 } from "@/core/qualification";
 
-const ACTIVATION_TONE: Record<string, StatusTone> = {
+const ACTIVATION_TONE: Record<ActivationStatus, StatusTone> = {
   DONE: "healthy",
   READY: "degraded",
   WAITING: "neutral",
