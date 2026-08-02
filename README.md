@@ -10,24 +10,43 @@ ARC is a two-part system.
 The architecture is frozen. Read `docs/ARC_PROJECT_CHARTER.md` before changing anything;
 changes require an ADR in `docs/architecture/`.
 
-## Quick start
+## Quick start (fresh clone)
 
 ```sh
-git clone <this-repository-url>
+git clone https://github.com/piothash/reze-companion.git
 cd reze-companion
-bun install
+pnpm install            # npm install / bun install also work
 cp .env.example .env    # fill in — never commit real values
-bun run dev
+pnpm check:env          # preflight: fails fast on missing required variables
+pnpm dev
 ```
+
+Nothing else is required to run the control plane locally. For production, follow
+`docs/deployment/PRODUCTION_SETUP.md`; for the release history see `CHANGELOG.md`.
 
 ## Scripts
 
 | Command | Purpose |
 | --- | --- |
-| `bun run dev` | Local development server |
-| `bun run build` | Production build |
-| `bun run lint` | ESLint + Prettier |
-| `bunx vitest run` | Full test suite (450 tests) |
+| `pnpm dev` | Local development server |
+| `pnpm build` | Production build |
+| `pnpm preview` | Serve the production build |
+| `pnpm typecheck` | TypeScript, no emit |
+| `pnpm lint` | ESLint + Prettier |
+| `pnpm format` | Prettier write |
+| `pnpm test` | Full test suite |
+| `pnpm test:coverage` | Test suite with coverage |
+| `pnpm check:env [companion\|vps]` | Environment preflight |
+| `pnpm verify` | typecheck → lint → test → build |
+
+## Deployment assets
+
+| Asset | Purpose |
+| --- | --- |
+| `ecosystem.config.cjs` | PM2 definitions for `arc-companion` and `arc-engine` (single, non-clustered authority) |
+| `scripts/check-env.mjs` | Fail-fast environment preflight for both sides |
+| `supabase/migrations/` | Complete schema, RLS, grants, functions and triggers — no manual SQL |
+
 
 ## Environment
 
