@@ -85,6 +85,8 @@ const windowInput = z.object({
   twapBuffer: z.number().finite().nonnegative(),
   positionSizeOverride: z.number().finite().positive().nullable(),
   retryCountOverride: z.number().int().nonnegative().nullable(),
+  timeoutMillisOverride: z.number().int().positive().nullable(),
+  maxSpreadOverride: z.number().finite().nonnegative().nullable(),
 });
 
 const profileInput = z.object({

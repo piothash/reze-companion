@@ -208,7 +208,7 @@ const WINDOW_TOKEN = /^(\d+(?:\.\d+)?)(ms|s|m|h)$/;
 /**
  * Parses `EXECUTION_WINDOWS`. Two accepted forms:
  *   JSON  — `[{"offset":15,"unit":"m","twapBuffer":0.5}]`
- *   DSL   — `15m@0.5|size=2|retry=1, 10m@0.4, 3m@0.2|disabled`
+ *   DSL   — `15s@0.002|size=2|retry=1|timeout=10000|spread=0.5, 3s@0.0005|disabled`
  */
 export function parseWindowsSpec(spec: string): WindowDefinitionInput[] {
   const trimmed = spec.trim();
@@ -248,6 +248,10 @@ export function parseWindowsSpec(spec: string): WindowDefinitionInput[] {
           window.positionSizeOverride = Number(modifier.slice(5));
         } else if (modifier.startsWith("retry=")) {
           window.retryCountOverride = Number(modifier.slice(6));
+        } else if (modifier.startsWith("timeout=")) {
+          window.timeoutMillisOverride = Number(modifier.slice(8));
+        } else if (modifier.startsWith("spread=")) {
+          window.maxSpreadOverride = Number(modifier.slice(7));
         } else {
           throw new ExecutionProfileError([
             { path: "EXECUTION_WINDOWS", message: `unknown modifier "${modifier}"` },
