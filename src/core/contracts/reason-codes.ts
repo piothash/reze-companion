@@ -395,6 +395,176 @@ export const REASON_CODES = {
     "warning",
     "Authoritative market state unusable for a decision",
   ),
+
+  // Trade Domain (M3) — Risk ------------------------------------------------
+  RSK_APPROVED: spec("RSK_APPROVED", "RISK", "info", "Risk engine approved an execution intent"),
+  RSK_DENIED_KILL_SWITCH: spec(
+    "RSK_DENIED_KILL_SWITCH",
+    "RISK",
+    "error",
+    "Kill switch engaged; execution denied",
+  ),
+  RSK_DENIED_MARKET_INVALID: spec(
+    "RSK_DENIED_MARKET_INVALID",
+    "RISK",
+    "error",
+    "Market instance is not valid or not tradable; execution denied",
+  ),
+  RSK_DENIED_FEED_STALE: spec(
+    "RSK_DENIED_FEED_STALE",
+    "RISK",
+    "error",
+    "Feed freshness below policy; execution denied",
+  ),
+  RSK_DENIED_EXPOSURE: spec(
+    "RSK_DENIED_EXPOSURE",
+    "RISK",
+    "error",
+    "Reserved plus live exposure would exceed the configured limit",
+  ),
+  RSK_DENIED_POSITION_LIMIT: spec(
+    "RSK_DENIED_POSITION_LIMIT",
+    "RISK",
+    "error",
+    "Per-market or per-side position limit would be exceeded",
+  ),
+  RSK_DENIED_LIQUIDITY: spec(
+    "RSK_DENIED_LIQUIDITY",
+    "RISK",
+    "error",
+    "Book liquidity or spread outside configured policy; execution denied",
+  ),
+  RSK_DENIED_POLICY: spec(
+    "RSK_DENIED_POLICY",
+    "RISK",
+    "error",
+    "A configured risk policy denied the execution intent",
+  ),
+  RSK_EXPOSURE_RESERVED: spec(
+    "RSK_EXPOSURE_RESERVED",
+    "RISK",
+    "info",
+    "Exposure reserved for an execution intent",
+  ),
+  RSK_EXPOSURE_RELEASED: spec(
+    "RSK_EXPOSURE_RELEASED",
+    "RISK",
+    "info",
+    "Exposure reservation released without becoming live exposure",
+  ),
+  RSK_EXPOSURE_COMMITTED: spec(
+    "RSK_EXPOSURE_COMMITTED",
+    "RISK",
+    "info",
+    "Reserved exposure converted into live exposure on fill",
+  ),
+
+  // Trade Domain (M3) — Execution / orders ----------------------------------
+  EXE_ORDER_CREATED: spec("EXE_ORDER_CREATED", "EXECUTION", "info", "Order created in the FSM"),
+  EXE_ORDER_SUBMITTED: spec(
+    "EXE_ORDER_SUBMITTED",
+    "EXECUTION",
+    "info",
+    "Order submitted to the venue gateway",
+  ),
+  EXE_ORDER_WORKING: spec(
+    "EXE_ORDER_WORKING",
+    "EXECUTION",
+    "info",
+    "Order acknowledged and resting on the book",
+  ),
+  EXE_ORDER_UPDATED: spec(
+    "EXE_ORDER_UPDATED",
+    "EXECUTION",
+    "info",
+    "Order state or quantities updated",
+  ),
+  EXE_ORDER_PARTIALLY_FILLED: spec(
+    "EXE_ORDER_PARTIALLY_FILLED",
+    "EXECUTION",
+    "info",
+    "Order partially filled",
+  ),
+  EXE_ORDER_FILLED: spec("EXE_ORDER_FILLED", "EXECUTION", "info", "Order completely filled"),
+  EXE_ORDER_CANCELLED: spec("EXE_ORDER_CANCELLED", "EXECUTION", "info", "Order cancelled"),
+  EXE_ORDER_REJECTED: spec(
+    "EXE_ORDER_REJECTED",
+    "EXECUTION",
+    "error",
+    "Order rejected by the venue gateway",
+  ),
+  EXE_ORDER_EXPIRED: spec(
+    "EXE_ORDER_EXPIRED",
+    "EXECUTION",
+    "warning",
+    "Order expired before being filled",
+  ),
+  EXE_ORDER_REPRICED: spec(
+    "EXE_ORDER_REPRICED",
+    "EXECUTION",
+    "info",
+    "Standing order repriced through cancel/replace",
+  ),
+  EXE_REPRICE_EXHAUSTED: spec(
+    "EXE_REPRICE_EXHAUSTED",
+    "EXECUTION",
+    "warning",
+    "Maximum reprice attempts reached",
+  ),
+  EXE_RETRY_SCHEDULED: spec(
+    "EXE_RETRY_SCHEDULED",
+    "EXECUTION",
+    "warning",
+    "Execution attempt failed; retry scheduled",
+  ),
+  EXE_RETRY_EXHAUSTED: spec(
+    "EXE_RETRY_EXHAUSTED",
+    "EXECUTION",
+    "error",
+    "Retry budget exhausted for an execution intent",
+  ),
+  EXE_IOC_FALLBACK: spec(
+    "EXE_IOC_FALLBACK",
+    "EXECUTION",
+    "warning",
+    "Passive maker attempt abandoned; IOC fallback engaged",
+  ),
+  EXE_QUOTA_COMMITTED: spec(
+    "EXE_QUOTA_COMMITTED",
+    "EXECUTION",
+    "info",
+    "Trade quota consumed once at the first meaningful cumulative fill",
+  ),
+  EXE_SETTLEMENT_HOOK: spec(
+    "EXE_SETTLEMENT_HOOK",
+    "EXECUTION",
+    "info",
+    "Settlement hook notified of a terminal execution",
+  ),
+  EXE_COMPLETED: spec(
+    "EXE_COMPLETED",
+    "EXECUTION",
+    "info",
+    "Execution completed for an execution intent",
+  ),
+  EXE_FAILED: spec(
+    "EXE_FAILED",
+    "EXECUTION",
+    "error",
+    "Execution failed for an execution intent; reservations released",
+  ),
+  EXE_DUPLICATE_SUPPRESSED: spec(
+    "EXE_DUPLICATE_SUPPRESSED",
+    "EXECUTION",
+    "warning",
+    "Duplicate execution for an already-known execution intent suppressed",
+  ),
+  EXE_RECOVERED: spec(
+    "EXE_RECOVERED",
+    "RECOVERY",
+    "info",
+    "Execution state rebuilt from a persisted snapshot after restart",
+  ),
 } as const satisfies Record<string, ReasonCodeSpec>;
 
 export type ReasonCode = keyof typeof REASON_CODES;
