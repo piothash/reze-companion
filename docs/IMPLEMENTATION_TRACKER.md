@@ -536,3 +536,32 @@ the plain `server.ts` name so the bundler refuses any client-side import of it.
 | `docs/AUTHORITY_API_CONTRACT.md` control-plane section; `docs/OPERATIONS_RUNBOOK.md` §9 PM2 integration | Done |
 | Tests: signature/timestamp/replay, registration, heartbeat lifecycle, liveness, dispatch, security | Done (330 total) |
 | Live VPS engine registers against the deployed control plane | Pending operator run |
+
+## M7.7 — Testnet Qualification Harness
+
+| Item | Status |
+| --- | --- |
+| Deterministic full-lifecycle scenario (`src/core/qualification/scenario.ts`) | Done |
+| Pure gate evaluator: lifecycle, multi-window, replay, recovery, configuration, observability | Done |
+| `/qualification` operator console with gate checklist and window activation order | Done |
+| Replay determinism: harness clock enforces 1ms event separation | Done |
+| `docs/qualification/M7_7_TESTNET_QUALIFICATION_REPORT.md` | Done |
+| Live gates remain PENDING until VPS evidence exists | Done |
+
+## M7.8 — Live Authority Qualification & Production Audit Preparation
+
+| Item | Status |
+| --- | --- |
+| Pure live evidence model + evaluator (`src/core/qualification/live-gates.ts`) | Done |
+| Gate: authority ACTIVE — runtime identity, fresh heartbeat (2× interval), measured latency | Done |
+| Gate: engine startup chain — configuration → feed → discovery → PTB → TWAP → signal → market state → windows armed | Done |
+| Startup chain derived only from authority-reported telemetry; unreported step is never inferred | Done |
+| Companion startup problems recorded as notes, never as a VPS verdict | Done |
+| Gate: configuration activation round-trip — LIVE, hash match, snapshot id, version match, no drift | Done |
+| Gate: telemetry complete and current — LIVE source, within sync budget, all 8 mandated fields | Done |
+| Gate: security posture — signed handshakes, ownership finalized, registry rejects secret material | Done |
+| Authenticated evidence collector (`src/lib/qualification.functions.ts`) | Done |
+| "Live Authority Gates — M7.8" panel on `/qualification`; combined verdict with the deterministic gates | Done |
+| `docs/qualification/M7_8_LIVE_AUTHORITY_REPORT.md` | Done |
+| Tests: evaluator, staleness, drift, telemetry completeness, startup chain derivation | Done (368 total) |
+| Signing key configured, ownership finalized, VPS registered and publishing telemetry | Pending operator run |
