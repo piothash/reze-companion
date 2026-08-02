@@ -248,12 +248,6 @@ export const ARC_ENV_SPECS: readonly EnvVarSpec[] = [
     required: true,
     description: "Publishable control-plane key",
   },
-  {
-    key: "SUPABASE_SERVICE_ROLE_KEY",
-    kind: "secret",
-    minLength: 20,
-    description: "Privileged control-plane key — server only, never bundled",
-  },
 ];
 
 function issue(key: string, message: string, reasonCode: ReasonCode): EnvIssue {

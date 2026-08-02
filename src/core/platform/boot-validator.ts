@@ -112,7 +112,7 @@ export function validateExecutionProfileInvariants(profile: ExecutionProfile): B
   const issues: BootIssue[] = [];
 
   if (profile.executionMode === "SINGLE_TRADE" && profile.maxTrades !== 1) {
-    issues.push(fail("maxTrades", "SINGLE_TRADE must declare maxTrades = 1"));
+    issues.push(fail("maxTrades", "SINGLE_TRADE must declare exactly one trade"));
   }
   if (profile.executionMode === "MULTI_TRADE" && profile.maxTrades < 2) {
     issues.push(fail("maxTrades", "MULTI_TRADE requires a trade quota of at least 2"));
