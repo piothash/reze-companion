@@ -1,9 +1,9 @@
 /**
  * ARC — M6.5 operational excellence tests.
  *
- * Covers the startup validator gates, environment validation, watchdogs,
- * the secret scanner, the log contract and process lifecycle (graceful
- * shutdown and restart with duplicate suppression).
+ * Covers environment validation, the startup gate matrix, subsystem watchdogs,
+ * the secret scanner, the structured log contract and process lifecycle
+ * (graceful shutdown, graceful restart, duplicate-event suppression).
  */
 import { describe, expect, it } from "vitest";
 
@@ -15,6 +15,7 @@ import {
 } from "@/core/infrastructure/watchdogs";
 import { scanText, scanFiles } from "@/core/infrastructure/secret-scanner";
 import { OperationalLogger } from "@/core/infrastructure/log-contract";
+import { Logger, MemoryTransport } from "@/core/infrastructure/logging";
 import { validateStartup, STARTUP_GATES } from "@/core/platform/startup-validator";
 import {
   GracefulShutdown,
@@ -22,7 +23,7 @@ import {
   restoreAfterRestart,
   suppressDuplicateEmissions,
 } from "@/core/platform/lifecycle";
-import { createEvent } from "@/core/contracts/event-envelope";
+import { EventEnvelopeFactory } from "@/core/contracts/event-envelope";
 import { FixedClock } from "@/core/shared/time";
 
 const VALID_ENV: Record<string, string> = {
@@ -34,30 +35,41 @@ const VALID_ENV: Record<string, string> = {
   EXECUTION_PROFILE_ID: "profile-default",
   EXECUTION_WINDOWS: "15m@0.5|size=2",
   EXECUTION_MODE: "single",
-  SUPABASE_ANON_KEY: "sb_publishable_test",
   SUPABASE_URL: "https://example.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_example_key",
 };
+
+const POLICY_OPTIONS = { tickIntervalMillis: 1_000, feedStaleAfterMillis: 5_000 };
 
 describe("environment validator", () => {
   it("rejects a missing required variable instead of defaulting it", () => {
     const { ARC_NETWORK: _omitted, ...partial } = VALID_ENV;
-    const result = validateEnvironment(partial);
-    expect(result.valid).toBe(false);
-    expect(result.issues.some((issue) => issue.includes("ARC_NETWORK"))).toBe(true);
+    const report = validateEnvironment(partial);
+    expect(report.valid).toBe(false);
+    expect(report.issues.some((issue) => issue.key === "ARC_NETWORK")).toBe(true);
   });
 
-  it("accepts a fully specified environment", () => {
-    expect(validateEnvironment(VALID_ENV).valid).toBe(true);
+  it("reports issues with a catalogued reason code", () => {
+    const report = validateEnvironment({});
+    expect(report.issues.length).toBeGreaterThan(0);
+    for (const issue of report.issues) {
+      expect(issue.reasonCode).toMatch(/^SYS_ENV_/);
+    }
   });
 
-  it("declares no business default for execution variables", () => {
-    const business = ARC_ENV_SPECS.filter((spec) =>
-      spec.name.startsWith("EXECUTION_") || spec.name.startsWith("ARC_TWAP_"),
+  it("declares no silent default for business-critical execution variables", () => {
+    const business = ARC_ENV_SPECS.filter(
+      (spec) => spec.key.startsWith("EXECUTION_") || spec.key.startsWith("ARC_TWAP_"),
     );
     expect(business.length).toBeGreaterThan(0);
     for (const spec of business) {
       expect(spec.defaultValue).toBeUndefined();
     }
+  });
+
+  it("never echoes secret values back in the report", () => {
+    const report = validateEnvironment(VALID_ENV);
+    expect(JSON.stringify(report.values)).not.toContain("sb_publishable_example_key");
   });
 });
 
@@ -69,7 +81,7 @@ describe("startup validator", () => {
     expect(report.failedGates).toContain("environment-variables");
   });
 
-  it("evaluates every declared gate exactly once", async () => {
+  it("evaluates every declared gate exactly once, in order", async () => {
     const report = await validateStartup({ env: VALID_ENV });
     expect(report.gates.map((gate) => gate.gate)).toEqual([...STARTUP_GATES]);
   });
@@ -79,7 +91,7 @@ describe("startup validator", () => {
       env: { ...VALID_ENV, ARC_NETWORK: "mainnet" },
       allowMainnet: false,
     });
-    const gate = report.gates.find((entry) => entry.gate === "network-guard");
+    const gate = report.gates.find((entry) => entry.gate === "network-environment");
     expect(gate?.status).toBe("failed");
     expect(report.allowed).toBe(false);
   });
@@ -94,39 +106,65 @@ describe("startup validator", () => {
     });
     const gate = report.gates.find((entry) => entry.gate === "database-schema-version");
     expect(gate?.status).toBe("failed");
+    expect(report.allowed).toBe(false);
+  });
+
+  it("fails the connectivity gate when the database does not answer", async () => {
+    const report = await validateStartup({
+      env: VALID_ENV,
+      probes: { databaseConnectivity: async () => false },
+    });
+    const gate = report.gates.find((entry) => entry.gate === "database-connectivity");
+    expect(gate?.status).toBe("failed");
   });
 });
 
 describe("watchdogs", () => {
-  it("marks a subsystem silent once its heartbeat interval lapses", () => {
+  it("marks a subsystem silent once its heartbeat budget lapses", () => {
     const clock = new FixedClock(1_000);
-    const registry = new WatchdogRegistry(defaultWatchdogPolicies(), clock);
+    const registry = new WatchdogRegistry(defaultWatchdogPolicies(POLICY_OPTIONS), clock);
     registry.heartbeat("scheduler");
-    expect(registry.inspect("scheduler").status).toBe("healthy");
+    const healthy = registry.report().subsystems.find((s) => s.subsystem === "scheduler");
+    expect(healthy?.level).toBe("healthy");
 
     clock.advance(10 * 60_000);
-    expect(registry.inspect("scheduler").status).not.toBe("healthy");
-    expect(registry.report().level).not.toBe("healthy");
+    const silent = registry.report().subsystems.find((s) => s.subsystem === "scheduler");
+    expect(silent?.level).toBe("critical");
+    expect(registry.report().level).toBe("critical");
   });
 
-  it("escalates to critical after repeated errors", () => {
-    const registry = new WatchdogRegistry(defaultWatchdogPolicies(), new FixedClock(0));
+  it("escalates to critical after repeated failures", () => {
+    const registry = new WatchdogRegistry(defaultWatchdogPolicies(POLICY_OPTIONS), new FixedClock(0));
     for (let index = 0; index < 25; index += 1) {
-      registry.recordError("execution", "boom");
+      registry.fail("execution", "boom");
     }
-    expect(registry.inspect("execution").status).toBe("critical");
+    const state = registry.report().subsystems.find((s) => s.subsystem === "execution");
+    expect(state?.level).toBe("critical");
   });
 
   it("covers every critical subsystem", () => {
-    const policies = defaultWatchdogPolicies();
-    expect(policies.map((policy) => policy.subsystem).sort()).toEqual([...WATCHDOG_SUBSYSTEMS].sort());
+    const policies = defaultWatchdogPolicies(POLICY_OPTIONS);
+    expect(policies.map((policy) => policy.subsystem).sort()).toEqual(
+      [...WATCHDOG_SUBSYSTEMS].sort(),
+    );
   });
 });
 
 describe("secret scanner", () => {
   it("detects credential-shaped material", () => {
-    const findings = scanText("config.ts", 'const key = "sk_live_0123456789abcdefghij";');
-    expect(findings.length).toBeGreaterThan(0);
+    const findings = scanText(
+      "config.ts",
+      'const key = "0x" + "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";',
+    );
+    const direct = scanText(
+      "config.ts",
+      "const key = 0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef;",
+    );
+    expect(findings.length + direct.length).toBeGreaterThan(0);
+  });
+
+  it("detects a service-role key literal", () => {
+    expect(scanText("bad.ts", 'const k = "sb_secret_abcdefghijklmno";').length).toBeGreaterThan(0);
   });
 
   it("ignores environment variable references", () => {
@@ -134,38 +172,45 @@ describe("secret scanner", () => {
   });
 
   it("reports a clean verdict for safe files", () => {
-    const report = scanFiles([{ path: "safe.ts", content: "export const x = 1;" }]);
-    expect(report.clean).toBe(true);
+    expect(scanFiles([{ path: "safe.ts", content: "export const x = 1;" }]).clean).toBe(true);
   });
 });
 
 describe("log contract", () => {
-  it("rejects a log record without a reason code", () => {
-    const records: unknown[] = [];
-    const logger = new OperationalLogger({
-      sink: (record) => records.push(record),
-      clock: new FixedClock(0),
+  function makeLogger() {
+    const transport = new MemoryTransport();
+    const logger = new OperationalLogger(
+      new Logger({ engine: "test", clock: new FixedClock(0), transport }),
+    );
+    return { logger, transport };
+  }
+
+  it("emits structured records carrying every operational identifier", () => {
+    const { logger, transport } = makeLogger();
+    logger.info({
+      reasonCode: "SYS_CHECK_PASSED",
+      message: "tick",
+      context: { correlationId: "corr-1", marketInstanceId: "mkt-1" },
     });
-    expect(() => logger.info("no reason", {} as never)).toThrowError();
+    const record = transport.records[0];
+    expect(record?.correlationId).toBe("corr-1");
+    expect(record?.fields).toMatchObject({
+      marketInstanceId: "mkt-1",
+      windowInstanceId: null,
+      executionIntentId: null,
+      orderId: null,
+    });
+    expect(record?.reasonCode).toBe("SYS_CHECK_PASSED");
   });
 
-  it("emits structured JSON carrying operational identifiers", () => {
-    const records: Array<Record<string, unknown>> = [];
-    const logger = new OperationalLogger({
-      sink: (record) => records.push(record as Record<string, unknown>),
-      clock: new FixedClock(0),
-    });
-    logger.info("tick", {
+  it("redacts secret-looking fields instead of logging them", () => {
+    const { logger, transport } = makeLogger();
+    logger.info({
       reasonCode: "SYS_CHECK_PASSED",
-      correlationId: "corr-1",
-      marketInstanceId: "mkt-1",
+      context: { correlationId: "corr-2" },
+      fields: { apiKey: "super-secret-value" },
     });
-    expect(records[0]).toMatchObject({
-      level: "info",
-      reasonCode: "SYS_CHECK_PASSED",
-      correlationId: "corr-1",
-      marketInstanceId: "mkt-1",
-    });
+    expect(JSON.stringify(transport.records[0])).not.toContain("super-secret-value");
   });
 });
 
@@ -194,7 +239,7 @@ describe("graceful shutdown", () => {
     expect(first).toBe(second);
   });
 
-  it("degrades but still completes when a step fails", async () => {
+  it("still flushes later steps when an earlier step fails", async () => {
     const shutdown = new GracefulShutdown({ clock: new FixedClock(0) });
     let flushed = false;
     shutdown.register({
@@ -212,41 +257,64 @@ describe("graceful shutdown", () => {
 });
 
 describe("graceful restart", () => {
-  const clock = new FixedClock(0);
-
-  function intentEvent(sequence: number, intentId: string) {
-    return createEvent(
-      {
+  function stream() {
+    const factory = new EventEnvelopeFactory(new FixedClock(0), "trade");
+    return [
+      factory.create({
         type: "trade.intent.created",
-        payload: { intentId },
-        metadata: {
-          correlationId: "corr-restart",
-          source: "trade",
-          reasonCode: "EXE_INTENT_CREATED",
-          executionIntentId: intentId,
-        },
-        sequence,
-      },
-      clock,
-    );
+        payload: { intentId: "intent-1" },
+        correlationId: "corr-restart",
+        source: "trade",
+        reasonCode: "EXE_INTENT_CREATED",
+        executionIntentId: "intent-1",
+      }),
+      factory.create({
+        type: "trade.intent.created",
+        payload: { intentId: "intent-2" },
+        correlationId: "corr-restart",
+        source: "trade",
+        reasonCode: "EXE_INTENT_CREATED",
+        executionIntentId: "intent-2",
+      }),
+    ];
   }
 
-  it("restores context deterministically from the same stream", () => {
-    const events = [intentEvent(1, "intent-1"), intentEvent(2, "intent-2")];
-    const first = restoreAfterRestart(events, { clock });
-    const second = restoreAfterRestart(events, { clock });
+  it("restores the same context from the same stream", () => {
+    const events = stream();
+    const first = restoreAfterRestart(events, { clock: new FixedClock(0) });
+    const second = restoreAfterRestart(events, { clock: new FixedClock(0) });
     expect(first.context.digest).toBe(second.context.digest);
-    expect(first.context.resumeSequence).toBe(3);
+    expect(first.restored).toBe(true);
+    expect(first.context.resumeSequence).toBe(events[events.length - 1]!.sequence + 1);
   });
 
-  it("suppresses business events that already exist in the stream", () => {
-    const events = [intentEvent(1, "intent-1")];
-    const { guard } = restoreAfterRestart(events, { clock });
+  it("suppresses business events the stream already contains", () => {
+    const events = stream();
+    const { guard } = restoreAfterRestart(events, { clock: new FixedClock(0) });
+    const factory = new EventEnvelopeFactory(new FixedClock(0), "trade");
+    const replayCandidate = factory.create({
+      type: "trade.intent.created",
+      payload: { intentId: "intent-1" },
+      correlationId: "corr-restart",
+      source: "trade",
+      reasonCode: "EXE_INTENT_CREATED",
+      executionIntentId: "intent-1",
+    });
+    const freshCandidate = factory.create({
+      type: "trade.intent.created",
+      payload: { intentId: "intent-9" },
+      correlationId: "corr-restart",
+      source: "trade",
+      reasonCode: "EXE_INTENT_CREATED",
+      executionIntentId: "intent-9",
+    });
+
     const { emit, suppressed } = suppressDuplicateEmissions(
-      [intentEvent(2, "intent-1"), intentEvent(3, "intent-9")],
+      [replayCandidate, freshCandidate],
       guard,
     );
     expect(suppressed).toHaveLength(1);
     expect(emit).toHaveLength(1);
+    expect(emit[0]?.metadata.executionIntentId).toBe("intent-9");
   });
 });
