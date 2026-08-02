@@ -89,7 +89,7 @@ function DeploymentPage() {
     ? evaluateQualificationGates(scenario.data.run, {
         replayDeterministic:
           scenario.data.replay.deterministic && scenario.data.replay.mismatches.length === 0,
-        ...(snapshot?.authority?.registered ? { authorityRegistered: true } : {}),
+        ...(snapshot?.authority ? { authorityRegistered: true } : {}),
       })
     : [];
 
