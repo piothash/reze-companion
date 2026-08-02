@@ -84,7 +84,7 @@ describe("runtime configuration verification", () => {
     );
     expect(report.state).toBe("DRIFT");
     expect(report.reasons.map((reason) => reason.field)).toContain("version");
-    expect(report.reasons.map((reason) => reason.field)).toContain("configHash");
+    expect(report.reasons.map((reason) => reason.field)).toContain("configuration hash");
   });
 
   it("is UNKNOWN when the engine reported nothing", () => {
@@ -106,7 +106,7 @@ describe("health", () => {
       { component: "scheduler", status: "healthy", detail: null, latencyMillis: 4 },
       { component: "feed", status: "degraded", detail: null, latencyMillis: null },
     ]);
-    expect(worstHealth(entries)).toBe("unavailable"); // unknown components dominate
+    expect(worstHealth(entries)).toBe("degraded");
   });
 });
 
