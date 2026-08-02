@@ -490,7 +490,10 @@ function EngineRegistrationPage() {
             </Table>
           )}
         </Panel>
+
+        <AuthorityRegistryPanel />
       </div>
+
     </OperatorShell>
   );
 }
