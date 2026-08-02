@@ -325,7 +325,10 @@ export function applyTick(
   policy: ExecutionConstraints["tickPolicy"],
   precision: number,
 ): number {
-  const ticks = price / tickSize;
+  // Guard against binary floating point: 0.47 / 0.01 is 46.999999999999993, and
+  // a naive floor would silently move the price a whole tick.
+  const raw = price / tickSize;
+  const ticks = Math.abs(raw - Math.round(raw)) < 1e-9 ? Math.round(raw) : raw;
   const rounded =
     policy === "ROUND_DOWN"
       ? Math.floor(ticks)

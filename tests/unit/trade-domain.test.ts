@@ -147,9 +147,9 @@ describe("trade configuration", () => {
     const parsed = tradeConfigFromEnv({
       RISK_MAX_EXPOSURE: "250",
       RISK_MAX_INTENT_EXPOSURE: "25",
-      EXECUTION_TIMEOUT_MS: "7500",
-      EXECUTION_RETRY_COUNT: "3",
-      EXECUTION_REPRICING_ENABLED: "true",
+      ORDER_TIMEOUT_MS: "7500",
+      ORDER_RETRY_COUNT: "3",
+      ORDER_REPRICING_ENABLED: "true",
     });
     expect(parsed.risk.maxExposure).toBe(250);
     expect(parsed.execution.timeoutMillis).toBe(7_500);
@@ -178,10 +178,7 @@ describe("risk engine", () => {
   });
 
   it("denies on the kill switch before anything else", () => {
-    const verdict = evaluateRisk(riskInput(), {
-      ...options,
-      profile: { ...options.profile, killSwitch: true },
-    });
+    const verdict = evaluateRisk(riskInput({ killSwitchEngaged: true }), options);
     expect(verdict.decision).toBe("DENY");
     expect(verdict.deniedBy).toBe("KILL_SWITCH");
   });
