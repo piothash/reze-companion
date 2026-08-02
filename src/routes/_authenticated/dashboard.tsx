@@ -90,12 +90,14 @@ function DashboardPage() {
       actions={
         <div className="flex items-center gap-2">
           <StatusPill tone="neutral" label={(system.data?.environment ?? "—").toUpperCase()} />
+          <TelemetrySourcePill view={telemetry.data} />
           <StatusPill
             tone={market?.feedFresh ? "healthy" : market ? "degraded" : "neutral"}
             label={market?.feedFresh ? "FEED LIVE" : market ? "FEED STALE" : "NO FEED"}
           />
         </div>
       }
+
     >
       {isPending ? (
         <LoadingState label="Reading operational telemetry" />
