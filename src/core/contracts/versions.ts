@@ -36,6 +36,13 @@ export const VERSION_REGISTRY = {
   windowDefinition: v("windowDefinition", "1.0.0", ["1.0.0"], "Execution window definition format"),
   replayFormat: v("replayFormat", "1.0.0", ["1.0.0"], "Deterministic replay record format"),
   featureFlag: v("featureFlag", "1.0.0", ["1.0.0"], "Feature flag document format"),
+  marketConfiguration: v(
+    "marketConfiguration",
+    "1.0.0",
+    ["1.0.0"],
+    "Market State Domain configuration format",
+  ),
+  marketState: v("marketState", "1.0.0", ["1.0.0"], "Authoritative market state snapshot contract"),
 } as const satisfies Record<string, VersionSpec>;
 
 export type VersionKey = keyof typeof VERSION_REGISTRY;
