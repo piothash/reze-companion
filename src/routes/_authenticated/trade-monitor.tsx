@@ -3,7 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
+import {
+  EmptyState,
+  KeyValue,
+  LoadingState,
+  Panel,
+  StatusPill,
+  Timeline,
+} from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 import { getLedgerSummary } from "@/lib/platform.functions";
@@ -60,10 +67,13 @@ function TradeMonitorPage() {
       }
     >
       {isPending ? (
-        <EmptyState message="Loading execution telemetry…" />
+        <LoadingState label="Reading execution telemetry" />
       ) : executions.length === 0 ? (
         <Panel title="Executions">
-          <EmptyState message="No execution intents have been mirrored yet." />
+          <EmptyState
+            message="No execution intents recorded."
+            hint="Waiting for VPS connection — the intent → risk → order → fill → settlement timeline appears here."
+          />
         </Panel>
       ) : (
         <div className="space-y-4">
@@ -84,29 +94,96 @@ function TradeMonitorPage() {
                 />
               }
             >
-              <KeyValue
-                rows={[
-                  ["Side", execution.side ?? "—"],
-                  ["Position Size", fmt(execution.positionSize, 2)],
-                  ["Reference Effective TWAP", fmt(execution.referenceEffectiveTwap)],
-                  ["Reference PTB", fmt(execution.referencePtb)],
-                  ["Applied Buffer", fmt(execution.appliedBuffer)],
-                  ["Risk Result", execution.riskVerdict ?? "—"],
-                  ["Risk Reason", execution.riskReason ?? "—"],
-                  ["Standing Order", execution.orderId ?? "—"],
-                  ["Order FSM", execution.orderState ?? "—"],
-                  ["Retries", fmtInt(execution.retries)],
-                  ["Repricings", fmtInt(execution.repricings)],
-                  ["Filled Quantity", fmt(execution.filledQuantity, 4)],
-                  ["Partial Fill", execution.partiallyFilled ? "yes" : "no"],
-                  ["Average Price", fmt(execution.averagePrice)],
-                  ["Settlement", execution.settled ? "settled" : "pending"],
-                  ["Failure Reason", execution.failureReason ?? "—"],
-                  ["Window", execution.windowInstanceId ?? "—"],
-                  ["Correlation ID", execution.correlationId],
-                  ["Created", fmtTime(execution.createdAtIso)],
-                ]}
-              />
+              <div className="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
+                <div>
+                  <h3 className="label-caps mb-2">Lifecycle</h3>
+                  <Timeline
+                    stages={[
+                      {
+                        label: "Execution Intent",
+                        state: "reached",
+                        detail: `${execution.side ?? "—"} · size ${fmt(execution.positionSize, 2)}`,
+                      },
+                      {
+                        label: "Risk",
+                        state:
+                          execution.riskVerdict === "DENY"
+                            ? "failed"
+                            : execution.riskVerdict
+                              ? "reached"
+                              : "pending",
+                        detail: execution.riskVerdict
+                          ? `${execution.riskVerdict} · ${execution.riskReason ?? "—"}`
+                          : "not evaluated",
+                      },
+                      {
+                        label: "Standing Order",
+                        state: execution.orderId ? "reached" : "pending",
+                        detail: execution.orderId
+                          ? `${execution.orderId} · ${execution.orderState ?? "—"}`
+                          : "not placed",
+                      },
+                      {
+                        label: "Reprice",
+                        state: (execution.repricings ?? 0) > 0 ? "reached" : "skipped",
+                        detail: `${fmtInt(execution.repricings)} repricings · ${fmtInt(execution.retries)} retries`,
+                      },
+                      {
+                        label: "Partial Fill",
+                        state: execution.partiallyFilled
+                          ? "reached"
+                          : (execution.filledQuantity ?? 0) > 0
+                            ? "skipped"
+                            : "pending",
+                        detail: `filled ${fmt(execution.filledQuantity, 4)} @ ${fmt(execution.averagePrice)}`,
+                      },
+                      {
+                        label: "Settlement",
+                        state: execution.failureReason
+                          ? "failed"
+                          : execution.settled
+                            ? "reached"
+                            : "pending",
+                        detail: execution.failureReason ?? (execution.settled ? "settled" : "pending"),
+                      },
+                      {
+                        label: "Ledger",
+                        state: ledgerRecords.some(
+                          (record) => record.executionIntentId === execution.executionIntentId,
+                        )
+                          ? "reached"
+                          : "pending",
+                        detail: `${ledgerRecords.filter((record) => record.executionIntentId === execution.executionIntentId).length} record(s)`,
+                      },
+                    ]}
+                  />
+                </div>
+
+                <KeyValue
+                  rows={[
+                    ["Side", execution.side ?? "—"],
+                    ["Position Size", fmt(execution.positionSize, 2)],
+                    ["Reference Effective TWAP", fmt(execution.referenceEffectiveTwap)],
+                    ["Reference PTB", fmt(execution.referencePtb)],
+                    ["Applied Buffer", fmt(execution.appliedBuffer)],
+                    ["Risk Result", execution.riskVerdict ?? "—"],
+                    ["Risk Reason", execution.riskReason ?? "—"],
+                    ["Standing Order", execution.orderId ?? "—"],
+                    ["Order FSM", execution.orderState ?? "—"],
+                    ["Retries", fmtInt(execution.retries)],
+                    ["Repricings", fmtInt(execution.repricings)],
+                    ["Filled Quantity", fmt(execution.filledQuantity, 4)],
+                    ["Partial Fill", execution.partiallyFilled ? "yes" : "no"],
+                    ["Average Price", fmt(execution.averagePrice)],
+                    ["Settlement", execution.settled ? "settled" : "pending"],
+                    ["Failure Reason", execution.failureReason ?? "—"],
+                    ["Window", execution.windowInstanceId ?? "—"],
+                    ["Correlation ID", execution.correlationId],
+                    ["Created", fmtTime(execution.createdAtIso)],
+                  ]}
+                />
+              </div>
+
 
               <h3 className="label-caps mt-4">Ledger Entries</h3>
               {ledgerRecords.filter(

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { getHealthReport } from "@/lib/operations.functions";
 
@@ -50,7 +50,7 @@ function HealthPage() {
       actions={<StatusPill tone={worst} label={worst.toUpperCase()} />}
     >
       {isPending ? (
-        <EmptyState message="Running health probes…" />
+        <LoadingState label="Running health probes" />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {components.map((component) => (

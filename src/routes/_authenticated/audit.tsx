@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Panel } from "@/components/arc/primitives";
+import { EmptyState, LoadingState, Panel } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { listAuditRecords } from "@/lib/operations.functions";
@@ -62,7 +62,7 @@ function AuditPage() {
         />
         <Panel title="Timeline">
           {isPending ? (
-            <EmptyState message="Loading audit trail…" />
+            <LoadingState label="Reading audit trail" />
           ) : records.length === 0 ? (
             <EmptyState message="No audit records match." />
           ) : (

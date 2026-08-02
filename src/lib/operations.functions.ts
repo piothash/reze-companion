@@ -126,17 +126,30 @@ export const getExecutionProfileConfig = createServerFn({ method: "GET" })
       .maybeSingle();
 
     const stored = (data?.config as { executionProfile?: unknown } | null)?.executionProfile;
-    const profile = stored
-      ? parseExecutionProfileOrThrow(stored)
-      : loadExecutionProfile(process.env as Record<string, string | undefined>);
+
+    // Unconfigured is a legitimate operator state, not an error: the console
+    // must offer profile creation instead of failing the page.
+    let profile: ReturnType<typeof parseExecutionProfileOrThrow> | null = null;
+    let invalidReason: string | null = null;
+    try {
+      profile = stored
+        ? parseExecutionProfileOrThrow(stored)
+        : loadExecutionProfile(process.env as Record<string, string | undefined>);
+    } catch (error) {
+      profile = null;
+      invalidReason = stored ? (error as Error).message : null;
+    }
 
     return {
       profile,
-      digest: executionProfileDigest(profile),
-      source: stored ? ("STORED" as const) : ("ENVIRONMENT" as const),
+      digest: profile ? executionProfileDigest(profile) : null,
+      source: profile ? (stored ? ("STORED" as const) : ("ENVIRONMENT" as const)) : ("NONE" as const),
+      unconfigured: profile === null,
+      invalidReason,
       updatedAtIso: (data?.updated_at as string | undefined) ?? null,
     };
   });
+
 
 export const saveExecutionProfileConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -400,4 +413,71 @@ export const listAuditRecords = createServerFn({ method: "GET" })
       .limit(200);
     if (error) throw new Error(`audit trail unavailable: ${error.message}`);
     return { records: (data ?? []) as JsonValue[] };
+  });
+
+// ---------------------------------------------------------------------------
+// Operator status bar — global header state (environment, market, feed, VPS)
+// ---------------------------------------------------------------------------
+
+/**
+ * Lightweight header projection. Read-only mirror of VPS-owned state: the
+ * companion never derives market or feed authority (ADR-0001).
+ */
+export const getOperatorStatusBar = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { projectOperations } = await import("@/core/platform/operations-view");
+    const client = context.supabase as AnyClient;
+    const startedAt = Date.now();
+
+    const [events, endpoints] = await Promise.all([
+      loadEvents(client, context.userId, 120).catch(() => []),
+      client
+        .from("engine_endpoints")
+        .select("name, environment, is_active, last_seen_at")
+        .order("created_at", { ascending: true }),
+    ]);
+
+    const latencyMillis = Date.now() - startedAt;
+    const projection = projectOperations(events);
+    const market = projection.activeMarket;
+    const rows = (endpoints.data ?? []) as {
+      name: string;
+      environment: string | null;
+      is_active: boolean;
+      last_seen_at: string | null;
+    }[];
+    const active = rows.find((row) => row.is_active && row.last_seen_at) ?? rows[0] ?? null;
+    const lastSeenAtIso = active?.last_seen_at ?? null;
+    const lastSeenAgeMillis = lastSeenAtIso
+      ? Date.now() - new Date(lastSeenAtIso).getTime()
+      : null;
+
+    return {
+      environment: process.env["ARC_ENVIRONMENT"] ?? "development",
+      network: (process.env["ARC_NETWORK"] ?? "testnet").toUpperCase(),
+      market: market
+        ? {
+            question: market.question,
+            venue: market.venue,
+            lifecycle: market.lifecycle,
+            resolutionIso: market.resolutionIso,
+          }
+        : null,
+      feed: {
+        fresh: market?.feedFresh ?? null,
+        ageMillis: market?.feedAgeMillis ?? null,
+      },
+      vps: {
+        registered: rows.length > 0,
+        connected: Boolean(lastSeenAtIso && lastSeenAgeMillis !== null && lastSeenAgeMillis < 60_000),
+        name: active?.name ?? null,
+        endpointEnvironment: active?.environment ?? null,
+        lastSeenAtIso,
+        lastSeenAgeMillis,
+        latencyMillis,
+      },
+      executionProfileId: market?.executionProfileId ?? null,
+      observedAtIso: new Date().toISOString(),
+    };
   });

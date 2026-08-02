@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { getConfigurationView, getExecutionProfileConfig } from "@/lib/operations.functions";
 import {
@@ -102,7 +102,7 @@ function ConfigurationPage() {
   return (
     <OperatorShell title="Configuration" subtitle="Companion-owned configuration only">
       {isPending ? (
-        <EmptyState message="Loading configuration…" />
+        <LoadingState label="Reading configuration" />
       ) : (
         <div className="space-y-4">
           <Panel title="Environment">
@@ -120,14 +120,19 @@ function ConfigurationPage() {
           </Panel>
 
           <Panel title="Execution Defaults" className="overflow-x-auto">
-            {profileQuery.error || (!profileQuery.isPending && !profile) ? (
+            {profileQuery.error ? (
               <p className="py-3 font-mono text-xs text-destructive">
-                {(profileQuery.error as Error | null)?.message ??
-                  "ARC execution profile invalid — configuration is not provisioned."}
+                {(profileQuery.error as Error).message}
               </p>
-            ) : profileQuery.isPending || !profile ? (
-              <EmptyState message="Loading execution profile…" />
+            ) : profileQuery.isPending ? (
+              <LoadingState label="Reading execution profile" />
+            ) : !profile ? (
+              <EmptyState
+                message="No execution profile configured."
+                hint="Create one on the Execution Profiles page to begin."
+              />
             ) : (
+
               <>
                 <KeyValue
                   rows={[
@@ -210,7 +215,7 @@ function ConfigurationPage() {
 
           <Panel title="Engine Endpoints" className="overflow-x-auto">
             {endpoints.length === 0 ? (
-              <EmptyState message="No VPS engine endpoints registered." />
+              <EmptyState message="No VPS engine endpoints registered." hint="Register an endpoint to connect the control plane to the trading authority." />
             ) : (
               <Table>
                 <TableHeader>
@@ -243,7 +248,7 @@ function ConfigurationPage() {
 
           <Panel title="Configuration Profiles">
             {profiles.length === 0 ? (
-              <EmptyState message="No stored configuration profiles." />
+              <EmptyState message="No stored configuration profiles." hint="Create an execution profile to persist configuration." />
             ) : (
               <ul className="space-y-2">
                 {profiles.map((profile) => (

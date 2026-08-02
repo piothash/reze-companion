@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Panel } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, LoadingState, Panel } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { getSystemInfo } from "@/lib/operations.functions";
 import {
@@ -44,7 +44,7 @@ function SystemPage() {
   return (
     <OperatorShell title="System" subtitle="Version registry and build information">
       {isPending ? (
-        <EmptyState message="Loading system information…" />
+        <LoadingState label="Reading system information" />
       ) : (
         <div className="space-y-4">
           <Panel title="Platform Identity">

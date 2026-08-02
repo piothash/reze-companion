@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmtInt, fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,9 +78,9 @@ function ReplayPage() {
 
         <Panel title="Replay Runs">
           {isPending ? (
-            <EmptyState message="Loading replay runs…" />
+            <LoadingState label="Reading replay runs" />
           ) : runs.length === 0 ? (
-            <EmptyState message="No replay runs recorded." />
+            <EmptyState message="No replay runs recorded." hint="Start a replay to verify determinism against stored events." />
           ) : (
             <ul className="space-y-3">
               {runs.map((run) => {

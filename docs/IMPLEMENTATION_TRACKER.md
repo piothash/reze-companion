@@ -310,3 +310,23 @@ windows, trade monitor, signal tank, analytics, configuration, system and health
 errors. 232 unit tests pass; typecheck clean.
 
 **M6.6 status: complete.** No backend or trading-engine behaviour was modified.
+
+## M6.7 — Operator UX refinements (control plane only)
+
+- Execution Profiles is now fully operable when unconfigured: `getExecutionProfileConfig`
+  returns `unconfigured` instead of throwing, and the console offers
+  "Create execution profile" seeding a schema-default draft (no business values
+  hardcoded in UI or engine code). Mode, quota, offsets, buffers and per-window
+  overrides are all editable; save is blocked until at least one window exists.
+- Global operator status strip (`src/components/arc/status-bar.tsx`) shows
+  network, environment, market lifecycle, market countdown, feed freshness and
+  the VPS badge (connected / no heartbeat / unregistered, latency, last sync).
+  Read-only mirror — no authority asserted (ADR-0001).
+- Trade Monitor renders the canonical vertical lifecycle timeline:
+  Execution Intent → Risk → Standing Order → Reprice → Partial Fill →
+  Settlement → Ledger.
+- Indefinite "Loading…" text removed platform-wide: `LoadingState` for bounded
+  reads, `EmptyState` with an operator next-action hint ("Waiting for VPS
+  connection.") for empty data.
+- Live value density (dashboard/markets/signal tank) and analytics charts remain
+  deferred to M7 when a real feed and VPS endpoint exist.
