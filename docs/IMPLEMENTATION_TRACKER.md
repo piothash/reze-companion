@@ -23,7 +23,7 @@ Legend: `⬜` not started · `🟨` in progress · `✅` complete · `N/A` not a
 
 | Field | Value |
 |---|---|
-| Status | ⬜ Not started (next) |
+| Status | 🟨 In progress (P0 foundation landed) |
 | Dependencies | Session 0 (discovery), Session 0.5 (this baseline) |
 | Exit Criteria | Configuration engine surface, event/log ingestion contract, typed engine client, auth + roles enforced end to end, build/lint/typecheck green |
 | Acceptance Status | ⬜ |
@@ -124,12 +124,12 @@ Legend: `⬜` not started · `🟨` in progress · `✅` complete · `N/A` not a
 
 | Engine | Discovery | Build | Unit | Integration | Replay | Security | Production |
 |---|---|---|---|---|---|---|---|
-| Configuration Engine | ✅ | ⬜ | ⬜ | ⬜ | N/A | ⬜ | ⬜ |
-| Event Bus | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Scheduler | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Health Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Metrics Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Persistence Layer | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| Configuration Engine | ✅ | ✅ | ✅ | ⬜ | N/A | 🟨 | ⬜ |
+| Event Bus | ✅ | 🟨 | ✅ | ⬜ | ⬜ | ⬜ | ⬜ |
+| Scheduler | ✅ | ✅ | ✅ | ⬜ | ✅ | ⬜ | ⬜ |
+| Health Engine | ✅ | ✅ | ✅ | ⬜ | N/A | ⬜ | ⬜ |
+| Metrics Engine | ✅ | ✅ | ✅ | ⬜ | N/A | ⬜ | ⬜ |
+| Persistence Layer | ✅ | 🟨 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | Market Lifecycle Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | Feed Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | PTB Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -167,3 +167,16 @@ Column meaning:
 2. The session that changes a cell states the evidence in its report or PR.
 3. Regressions move cells backwards; they are never left stale.
 4. Milestone status is derived from its engines, not asserted independently.
+
+---
+
+## 4. P0/M0 Evidence Log
+
+| Claim | Evidence |
+|---|---|
+| Foundation modules implemented | `src/core/{shared,contracts,configuration,infrastructure}/*`, `src/core/runtime.ts` |
+| Unit suite green | `bunx vitest run` — 53 tests / 5 files passing |
+| Lint + typecheck green | `bun run lint` exit 0, `bunx tsgo --noEmit` exit 0 |
+| Health surface observable | `GET /api/public/health` returns status, dependencies and version manifest |
+| Migration audit written | `docs/migration/reze-audit.md` |
+| No trading logic added | Audit §1 classifies every engine trading component as REMOVE |
