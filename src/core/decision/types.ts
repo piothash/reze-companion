@@ -40,6 +40,10 @@ export const windowDefinitionSchema = z.object({
   positionSizeOverride: z.number().finite().positive().nullable(),
   /** Optional per-window retry override; inherits globally when null. */
   retryCountOverride: z.number().int().nonnegative().nullable(),
+  /** Optional per-window order timeout override; inherits globally when null. */
+  timeoutMillisOverride: z.number().int().positive().nullable().default(null),
+  /** Optional per-window maximum spread override; inherits globally when null. */
+  maxSpreadOverride: z.number().finite().nonnegative().nullable().default(null),
 });
 
 export type WindowDefinition = z.infer<typeof windowDefinitionSchema>;

@@ -29,14 +29,35 @@ const nonNegativeInt = z.number().int().nonnegative();
 /** Declarative window definition. Priority is derived, never configured. */
 export const windowDefinitionInputSchema = z.object({
   offset: z.number().finite().positive(),
-  unit: z.enum(WINDOW_OFFSET_UNITS).default("m"),
+  unit: z.enum(WINDOW_OFFSET_UNITS).default("s"),
   enabled: z.boolean().default(true),
   twapBuffer: z.number().finite().nonnegative().default(0),
   positionSizeOverride: z.number().finite().positive().nullable().default(null),
   retryCountOverride: nonNegativeInt.nullable().default(null),
+  /** Optional per-window order timeout override; inherits globally when null. */
+  timeoutMillisOverride: positiveInt.nullable().default(null),
+  /** Optional per-window maximum spread override; inherits globally when null. */
+  maxSpreadOverride: z.number().finite().nonnegative().nullable().default(null),
 });
 
 export type WindowDefinitionInput = z.input<typeof windowDefinitionInputSchema>;
+
+/**
+ * Seed used by the operator console when no profile exists yet. It is a
+ * starting point only — every value stays fully editable, and the engine never
+ * reads this constant. Offsets are seconds before market resolution and
+ * buffers are percentage fractions (0.002 = 0.20%).
+ */
+export const DEFAULT_PROFILE_SEED = {
+  bufferMode: "PERCENT" as const,
+  windows: [
+    { offset: 15, unit: "s" as const, twapBuffer: 0.002 },
+    { offset: 10, unit: "s" as const, twapBuffer: 0.0015 },
+    { offset: 7, unit: "s" as const, twapBuffer: 0.0012 },
+    { offset: 5, unit: "s" as const, twapBuffer: 0.0008 },
+    { offset: 3, unit: "s" as const, twapBuffer: 0.0005 },
+  ],
+} satisfies { bufferMode: "PERCENT"; windows: WindowDefinitionInput[] };
 
 export const executionProfileSchema = z.object({
   executionProfileId: z.string().min(1).default("default"),
@@ -186,7 +207,7 @@ const WINDOW_TOKEN = /^(\d+(?:\.\d+)?)(ms|s|m|h)$/;
 /**
  * Parses `EXECUTION_WINDOWS`. Two accepted forms:
  *   JSON  — `[{"offset":15,"unit":"m","twapBuffer":0.5}]`
- *   DSL   — `15m@0.5|size=2|retry=1, 10m@0.4, 3m@0.2|disabled`
+ *   DSL   — `15s@0.002|size=2|retry=1|timeout=10000|spread=0.5, 3s@0.0005|disabled`
  */
 export function parseWindowsSpec(spec: string): WindowDefinitionInput[] {
   const trimmed = spec.trim();
@@ -226,6 +247,10 @@ export function parseWindowsSpec(spec: string): WindowDefinitionInput[] {
           window.positionSizeOverride = Number(modifier.slice(5));
         } else if (modifier.startsWith("retry=")) {
           window.retryCountOverride = Number(modifier.slice(6));
+        } else if (modifier.startsWith("timeout=")) {
+          window.timeoutMillisOverride = Number(modifier.slice(8));
+        } else if (modifier.startsWith("spread=")) {
+          window.maxSpreadOverride = Number(modifier.slice(7));
         } else {
           throw new ExecutionProfileError([
             { path: "EXECUTION_WINDOWS", message: `unknown modifier "${modifier}"` },

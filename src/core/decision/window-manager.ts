@@ -80,12 +80,12 @@ export function resolveWindowConfiguration(
     positionSize: window.positionSizeOverride ?? profile.positionSize,
     retryCount: window.retryCountOverride ?? profile.retryCount,
     windowActiveMillis: profile.windowActiveMillis,
-    timeoutMillis: profile.timeoutMillis,
+    timeoutMillis: window.timeoutMillisOverride ?? profile.timeoutMillis,
     repricingEnabled: profile.repricingEnabled,
     repricingIntervalMillis: profile.repricingIntervalMillis,
     repricingMaxAttempts: profile.repricingMaxAttempts,
     minLiquidity: profile.minLiquidity,
-    maxSpread: profile.maxSpread,
+    maxSpread: window.maxSpreadOverride ?? profile.maxSpread,
     precision: profile.precision,
   };
   const { configurationSnapshotId: _ignored, ...material } = draft;

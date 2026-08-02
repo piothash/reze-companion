@@ -330,3 +330,28 @@ errors. 232 unit tests pass; typecheck clean.
   connection.") for empty data.
 - Live value density (dashboard/markets/signal tank) and analytics charts remain
   deferred to M7 when a real feed and VPS endpoint exist.
+
+## M6.8 — Execution Profile finalization (configuration surface only)
+
+- Console seed (`DEFAULT_PROFILE_SEED`, configuration module — the engine never
+  reads it) creates 15s / 10s / 7s / 5s / 3s windows with +0.20% / +0.15% /
+  +0.12% / +0.08% / +0.05% buffers. Window unit default is now seconds.
+  Everything stays add/remove/reorder/edit-able.
+- Page split into GLOBAL EXECUTION PROFILE and WINDOW DEFINITIONS, plus a
+  Profile Summary side panel (mode, trades per market, windows enabled, buffers).
+- "Max Trades" renamed to Trades Per Market; execution mode shows Single Trade /
+  Multi Window while the persisted enum is unchanged.
+- Window table columns: Enabled, Priority, Offset, Unit, TWAP Buffer, Position,
+  Retry, Timeout, Max Spread, Inheritance, Quota Cost, Remove. Overrides are
+  Global/Override switches; timeouts are operator-facing seconds (milliseconds
+  stay internal); buffers render as percentages when buffer mode is PERCENT.
+- New per-window `timeoutMillisOverride` and `maxSpreadOverride` resolve through
+  the existing global → window inheritance in `resolveWindowConfiguration`, with
+  matching `timeout=` / `spread=` DSL modifiers.
+- Priority is derived from offset order (furthest first); manual ordering is
+  opt-in via an explicit switch.
+- Validation blocks save on duplicate offsets, negative buffers, invalid
+  timeouts/overrides, empty profiles, all-windows-disabled and an unreachable
+  trade quota. Every field carries operator help text.
+- No strategy leakage: no majority, crowd, confidence, vote, sentiment, venue
+  direction or legacy compatibility concepts anywhere in the surface.

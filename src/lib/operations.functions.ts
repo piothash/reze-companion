@@ -85,6 +85,8 @@ const windowInput = z.object({
   twapBuffer: z.number().finite().nonnegative(),
   positionSizeOverride: z.number().finite().positive().nullable(),
   retryCountOverride: z.number().int().nonnegative().nullable(),
+  timeoutMillisOverride: z.number().int().positive().nullable(),
+  maxSpreadOverride: z.number().finite().nonnegative().nullable(),
 });
 
 const profileInput = z.object({
@@ -143,13 +145,16 @@ export const getExecutionProfileConfig = createServerFn({ method: "GET" })
     return {
       profile,
       digest: profile ? executionProfileDigest(profile) : null,
-      source: profile ? (stored ? ("STORED" as const) : ("ENVIRONMENT" as const)) : ("NONE" as const),
+      source: profile
+        ? stored
+          ? ("STORED" as const)
+          : ("ENVIRONMENT" as const)
+        : ("NONE" as const),
       unconfigured: profile === null,
       invalidReason,
       updatedAtIso: (data?.updated_at as string | undefined) ?? null,
     };
   });
-
 
 export const saveExecutionProfileConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -449,9 +454,7 @@ export const getOperatorStatusBar = createServerFn({ method: "GET" })
     }[];
     const active = rows.find((row) => row.is_active && row.last_seen_at) ?? rows[0] ?? null;
     const lastSeenAtIso = active?.last_seen_at ?? null;
-    const lastSeenAgeMillis = lastSeenAtIso
-      ? Date.now() - new Date(lastSeenAtIso).getTime()
-      : null;
+    const lastSeenAgeMillis = lastSeenAtIso ? Date.now() - new Date(lastSeenAtIso).getTime() : null;
 
     return {
       environment: process.env["ARC_ENVIRONMENT"] ?? "development",
@@ -470,7 +473,9 @@ export const getOperatorStatusBar = createServerFn({ method: "GET" })
       },
       vps: {
         registered: rows.length > 0,
-        connected: Boolean(lastSeenAtIso && lastSeenAgeMillis !== null && lastSeenAgeMillis < 60_000),
+        connected: Boolean(
+          lastSeenAtIso && lastSeenAgeMillis !== null && lastSeenAgeMillis < 60_000,
+        ),
         name: active?.name ?? null,
         endpointEnvironment: active?.environment ?? null,
         lastSeenAtIso,
