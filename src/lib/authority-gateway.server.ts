@@ -99,6 +99,13 @@ async function verify(
   });
 }
 
+/** A verification failure maps to a stable HTTP status. */
+function verificationStatus(result: AuthorityVerificationResult): number {
+  if (result.reasonCode === "KEY_UNCONFIGURED") return 503;
+  if (result.reasonCode === "SIGNATURE_REPLAYED") return 409;
+  return 401;
+}
+
 async function auditGateway(
   client: AnyClient,
   userId: string | null,
@@ -143,9 +150,7 @@ export async function handleAuthorityRegistration(
     nowMillis,
   );
   if (!verification.ok) {
-    return gatewayError(verification.reasonCode === "KEY_UNCONFIGURED" ? 503 : 401,
-      verification.reasonCode,
-      verification.detail);
+    return gatewayError(verificationStatus(verification), verification.reasonCode, verification.detail);
   }
   if (
     verification.signatureDigest &&
@@ -262,7 +267,7 @@ export async function handleAuthorityHeartbeat(
   );
   if (!verification.ok) {
     return gatewayError(
-      verification.reasonCode === "KEY_UNCONFIGURED" ? 503 : 401,
+      verificationStatus(verification),
       verification.reasonCode,
       verification.detail,
     );
@@ -460,7 +465,7 @@ export async function handleConfigurationVerdict(
   );
   if (!verification.ok) {
     return gatewayError(
-      verification.reasonCode === "KEY_UNCONFIGURED" ? 503 : 401,
+      verificationStatus(verification),
       verification.reasonCode,
       verification.detail,
     );
