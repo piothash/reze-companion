@@ -289,7 +289,7 @@ describe("replay", () => {
       executionIntentId: "int-1",
       type: TRADE_EVENT_TYPES.orderSubmitted,
       reasonCode: "EXE_ORDER_SUBMITTED",
-      payload: { order: { orderId: "ord-1", state: "SUBMITTED", executionIntentId: "int-1" } },
+
     });
     const result = replayEvents([...buildStream(), bad]);
     expect(result.deterministic).toBe(false);
@@ -401,12 +401,5 @@ describe("synchronization policy", () => {
     expect(first.written).toBeGreaterThan(0);
     expect(second.written).toBe(0);
     expect(second.duplicates).toBe(first.written);
-  });
-});
-
-describe("debug", () => {
-  it("prints mismatches", () => {
-    // eslint-disable-next-line no-console
-    console.log(JSON.stringify(replayEvents(buildStream()).mismatches, null, 1));
   });
 });
