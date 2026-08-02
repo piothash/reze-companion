@@ -11,39 +11,13 @@
  * account, identity or credential information.
  */
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
+import type { OperatorBootstrapState } from "./auth-state.server";
 
-export interface OperatorBootstrapState {
-  /** True once ownership is finalized — registration is then permanently closed. */
-  readonly bootstrapped: boolean;
-  /** False when the probe could not reach persistence; UI must fail closed. */
-  readonly resolved: boolean;
-}
+export type { OperatorBootstrapState } from "./auth-state.server";
 
 export const getOperatorBootstrapState = createServerFn({ method: "GET" }).handler(
   async (): Promise<OperatorBootstrapState> => {
-    const url = process.env["SUPABASE_URL"];
-    const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
-    if (!url || !key) return { bootstrapped: true, resolved: false };
-
-
-    const client = createClient(url, key, {
-      auth: { persistSession: false, autoRefreshToken: false },
-      global: {
-        fetch: (input, init) => {
-          const headers = new Headers(init?.headers);
-          if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`) {
-            headers.delete("Authorization");
-          }
-          headers.set("apikey", key);
-          return fetch(input, { ...init, headers });
-        },
-      },
-    });
-
-    const { data, error } = await client.rpc("ownership_finalized");
-    // Fail closed: an unreachable probe never advertises an open registration.
-    if (error) return { bootstrapped: true, resolved: false };
-    return { bootstrapped: data === true, resolved: true };
+    const { resolveOperatorBootstrapState } = await import("./auth-state.server");
+    return resolveOperatorBootstrapState();
   },
 );

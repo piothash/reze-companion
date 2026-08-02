@@ -70,6 +70,22 @@ function SystemPage() {
               ]}
             />
           </Panel>
+          <Panel title="Authentication Integration">
+            <KeyValue
+              rows={[
+                ["State", data?.authentication.mode ?? "—"],
+                [
+                  "Production Backend",
+                  data?.authentication.backendMatchesProduction ? "MATCH" : "MISMATCH",
+                ],
+                ["Owner Exists", data?.authentication.ownerExists ? "YES" : "NO"],
+                ["Ownership Finalized", data?.authentication.ownershipFinalized ? "YES" : "NO"],
+                ["Signup Enabled", data?.authentication.signupEnabled ? "YES" : "NO"],
+                ["Session Service", data?.authentication.resolved ? "REACHABLE" : "UNAVAILABLE"],
+              ]}
+            />
+            <p className="mt-3 text-xs text-muted-foreground">{data?.authentication.detail}</p>
+          </Panel>
           <Panel title="Version Registry" className="overflow-x-auto">
             <Table>
               <TableHeader>
