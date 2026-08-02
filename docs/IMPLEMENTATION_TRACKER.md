@@ -355,3 +355,35 @@ errors. 232 unit tests pass; typecheck clean.
   trade quota. Every field carries operator help text.
 - No strategy leakage: no majority, crowd, confidence, vote, sentiment, venue
   direction or legacy compatibility concepts anywhere in the surface.
+
+## M6.9 — Configuration synchronization & active runtime configuration (ADR-0003)
+
+- **Persistence.** `configuration_versions` (immutable, numbered, content-hashed,
+  mutation-blocked by trigger) and `runtime_configuration_state` (mirror of what
+  the engine reports it runs). Both RLS-scoped to the operator; versions can
+  never be deleted, only `SUPERSEDED` / `REJECTED` / `ARCHIVED`.
+- **Sync core** (`src/core/platform/configuration-sync.ts`): canonical
+  `cfgh_` hashing (windows sorted by offset), pre-dispatch validation, authority
+  request/reply contract, verdict interpretation, drift detection and the
+  canonical configuration event factory.
+- **Authority client** (`src/lib/configuration-authority.server.ts`): timeout- and
+  error-bounded `POST /configuration/apply` and `GET /configuration/active`
+  against the registered engine endpoint. No reply is never treated as success.
+- **Server functions** (`src/lib/configuration.functions.ts`):
+  `publishConfigurationVersion`, `activateConfigurationVersion` (rollback /
+  re-dispatch), `archiveConfigurationVersion`, `getConfigurationRuntimeView`.
+- **Console.** Execution Profiles now publishes instead of saving: the operator
+  waits for the authority verdict and sees APPLIED / REJECTED / PENDING. New
+  "Active Runtime Configuration" panel (running vs saved version, hashes,
+  snapshot id, runtime status, activation time, last sync, latency, drift) and
+  "Configuration Versions" ledger with Activate (rollback) and Archive.
+- **Events.** `ConfigurationVersionCreated`, `ConfigurationChanged`,
+  `ConfigurationValidated`, `ConfigurationApplied`, `ConfigurationRejected`,
+  `ConfigurationActivated`, `ConfigurationRolledBack`, `ConfigurationArchived`
+  — all canonical, replayable and audit-logged.
+- **Unchanged by design.** Window instances keep their frozen configuration
+  snapshot; new configuration applies only to windows created after activation.
+  Infrastructure settings stay in environment variables. No trading logic exists
+  in the companion (ADR-0001).
+- Verification: 246 unit tests green (8 new synchronization tests), typecheck
+  clean, architecture conformance test enforces the layering of the new module.

@@ -81,6 +81,57 @@ export const EVENT_CATALOG = {
   ),
   ReplayStarted: entry("ReplayStarted", "platform.replay.started", "OPERATIONAL", "platform"),
   ReplayCompleted: entry("ReplayCompleted", "platform.replay.completed", "OPERATIONAL", "platform"),
+
+  // Configuration synchronization (M6.7) -----------------------------------
+  ConfigurationVersionCreated: entry(
+    "ConfigurationVersionCreated",
+    "platform.configuration.version_created",
+    "OPERATIONAL",
+    "configuration",
+  ),
+  ConfigurationChanged: entry(
+    "ConfigurationChanged",
+    "platform.configuration.changed",
+    "OPERATIONAL",
+    "configuration",
+  ),
+  ConfigurationValidated: entry(
+    "ConfigurationValidated",
+    "platform.configuration.validated",
+    "OPERATIONAL",
+    "configuration",
+  ),
+  ConfigurationApplied: entry(
+    "ConfigurationApplied",
+    "platform.configuration.applied",
+    "OPERATIONAL",
+    "configuration",
+  ),
+  ConfigurationRejected: entry(
+    "ConfigurationRejected",
+    "platform.configuration.rejected",
+    "OPERATIONAL",
+    "configuration",
+  ),
+  ConfigurationActivated: entry(
+    "ConfigurationActivated",
+    "platform.configuration.activated",
+    "OPERATIONAL",
+    "configuration",
+  ),
+  ConfigurationArchived: entry(
+    "ConfigurationArchived",
+    "platform.configuration.archived",
+    "OPERATIONAL",
+    "configuration",
+  ),
+  ConfigurationRolledBack: entry(
+    "ConfigurationRolledBack",
+    "platform.configuration.rolled_back",
+    "OPERATIONAL",
+    "configuration",
+  ),
+
 } as const satisfies Record<string, CatalogEntry>;
 
 export type CatalogName = keyof typeof EVENT_CATALOG;

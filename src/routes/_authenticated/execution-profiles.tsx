@@ -32,7 +32,13 @@ import {
   offsetToMillis,
 } from "@/core/decision/configuration";
 import { WINDOW_OFFSET_UNITS, type WindowOffsetUnit } from "@/core/decision/types";
-import { getExecutionProfileConfig, saveExecutionProfileConfig } from "@/lib/operations.functions";
+import { getExecutionProfileConfig } from "@/lib/operations.functions";
+import {
+  activateConfigurationVersion,
+  archiveConfigurationVersion,
+  getConfigurationRuntimeView,
+  publishConfigurationVersion,
+} from "@/lib/configuration.functions";
 
 export const Route = createFileRoute("/_authenticated/execution-profiles")({
   head: () => ({
@@ -223,7 +229,10 @@ function validate(draft: ProfileDraft): string[] {
 function ExecutionProfilesPage() {
   const queryClient = useQueryClient();
   const fetchProfile = useServerFn(getExecutionProfileConfig);
-  const saveProfile = useServerFn(saveExecutionProfileConfig);
+  const publishProfile = useServerFn(publishConfigurationVersion);
+  const activateVersion = useServerFn(activateConfigurationVersion);
+  const archiveVersionFn = useServerFn(archiveConfigurationVersion);
+  const fetchRuntime = useServerFn(getConfigurationRuntimeView);
   const [draft, setDraft] = useState<ProfileDraft | null>(null);
   const [manualPriority, setManualPriority] = useState(false);
 
@@ -233,15 +242,61 @@ function ExecutionProfilesPage() {
     retry: false,
   });
 
+  const runtimeQuery = useQuery({
+    queryKey: ["arc", "configuration-runtime"],
+    queryFn: () => fetchRuntime(),
+    retry: false,
+    refetchInterval: 15_000,
+  });
+
   useEffect(() => {
     if (data?.profile) setDraft(toDraft(data.profile as unknown as Record<string, unknown>));
   }, [data]);
 
+  const refreshAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["arc", "execution-profile"] });
+    queryClient.invalidateQueries({ queryKey: ["arc", "configuration-runtime"] });
+  };
+
+  /** The console never claims success on its own — it reports the authority verdict. */
+  const reportOutcome = (result: {
+    outcome: string;
+    version: number | null;
+    reasonCode: string;
+    detail: string;
+  }) => {
+    const suffix = result.version ? ` · v${result.version}` : "";
+    if (result.outcome === "APPLIED") {
+      toast.success(`Configuration active on the trading authority${suffix}`, {
+        description: result.detail,
+      });
+    } else if (result.outcome === "PENDING") {
+      toast.warning(`Version stored, not yet running${suffix}`, { description: result.detail });
+    } else {
+      toast.error(`Rejected — ${result.reasonCode}`, { description: result.detail });
+    }
+    refreshAll();
+  };
+
   const mutation = useMutation({
-    mutationFn: (payload: ProfileDraft) => saveProfile({ data: payload as never }),
+    mutationFn: (payload: ProfileDraft) =>
+      publishProfile({ data: { profile: payload, origin: "SAVE" } as never }),
+    onSuccess: (result) => reportOutcome(result as never),
+    onError: (mutationError: Error) => toast.error(mutationError.message),
+  });
+
+  const activation = useMutation({
+    mutationFn: (version: number) =>
+      activateVersion({ data: { version, origin: "ROLLBACK" } as never }),
+    onSuccess: (result) => reportOutcome(result as never),
+    onError: (mutationError: Error) => toast.error(mutationError.message),
+  });
+
+  const archival = useMutation({
+    mutationFn: (version: number) => archiveVersionFn({ data: { version } as never }),
     onSuccess: () => {
-      toast.success("Execution profile saved");
-      queryClient.invalidateQueries({ queryKey: ["arc", "execution-profile"] });
+      toast.success("Version archived");
+      refreshAll();
     },
     onError: (mutationError: Error) => toast.error(mutationError.message),
   });
@@ -304,7 +359,7 @@ function ExecutionProfilesPage() {
             label={draft ? (MODE_LABEL[draft.executionMode] ?? draft.executionMode) : "—"}
           />
           <Button size="sm" disabled={saveDisabled} onClick={submit}>
-            {mutation.isPending ? "Saving…" : "Save profile"}
+            {mutation.isPending ? "Publishing…" : "Publish to authority"}
           </Button>
         </div>
       }
@@ -340,6 +395,12 @@ function ExecutionProfilesPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="space-y-4">
+            <RuntimePanel
+              view={runtimeQuery.data as RuntimeView | undefined}
+              loading={runtimeQuery.isPending}
+              error={runtimeQuery.error as Error | null}
+            />
+
             {issues.length > 0 ? (
               <Panel title="Validation">
                 <ul className="space-y-1">
@@ -774,6 +835,19 @@ function ExecutionProfilesPage() {
                 </Table>
               )}
             </Panel>
+
+            <VersionHistoryPanel
+              view={runtimeQuery.data as RuntimeView | undefined}
+              busyVersion={
+                activation.isPending
+                  ? (activation.variables ?? null)
+                  : archival.isPending
+                    ? (archival.variables ?? null)
+                    : null
+              }
+              onActivate={(version) => activation.mutate(version)}
+              onArchive={(version) => archival.mutate(version)}
+            />
           </div>
 
           <Panel title="Profile Summary" className="h-fit xl:sticky xl:top-4">
@@ -939,5 +1013,236 @@ function OverrideCell({
         </span>
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Runtime synchronization (M6.7)
+// ---------------------------------------------------------------------------
+
+interface RuntimeVersion {
+  version: number;
+  status: string;
+  configHash: string;
+  origin: string;
+  reasonCode: string;
+  rejectionReason: string | null;
+  snapshotId: string | null;
+  createdAtIso: string;
+  appliedAtIso: string | null;
+}
+
+interface RuntimeView {
+  versions: RuntimeVersion[];
+  latestActive: RuntimeVersion | null;
+  pending: RuntimeVersion[];
+  runtime: {
+    version: number | null;
+    configHash: string | null;
+    snapshotId: string | null;
+    runtimeStatus: string;
+    activatedAtIso: string | null;
+    engineVersion: string | null;
+    lastSyncedAtIso: string | null;
+    live: boolean;
+  } | null;
+  drift: { drifted: boolean; reasonCode: string | null; detail: string | null };
+  authority: {
+    registered: boolean;
+    name: string | null;
+    baseUrlHost: string | null;
+    environment: string | null;
+    reachable: boolean;
+    detail: string;
+    latencyMillis: number | null;
+  };
+}
+
+const VERSION_TONE: Record<string, "positive" | "negative" | "warning" | "neutral"> = {
+  ACTIVE: "positive",
+  REJECTED: "negative",
+  PENDING: "warning",
+  SUPERSEDED: "neutral",
+  ARCHIVED: "neutral",
+};
+
+function shortHash(hash: string | null): string {
+  if (!hash) return "—";
+  return hash.length > 14 ? `${hash.slice(0, 14)}…` : hash;
+}
+
+/** What the trading authority reports it is actually running right now. */
+function RuntimePanel({
+  view,
+  loading,
+  error,
+}: {
+  view: RuntimeView | undefined;
+  loading: boolean;
+  error: Error | null;
+}) {
+  if (error) {
+    return (
+      <Panel title="Active Runtime Configuration">
+        <p className="font-mono text-sm text-destructive">{error.message}</p>
+      </Panel>
+    );
+  }
+  if (loading || !view) {
+    return (
+      <Panel title="Active Runtime Configuration">
+        <LoadingState label="Querying trading authority" />
+      </Panel>
+    );
+  }
+
+  const { runtime, authority, drift, latestActive } = view;
+  const tone = !authority.registered
+    ? "neutral"
+    : !authority.reachable
+      ? "negative"
+      : drift.drifted
+        ? "warning"
+        : "positive";
+  const label = !authority.registered
+    ? "NO AUTHORITY"
+    : !authority.reachable
+      ? "UNREACHABLE"
+      : drift.drifted
+        ? "DRIFT"
+        : "IN SYNC";
+
+  return (
+    <Panel
+      title="Active Runtime Configuration"
+      actions={<StatusPill tone={tone as never} label={label} />}
+    >
+      {!authority.registered ? (
+        <EmptyState
+          message="Waiting for VPS connection."
+          hint="No active engine endpoint is registered. Configuration versions are stored and stay PENDING until the trading authority accepts them."
+        />
+      ) : (
+        <>
+          <dl className="grid gap-y-2 sm:grid-cols-2 sm:gap-x-6">
+            {(
+              [
+                ["Running version", runtime?.version ? `v${runtime.version}` : "—"],
+                ["Saved version", latestActive ? `v${latestActive.version}` : "—"],
+                ["Runtime status", runtime?.runtimeStatus ?? "UNKNOWN"],
+                ["Snapshot", shortHash(runtime?.snapshotId ?? null)],
+                ["Running hash", shortHash(runtime?.configHash ?? null)],
+                ["Saved hash", shortHash(latestActive?.configHash ?? null)],
+                ["Activated", runtime?.activatedAtIso ? fmtTime(runtime.activatedAtIso) : "—"],
+                [
+                  "Last sync",
+                  runtime?.lastSyncedAtIso ? fmtTime(runtime.lastSyncedAtIso) : "never",
+                ],
+                ["Engine", runtime?.engineVersion ?? "—"],
+                [
+                  "Authority",
+                  `${authority.baseUrlHost ?? "—"}${
+                    authority.latencyMillis !== null ? ` · ${authority.latencyMillis}ms` : ""
+                  }`,
+                ],
+              ] as [string, string][]
+            ).map(([key, value]) => (
+              <div key={key} className="flex items-baseline justify-between gap-3">
+                <dt className="label-caps">{key}</dt>
+                <dd className="font-mono text-sm">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
+            {drift.drifted ? `${drift.reasonCode} — ${drift.detail}` : authority.detail}
+            {runtime && !runtime.live
+              ? " · Values mirrored from the last successful sync, not a live read."
+              : ""}
+          </p>
+        </>
+      )}
+    </Panel>
+  );
+}
+
+/** Immutable version ledger — versions are never overwritten, only superseded. */
+function VersionHistoryPanel({
+  view,
+  busyVersion,
+  onActivate,
+  onArchive,
+}: {
+  view: RuntimeView | undefined;
+  busyVersion: number | null;
+  onActivate: (version: number) => void;
+  onArchive: (version: number) => void;
+}) {
+  if (!view) return null;
+  return (
+    <Panel title="Configuration Versions">
+      {view.versions.length === 0 ? (
+        <EmptyState
+          message="No configuration versions published."
+          hint="Publishing a profile stores an immutable version and dispatches it to the trading authority."
+        />
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Version</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Origin</TableHead>
+              <TableHead>Hash</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead>Applied</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {view.versions.map((item) => (
+              <TableRow key={item.version}>
+                <TableCell className="font-mono">v{item.version}</TableCell>
+                <TableCell>
+                  <StatusPill
+                    tone={(VERSION_TONE[item.status] ?? "neutral") as never}
+                    label={item.status}
+                  />
+                </TableCell>
+                <TableCell className="font-mono text-xs">{item.origin}</TableCell>
+                <TableCell className="font-mono text-xs">{shortHash(item.configHash)}</TableCell>
+                <TableCell className="font-mono text-xs">{fmtTime(item.createdAtIso)}</TableCell>
+                <TableCell className="font-mono text-xs">
+                  {item.appliedAtIso ? fmtTime(item.appliedAtIso) : (item.rejectionReason ?? "—")}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    {item.status !== "ACTIVE" ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={busyVersion !== null}
+                        onClick={() => onActivate(item.version)}
+                      >
+                        {busyVersion === item.version ? "Sending…" : "Activate"}
+                      </Button>
+                    ) : null}
+                    {item.status !== "ACTIVE" && item.status !== "ARCHIVED" ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={busyVersion !== null}
+                        onClick={() => onArchive(item.version)}
+                      >
+                        Archive
+                      </Button>
+                    ) : null}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </Panel>
   );
 }
