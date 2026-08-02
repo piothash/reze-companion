@@ -116,12 +116,12 @@ function AuthPage() {
 
         {bootstrapped ? (
           <p className="mt-4 text-center font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
-            Operator already configured
+            Operator finalized — registration closed
           </p>
         ) : (
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            No operator exists yet. The first account registered becomes the primary operator
-            (OWNER).
+            Bootstrap mode. Register the account intended to operate this deployment, then
+            finalize ownership from the console to close registration permanently.
           </p>
         )}
       </div>

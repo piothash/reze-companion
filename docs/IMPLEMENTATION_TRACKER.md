@@ -453,3 +453,16 @@ sole trading authority.
 Security posture unchanged: the browser never receives the service role key, database
 credentials, wallet/trading keys or authority secrets. The VPS remains the sole trading
 authority (ADR-0001).
+
+## M7.2 — Live VPS Qualification & Operator Ownership Finalization
+
+| Item | Status |
+| --- | --- |
+| Explicit ownership record (`operator_ownership`) | Done |
+| Provisional bootstrap owner (never permanent) | Done |
+| Owner migration tool (`/ownership`, bootstrap-only) | Done |
+| Previous owner demoted + sessions revoked | Done |
+| Ownership finalization closes public registration | Done |
+| No hardcoded operator email anywhere | Done |
+| Trusted operator session restores automatically | Done (Supabase persisted session) |
+| Live VPS qualification gates | Pending operator run against PM2 engine |
