@@ -12,9 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedHealthRouteImport } from './routes/_authenticated/health'
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedSignalTankRouteImport } from './routes/_authenticated/signal-tank'
+import { Route as AuthenticatedSystemRouteImport } from './routes/_authenticated/system'
+import { Route as AuthenticatedTradeMonitorRouteImport } from './routes/_authenticated/trade-monitor'
 import { Route as AuthenticatedWindowsRouteImport } from './routes/_authenticated/windows'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 
@@ -32,6 +38,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
   id: '/console',
   path: '/console',
@@ -42,11 +53,38 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHealthRoute = AuthenticatedHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMarketsRoute = AuthenticatedMarketsRouteImport.update({
   id: '/markets',
   path: '/markets',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSignalTankRoute = AuthenticatedSignalTankRouteImport.update({
+  id: '/signal-tank',
+  path: '/signal-tank',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSystemRoute = AuthenticatedSystemRouteImport.update({
+  id: '/system',
+  path: '/system',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTradeMonitorRoute =
+  AuthenticatedTradeMonitorRouteImport.update({
+    id: '/trade-monitor',
+    path: '/trade-monitor',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedWindowsRoute = AuthenticatedWindowsRouteImport.update({
   id: '/windows',
   path: '/windows',
@@ -61,18 +99,30 @@ const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/audit': typeof AuthenticatedAuditRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/signal-tank': typeof AuthenticatedSignalTankRoute
+  '/system': typeof AuthenticatedSystemRoute
+  '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/audit': typeof AuthenticatedAuditRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/signal-tank': typeof AuthenticatedSignalTankRoute
+  '/system': typeof AuthenticatedSystemRoute
+  '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
@@ -81,9 +131,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/health': typeof AuthenticatedHealthRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/signal-tank': typeof AuthenticatedSignalTankRoute
+  '/_authenticated/system': typeof AuthenticatedSystemRoute
+  '/_authenticated/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/_authenticated/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
@@ -92,18 +148,30 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/audit'
     | '/console'
     | '/dashboard'
+    | '/health'
     | '/markets'
+    | '/notifications'
+    | '/signal-tank'
+    | '/system'
+    | '/trade-monitor'
     | '/windows'
     | '/api/public/health'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/audit'
     | '/console'
     | '/dashboard'
+    | '/health'
     | '/markets'
+    | '/notifications'
+    | '/signal-tank'
+    | '/system'
+    | '/trade-monitor'
     | '/windows'
     | '/api/public/health'
   id:
@@ -111,9 +179,15 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/audit'
     | '/_authenticated/console'
     | '/_authenticated/dashboard'
+    | '/_authenticated/health'
     | '/_authenticated/markets'
+    | '/_authenticated/notifications'
+    | '/_authenticated/signal-tank'
+    | '/_authenticated/system'
+    | '/_authenticated/trade-monitor'
     | '/_authenticated/windows'
     | '/api/public/health'
   fileRoutesById: FileRoutesById
@@ -148,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/audit': {
+      id: '/_authenticated/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuthenticatedAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/console': {
       id: '/_authenticated/console'
       path: '/console'
@@ -162,11 +243,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/health': {
+      id: '/_authenticated/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof AuthenticatedHealthRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/markets': {
       id: '/_authenticated/markets'
       path: '/markets'
       fullPath: '/markets'
       preLoaderRoute: typeof AuthenticatedMarketsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/signal-tank': {
+      id: '/_authenticated/signal-tank'
+      path: '/signal-tank'
+      fullPath: '/signal-tank'
+      preLoaderRoute: typeof AuthenticatedSignalTankRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/system': {
+      id: '/_authenticated/system'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof AuthenticatedSystemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/trade-monitor': {
+      id: '/_authenticated/trade-monitor'
+      path: '/trade-monitor'
+      fullPath: '/trade-monitor'
+      preLoaderRoute: typeof AuthenticatedTradeMonitorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/windows': {
@@ -187,16 +303,28 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedHealthRoute: typeof AuthenticatedHealthRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedSignalTankRoute: typeof AuthenticatedSignalTankRoute
+  AuthenticatedSystemRoute: typeof AuthenticatedSystemRoute
+  AuthenticatedTradeMonitorRoute: typeof AuthenticatedTradeMonitorRoute
   AuthenticatedWindowsRoute: typeof AuthenticatedWindowsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedHealthRoute: AuthenticatedHealthRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedSignalTankRoute: AuthenticatedSignalTankRoute,
+  AuthenticatedSystemRoute: AuthenticatedSystemRoute,
+  AuthenticatedTradeMonitorRoute: AuthenticatedTradeMonitorRoute,
   AuthenticatedWindowsRoute: AuthenticatedWindowsRoute,
 }
 
