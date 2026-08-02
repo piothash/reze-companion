@@ -94,3 +94,64 @@ reporting engine renders as partial UI, never as fabricated zeros.
 The companion publishes an immutable version to the database first; the engine
 validates, activates and confirms. Activation without engine confirmation is
 never recorded as active.
+
+## Authority registration endpoints (M7.5)
+
+Registration is **engine-initiated**. The companion never fabricates an
+authority and never holds credential material for one.
+
+| Endpoint | Method | Initiated by | Purpose |
+| --- | --- | --- | --- |
+| `/authority/register` | POST | VPS | Announce a trading authority to the control plane |
+| `/authority/heartbeat` | POST | VPS | Keep the registration live |
+| `/authority/status` | GET | Companion | Read authority state |
+| `/authority/telemetry` | GET | Companion | Read runtime telemetry |
+
+### `POST /authority/register`
+
+```json
+{
+  "authorityId": "arc-vps-authority-01",
+  "name": "ARC VPS Authority",
+  "environment": "testnet",
+  "engineVersion": "0.1.0",
+  "platformVersion": "0.1.0",
+  "capabilities": ["decision", "risk", "execution"],
+  "publicKey": "<optional public identity only>",
+  "timestamp": "2026-01-01T00:00:00.000Z",
+  "signature": "<base64 signature over the payload>"
+}
+```
+
+`timestamp` and `signature` are mandatory on both endpoints. The payload is
+rejected — by the schema and again by a database trigger — if any field looks
+like secret material (private keys, mnemonics, API secrets, `0x`-prefixed
+32-byte hex). Only public identity is stored.
+
+### `POST /authority/heartbeat`
+
+```json
+{
+  "authorityId": "arc-vps-authority-01",
+  "environment": "testnet",
+  "engineVersion": "0.1.0",
+  "platformVersion": "0.1.0",
+  "timestamp": "2026-01-01T00:00:30.000Z",
+  "signature": "<base64 signature over the payload>"
+}
+```
+
+### Derived status
+
+Status is derived from the last heartbeat, never asserted by the console:
+
+| Condition | Status |
+| --- | --- |
+| Revoked by the operator | `revoked` |
+| No heartbeat yet | `registered` |
+| Last heartbeat within 90s | `active` |
+| Last heartbeat older than 90s | `stale` |
+
+The registry is visible read-only at **Engine Registry → Trading Authority
+Registry**. Registration and revocation are refused when the deployment's
+cutover guard does not match the active backend.

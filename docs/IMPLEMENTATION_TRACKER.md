@@ -499,3 +499,21 @@ authority (ADR-0001).
 
 Note: `src/lib/supabase/backend.server.ts` carries the `.server.ts` suffix rather than
 the plain `server.ts` name so the bundler refuses any client-side import of it.
+
+## M7.5 — Production Cutover Preparation & Authority Registration Framework
+
+| Item | Status |
+| --- | --- |
+| Cutover guard `assertCutoverSafe()` wired into every mutating server function | Done |
+| Guarded actions: sign-in, ownership change, configuration publish, authority registration | Done |
+| Backend match surfaced on System → Backend Connection (`Expected Backend` / `Match`) | Done |
+| Control-plane migration checklist via `arc_schema_report()` (reports, never recreates) | Done |
+| `authority_registry` table + trigger rejecting secret material | Done |
+| Registration contract (`/authority/register`, `/authority/heartbeat`) with mandatory timestamp + signature | Done |
+| Derived liveness (`registered` → `active` → `stale`, `revoked`) from heartbeats only | Done |
+| Engine Registry → Trading Authority Registry read-only panel | Done |
+| `docs/deployment/supabase-cutover.md` (env, migration order, verification, rollback) | Done |
+| Configuration publish flow unchanged (ADR-0003) | Done |
+| Tests: cutover guard, target validation, migration readiness, registration contract | Done (301 total) |
+| Execute the production cutover | Pending operator run |
+| VPS calls `/authority/register` against production | Pending M7.6 |

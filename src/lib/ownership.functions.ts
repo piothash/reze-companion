@@ -26,6 +26,8 @@ export const transferOperatorOwnership = createServerFn({ method: "POST" })
     z.object({ email: z.string().trim().email().max(320) }).parse(input),
   )
   .handler(async ({ data, context }) => {
+    const { assertCutoverSafe } = await import("./supabase/backend.server");
+    assertCutoverSafe("ownership-change");
     const { transferOwnership } = await import("./ownership.server");
     return transferOwnership(context.supabase as AnyClient, data.email);
   });
@@ -34,6 +36,8 @@ export const finalizeOperatorOwnership = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({}).parse(input ?? {}))
   .handler(async ({ context }) => {
+    const { assertCutoverSafe } = await import("./supabase/backend.server");
+    assertCutoverSafe("ownership-change");
     const { finalizeOwnership } = await import("./ownership.server");
     return finalizeOwnership(context.supabase as AnyClient);
   });

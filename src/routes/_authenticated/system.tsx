@@ -76,13 +76,18 @@ function SystemPage() {
                 ["Provider", (data?.backend.provider ?? "supabase").toUpperCase()],
                 ["Project", data?.backend.projectRef ?? "—"],
                 ["URL", data?.backend.maskedUrl ?? "—"],
-                ["Configuration", data?.backend.configured ? "COMPLETE" : "INCOMPLETE"],
-                ["Database", data?.backend.databaseConnected ? "CONNECTED" : "UNREACHABLE"],
-                ["Auth", data?.backend.authReachable ? "HEALTHY" : "UNREACHABLE"],
+                ["Expected Backend", data?.backend.expectedMaskedUrl ?? "—"],
                 [
-                  "Deployment Target",
-                  data?.backend.matchesDeploymentTarget ? "MATCH" : "MISMATCH",
+                  "Match",
+                  data?.backend.deploymentTargetEnforced
+                    ? data.backend.matchesDeploymentTarget
+                      ? "PASS"
+                      : "FAIL"
+                    : "NOT ENFORCED",
                 ],
+                ["Configuration", data?.backend.configured ? "COMPLETE" : "INCOMPLETE"],
+                ["Database", data?.backend.databaseConnected ? "HEALTHY" : "UNREACHABLE"],
+                ["Auth", data?.backend.authReachable ? "HEALTHY" : "UNREACHABLE"],
                 [
                   "Privileged Key",
                   data?.backend.serviceRoleConfigured ? "CONFIGURED" : "ABSENT",
@@ -100,11 +105,49 @@ function SystemPage() {
                 ["Environment", `${data?.environment ?? "—"} / ${data?.network ?? "—"}`],
               ]}
             />
+            {data && data.backend.deploymentTargetEnforced && !data.backend.matchesDeploymentTarget ? (
+              <p className="mt-3 border border-destructive/50 bg-destructive/10 p-3 font-mono text-xs uppercase text-destructive">
+                Cutover guard failed — sign-in, ownership changes, configuration publishing and
+                authority registration are disabled.
+              </p>
+            ) : null}
             <p className="mt-3 text-xs text-muted-foreground">
               Backend selection is environment-driven only. The project URL is masked and no
               service-role material is ever sent to the browser.
             </p>
           </Panel>
+          <Panel title="Control Plane Migration" className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Required Table</TableHead>
+                  <TableHead>Implemented By</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(data?.migration.rows ?? []).map((row) => (
+                  <TableRow key={row.logicalName}>
+                    <TableCell className="font-mono text-xs">{row.logicalName}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {row.physicalName}
+                    </TableCell>
+                    <TableCell
+                      className={
+                        row.readiness === "MISSING"
+                          ? "font-mono text-xs text-destructive"
+                          : "font-mono text-xs"
+                      }
+                    >
+                      {row.readiness}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <p className="mt-3 text-xs text-muted-foreground">{data?.migration.detail}</p>
+          </Panel>
+
           <Panel title="Authentication Integration">
 
             <KeyValue

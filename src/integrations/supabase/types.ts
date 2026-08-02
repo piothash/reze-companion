@@ -83,6 +83,71 @@ export type Database = {
         }
         Relationships: []
       }
+      authority_registry: {
+        Row: {
+          authority_id: string
+          capabilities: Json
+          created_at: string
+          endpoint_id: string | null
+          engine_version: string | null
+          environment: string
+          id: string
+          last_seen: string | null
+          name: string
+          platform_version: string | null
+          public_key: string | null
+          registered_at: string
+          status: string
+          updated_at: string
+          user_id: string
+          version: string | null
+        }
+        Insert: {
+          authority_id: string
+          capabilities?: Json
+          created_at?: string
+          endpoint_id?: string | null
+          engine_version?: string | null
+          environment?: string
+          id?: string
+          last_seen?: string | null
+          name: string
+          platform_version?: string | null
+          public_key?: string | null
+          registered_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          version?: string | null
+        }
+        Update: {
+          authority_id?: string
+          capabilities?: Json
+          created_at?: string
+          endpoint_id?: string | null
+          engine_version?: string | null
+          environment?: string
+          id?: string
+          last_seen?: string | null
+          name?: string
+          platform_version?: string | null
+          public_key?: string | null
+          registered_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authority_registry_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "engine_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       configuration_profiles: {
         Row: {
           config: Json
@@ -810,6 +875,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      arc_schema_report: {
+        Args: never
+        Returns: {
+          present: boolean
+          table_name: string
+        }[]
+      }
       finalize_ownership: { Args: never; Returns: boolean }
       has_role: {
         Args: {
