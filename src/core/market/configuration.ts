@@ -149,14 +149,16 @@ function defined<T extends object>(input: T): Partial<T> {
 
 /**
  * Every environment variable the Market State Domain understands.
- * Mainnet migration is `TWAP_NETWORK=mainnet` plus endpoint values — no code
- * change is ever required.
+ * Mainnet migration is `TWAP_FEED_PROVIDER`, `TWAP_FEED_ID` and `NETWORK` —
+ * no code change is ever required (ADR-0005).
  */
 export const MARKET_ENV_KEYS = [
   "MARKET_DISCOVERY_BASE_URL",
   "MARKET_DISCOVERY_MARKETS_PATH",
   "MARKET_DISCOVERY_SLUG_PARAM",
   "MARKET_SLUG_TEMPLATE",
+  "NETWORK",
+
   "MARKET_SLOT_DURATION_MS",
   "MARKET_CLOSING_LEAD_MS",
   "MARKET_DISCOVERY_TIMEOUT_MS",
