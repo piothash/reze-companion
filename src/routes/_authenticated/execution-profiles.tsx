@@ -360,8 +360,9 @@ function ExecutionProfilesPage() {
             label={draft ? (MODE_LABEL[draft.executionMode] ?? draft.executionMode) : "—"}
           />
           <Button size="sm" disabled={saveDisabled} onClick={submit}>
-            {mutation.isPending ? "Saving…" : "Save profile"}
+            {mutation.isPending ? "Publishing…" : "Publish to authority"}
           </Button>
+
         </div>
       }
     >
