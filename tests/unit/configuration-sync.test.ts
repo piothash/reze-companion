@@ -48,7 +48,10 @@ describe("pre-dispatch validation", () => {
     const duplicate = {
       ...profile,
       maxTrades: 99,
-      windows: [profile.windows[0]!, { ...profile.windows[1]!, offset: profile.windows[0]!.offset }],
+      windows: [
+        profile.windows[0]!,
+        { ...profile.windows[1]!, offset: profile.windows[0]!.offset },
+      ],
     };
     const result = validateConfigurationForDispatch(duplicate);
     expect(result.valid).toBe(false);

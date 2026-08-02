@@ -91,7 +91,6 @@ async function appendEvents(
     const { SupabaseEventStore } = await import("@/core/platform/supabase-platform.server");
     const store = new SupabaseEventStore(client, userId);
     for (const envelope of envelopes) {
-      // eslint-disable-next-line no-await-in-loop -- append-only store preserves order
       await store.append(envelope as never);
     }
   } catch {
@@ -443,7 +442,9 @@ export async function archiveVersion(
     .maybeSingle();
   if (!data) throw new Error(`configuration version ${version} does not exist`);
   if (data.status === "ACTIVE") {
-    throw new Error("the running configuration cannot be archived — activate another version first");
+    throw new Error(
+      "the running configuration cannot be archived — activate another version first",
+    );
   }
 
   await client
@@ -556,7 +557,9 @@ export async function readRuntimeView(client: AnyClient, userId: string) {
   const latestActive = versions.find((item) => item.status === "ACTIVE") ?? null;
   const pending = versions.filter((item) => item.status === "PENDING");
   const drift = detectConfigurationDrift(
-    runtime ? { version: runtime.version, configHash: runtime.configHash, snapshotId: runtime.snapshotId } : null,
+    runtime
+      ? { version: runtime.version, configHash: runtime.configHash, snapshotId: runtime.snapshotId }
+      : null,
     latestActive ? { version: latestActive.version, configHash: latestActive.configHash } : null,
   );
 

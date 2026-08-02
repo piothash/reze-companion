@@ -301,7 +301,6 @@ function ExecutionProfilesPage() {
     onError: (mutationError: Error) => toast.error(mutationError.message),
   });
 
-
   const patch = (partial: Partial<ProfileDraft>) =>
     setDraft((current) => (current ? { ...current, ...partial } : current));
 
@@ -362,7 +361,6 @@ function ExecutionProfilesPage() {
           <Button size="sm" disabled={saveDisabled} onClick={submit}>
             {mutation.isPending ? "Publishing…" : "Publish to authority"}
           </Button>
-
         </div>
       }
     >
@@ -851,7 +849,6 @@ function ExecutionProfilesPage() {
               onArchive={(version) => archival.mutate(version)}
             />
           </div>
-
 
           <Panel title="Profile Summary" className="h-fit xl:sticky xl:top-4">
             <dl className="grid gap-y-2">

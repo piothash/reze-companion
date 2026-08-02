@@ -74,7 +74,6 @@ export function configurationHash(profile: ExecutionProfile): string {
   return `cfgh_${digest128(stableStringify(canonical))}`;
 }
 
-
 // ---------------------------------------------------------------------------
 // Pre-dispatch validation (console-side; the authority validates again)
 // ---------------------------------------------------------------------------
@@ -217,7 +216,8 @@ export function interpretAuthorityReply(
     return {
       kind,
       status: "PENDING",
-      reasonCode: kind === "UNREGISTERED" ? "CFG_AUTHORITY_UNREGISTERED" : "CFG_AUTHORITY_UNREACHABLE",
+      reasonCode:
+        kind === "UNREGISTERED" ? "CFG_AUTHORITY_UNREGISTERED" : "CFG_AUTHORITY_UNREACHABLE",
       detail:
         failure?.detail ??
         "The trading authority did not answer. The version is stored but is not running.",
