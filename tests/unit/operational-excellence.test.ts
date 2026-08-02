@@ -23,7 +23,7 @@ import {
   suppressDuplicateEmissions,
 } from "@/core/platform/lifecycle";
 import { createEvent } from "@/core/contracts/event-envelope";
-import { fixedClock } from "@/core/shared/time";
+import { FixedClock } from "@/core/shared/time";
 
 const VALID_ENV: Record<string, string> = {
   ARC_ENVIRONMENT: "development",
@@ -99,7 +99,7 @@ describe("startup validator", () => {
 
 describe("watchdogs", () => {
   it("marks a subsystem silent once its heartbeat interval lapses", () => {
-    const clock = fixedClock(1_000);
+    const clock = new FixedClock(1_000);
     const registry = new WatchdogRegistry(defaultWatchdogPolicies(), clock);
     registry.heartbeat("scheduler");
     expect(registry.inspect("scheduler").status).toBe("healthy");
@@ -110,7 +110,7 @@ describe("watchdogs", () => {
   });
 
   it("escalates to critical after repeated errors", () => {
-    const registry = new WatchdogRegistry(defaultWatchdogPolicies(), fixedClock(0));
+    const registry = new WatchdogRegistry(defaultWatchdogPolicies(), new FixedClock(0));
     for (let index = 0; index < 25; index += 1) {
       registry.recordError("execution", "boom");
     }
@@ -144,7 +144,7 @@ describe("log contract", () => {
     const records: unknown[] = [];
     const logger = new OperationalLogger({
       sink: (record) => records.push(record),
-      clock: fixedClock(0),
+      clock: new FixedClock(0),
     });
     expect(() => logger.info("no reason", {} as never)).toThrowError();
   });
@@ -153,7 +153,7 @@ describe("log contract", () => {
     const records: Array<Record<string, unknown>> = [];
     const logger = new OperationalLogger({
       sink: (record) => records.push(record as Record<string, unknown>),
-      clock: fixedClock(0),
+      clock: new FixedClock(0),
     });
     logger.info("tick", {
       reasonCode: "SYS_CHECK_PASSED",
@@ -172,7 +172,7 @@ describe("log contract", () => {
 describe("graceful shutdown", () => {
   it("runs steps in the declared order and reports clean", async () => {
     const order: string[] = [];
-    const shutdown = new GracefulShutdown({ clock: fixedClock(0) });
+    const shutdown = new GracefulShutdown({ clock: new FixedClock(0) });
     for (const step of SHUTDOWN_STEPS) {
       shutdown.register({ name: step, run: () => void order.push(step) });
     }
@@ -184,7 +184,7 @@ describe("graceful shutdown", () => {
 
   it("is idempotent under repeated signals", async () => {
     let runs = 0;
-    const shutdown = new GracefulShutdown({ clock: fixedClock(0) });
+    const shutdown = new GracefulShutdown({ clock: new FixedClock(0) });
     shutdown.register({ name: "flush-logs", run: () => void (runs += 1) });
     const [first, second] = await Promise.all([
       shutdown.shutdown("SIGTERM"),
@@ -195,7 +195,7 @@ describe("graceful shutdown", () => {
   });
 
   it("degrades but still completes when a step fails", async () => {
-    const shutdown = new GracefulShutdown({ clock: fixedClock(0) });
+    const shutdown = new GracefulShutdown({ clock: new FixedClock(0) });
     let flushed = false;
     shutdown.register({
       name: "flush-event-store",
@@ -212,7 +212,7 @@ describe("graceful shutdown", () => {
 });
 
 describe("graceful restart", () => {
-  const clock = fixedClock(0);
+  const clock = new FixedClock(0);
 
   function intentEvent(sequence: number, intentId: string) {
     return createEvent(
