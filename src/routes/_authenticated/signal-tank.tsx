@@ -3,7 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, LoadingState, Metric, Panel, StatusPill } from "@/components/arc/primitives";
+import {
+  EmptyState,
+  KeyValue,
+  LoadingState,
+  Metric,
+  Panel,
+  StatusPill,
+} from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 import {
@@ -11,7 +18,6 @@ import {
   TelemetrySourcePill,
   useRuntimeTelemetry,
 } from "@/components/arc/runtime-telemetry";
-
 
 export const Route = createFileRoute("/_authenticated/signal-tank")({
   head: () => ({
@@ -75,7 +81,6 @@ function SignalTankPage() {
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-
             <Metric
               label="Effective TWAP"
               value={fmt(latest?.effectiveTwap ?? market?.effectiveTwap ?? null)}
@@ -120,7 +125,6 @@ function SignalTankPage() {
               hint="UTC"
             />
           </div>
-
 
           <Panel title="Latest Decision">
             {latest === null ? (

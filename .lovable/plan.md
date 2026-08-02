@@ -2,7 +2,7 @@
 
 ### What I found (read-only inspection, already done)
 
-**Correction to the premise:** the uploaded `arc-main` zip is *not* an existing ARC application. Its `src/` is an untouched Lovable TanStack Start template (59 files, shadcn UI + placeholder `index.tsx`). The real ARC implementation lives inside it as read-only reference material:
+**Correction to the premise:** the uploaded `arc-main` zip is _not_ an existing ARC application. Its `src/` is an untouched Lovable TanStack Start template (59 files, shadcn UI + placeholder `index.tsx`). The real ARC implementation lives inside it as read-only reference material:
 
 - `reference/p4/` — the engine: **Next.js 16**, pnpm, `better-sqlite3`, `@polymarket/clob-client-v2`, `ethers`, `ws`, PM2 (`ecosystem.config.js`), vitest. ~583K of `lib/v2/engine/` (engine.ts, standing-order.ts 2489 LOC, execution live/paper, feeds, handlers, risk, reconciler, settlement/accounting verifiers, telegram, watchdog), 13 API routes under `app/api/v2/bot/*`, 17 `components/v2/*` panels, 30+ test files.
 - `docs/knowledge/` — 40+ engineering reports (overview, architecture, engine, SLO, execution, settlement, accounting/PnL, risk, sync, feeds, persistence, recovery, testing, production readiness, audits).
@@ -50,17 +50,17 @@ Copy excludes `.git` metadata (verified: none present) and **all `*.db`, `*.db-w
 
 One migration creating all nine tables with GRANTs, RLS enabled, and `auth.uid()`-scoped policies. Structure only — no behavior wired yet:
 
-| Table | Purpose |
-|---|---|
-| `profiles` | operator profile, auto-created on signup via trigger |
-| `user_roles` | separate table + `app_role` enum + `has_role()` security-definer fn |
-| `engine_endpoints` | VPS base URL / environment per operator |
-| `engine_snapshots` | mirrored engine state (cache only) |
-| `event_log` | mirrored canonical engine events |
-| `notifications` | operator-facing alerts |
-| `feature_flags` | companion-side flags |
-| `configuration_profiles` | named companion config presets |
-| `audit_log` | companion-side action trail |
+| Table                    | Purpose                                                             |
+| ------------------------ | ------------------------------------------------------------------- |
+| `profiles`               | operator profile, auto-created on signup via trigger                |
+| `user_roles`             | separate table + `app_role` enum + `has_role()` security-definer fn |
+| `engine_endpoints`       | VPS base URL / environment per operator                             |
+| `engine_snapshots`       | mirrored engine state (cache only)                                  |
+| `event_log`              | mirrored canonical engine events                                    |
+| `notifications`          | operator-facing alerts                                              |
+| `feature_flags`          | companion-side flags                                                |
+| `configuration_profiles` | named companion config presets                                      |
+| `audit_log`              | companion-side action trail                                         |
 
 Auth: email/password + Google. No secrets invented — the VPS API token is requested via the secure secret form when the first authenticated call is wired, not this session.
 
@@ -88,7 +88,7 @@ Sync Status:     ...
 
 **Known limitation, stated up front:** GitHub connection is a Lovable UI action and git state is managed outside my tooling — I cannot run git commands or read the repo link. If any field cannot be verified, I will state exactly which and why rather than assuming connected. You confirm the link via the chat **+** menu → GitHub.
 
-Plus the four explicit statements: *Repository Discovery Complete. GitHub Connection Verified (or precise reason not). Supabase Status Verified. Project Ready for Engine-by-Engine Implementation.*
+Plus the four explicit statements: _Repository Discovery Complete. GitHub Connection Verified (or precise reason not). Supabase Status Verified. Project Ready for Engine-by-Engine Implementation._
 
 ### Not in this session
 

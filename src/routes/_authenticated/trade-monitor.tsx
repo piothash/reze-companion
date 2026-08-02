@@ -46,7 +46,6 @@ function TradeMonitorPage() {
   const fetchSnapshot = useServerFn(getOperationsSnapshot);
   const telemetry = useRuntimeTelemetry();
   const { data, isPending } = useQuery({
-
     queryKey: ["arc", "operations", "snapshot"],
     queryFn: () => fetchSnapshot({ data: { limit: 400 } }),
     refetchInterval: 15_000,
@@ -157,7 +156,8 @@ function TradeMonitorPage() {
                           : execution.settled
                             ? "reached"
                             : "pending",
-                        detail: execution.failureReason ?? (execution.settled ? "settled" : "pending"),
+                        detail:
+                          execution.failureReason ?? (execution.settled ? "settled" : "pending"),
                       },
                       {
                         label: "Ledger",
@@ -196,7 +196,6 @@ function TradeMonitorPage() {
                   ]}
                 />
               </div>
-
 
               <h3 className="label-caps mt-4">Ledger Entries</h3>
               {ledgerRecords.filter(

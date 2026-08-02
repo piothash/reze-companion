@@ -10,14 +10,8 @@
  */
 import { describe, expect, it } from "vitest";
 
-import {
-  signAuthorityMessage,
-  verifyAuthorityMessage,
-} from "@/core/platform/authority-signature";
-import {
-  deriveAuthorityDisplay,
-  formatHeartbeatAge,
-} from "@/core/platform/authority-presentation";
+import { signAuthorityMessage, verifyAuthorityMessage } from "@/core/platform/authority-signature";
+import { deriveAuthorityDisplay, formatHeartbeatAge } from "@/core/platform/authority-presentation";
 import { deriveConfigurationActivation } from "@/core/platform/configuration-activation";
 import {
   STARTUP_CHAIN_STEPS,

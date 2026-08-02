@@ -121,7 +121,8 @@ function authorityIncidents(
       severity: "CRITICAL",
       area: "AUTHORITY",
       problem: "The registered trading authority is revoked.",
-      reason: "An operator revoked this authority, so it may not trade and its telemetry is ignored.",
+      reason:
+        "An operator revoked this authority, so it may not trade and its telemetry is ignored.",
       missingEvidence: "A fresh registration from an authority that is not revoked.",
       requiredAction:
         "Rotate the signing key on the VPS and register the engine again under a new authority id.",
@@ -176,10 +177,12 @@ function configurationIncidents(
           severity: "WARNING",
           area: "CONFIGURATION",
           problem: "No configuration version has been published.",
-          reason: "The control plane holds no stored configuration version for the authority to pull.",
+          reason:
+            "The control plane holds no stored configuration version for the authority to pull.",
           missingEvidence: "A published, hashed configuration version.",
           requiredAction: "Publish the execution profile from Execution Profiles.",
-          expectedRecovery: "The version appears as PENDING until the authority pulls and applies it.",
+          expectedRecovery:
+            "The version appears as PENDING until the authority pulls and applies it.",
         },
       ];
     case "PENDING":
@@ -242,7 +245,8 @@ function securityIncidents(security: LiveEvidenceSnapshot["security"]): Operator
       problem: "Authority handshakes are not signature-verified.",
       reason:
         "No shared signing key is configured, so the gateway fail-closes and refuses every authority message with KEY_UNCONFIGURED.",
-      missingEvidence: "A configured ARC_AUTHORITY_SIGNING_KEY on the control plane and the engine.",
+      missingEvidence:
+        "A configured ARC_AUTHORITY_SIGNING_KEY on the control plane and the engine.",
       requiredAction:
         "Set the same 32+ character key as ARC_AUTHORITY_SIGNING_KEY on the control plane and on the VPS engine.",
       expectedRecovery:
@@ -256,9 +260,12 @@ function securityIncidents(security: LiveEvidenceSnapshot["security"]): Operator
       severity: "CRITICAL",
       area: "SECURITY",
       problem: "Operator ownership is not finalized.",
-      reason: "Registration is still open, so an unintended account could still claim the control plane.",
-      missingEvidence: "ownership_finalized() returning true and an ownership.finalized audit entry.",
-      requiredAction: "Sign in as the intended operator and finalize ownership on the Ownership page.",
+      reason:
+        "Registration is still open, so an unintended account could still claim the control plane.",
+      missingEvidence:
+        "ownership_finalized() returning true and an ownership.finalized audit entry.",
+      requiredAction:
+        "Sign in as the intended operator and finalize ownership on the Ownership page.",
       expectedRecovery: "Registration closes permanently and the security gate stops failing.",
     });
   }
@@ -291,7 +298,8 @@ function telemetryIncidents(telemetry: LiveEvidenceSnapshot["telemetry"]): Opera
         problem: "Telemetry is incomplete.",
         reason: `The authority did not report: ${telemetry.missingFields.join(", ")}.`,
         missingEvidence: "All mandated telemetry fields on one current heartbeat.",
-        requiredAction: "Upgrade the engine to a build that reports every mandated telemetry field.",
+        requiredAction:
+          "Upgrade the engine to a build that reports every mandated telemetry field.",
         expectedRecovery: "The telemetry gate reports complete and current.",
       },
     ];
@@ -306,7 +314,8 @@ function telemetryIncidents(telemetry: LiveEvidenceSnapshot["telemetry"]): Opera
         problem: "Telemetry is mirrored, not live.",
         reason: `The last read came from ${telemetry.source}, so the values are the newest stored copy rather than a live authority read.`,
         missingEvidence: "A successful live read from the authority endpoint.",
-        requiredAction: "Check that the engine's telemetry endpoint is reachable from the control plane.",
+        requiredAction:
+          "Check that the engine's telemetry endpoint is reachable from the control plane.",
         expectedRecovery: "The telemetry source reads LIVE.",
       },
     ];
@@ -341,7 +350,8 @@ function startupIncident(steps: readonly StartupStepView[]): OperatorIncident[] 
         severity: "WARNING",
         area: "STARTUP",
         problem: "No startup chain has been reported.",
-        reason: "The authority has not published startup progress, so no stage can be shown as complete.",
+        reason:
+          "The authority has not published startup progress, so no stage can be shown as complete.",
         missingEvidence: "Engine telemetry describing the startup chain.",
         requiredAction: "Start the engine on the VPS and confirm it reports telemetry.",
         expectedRecovery: "Startup stages turn PASS in order as the engine boots.",
@@ -359,9 +369,7 @@ const SEVERITY_ORDER: Record<IncidentSeverity, number> = { CRITICAL: 0, WARNING:
  * from reported evidence: an empty incident list means every observation the
  * control plane can make is healthy, not that trading is safe.
  */
-export function deriveOperationsDiagnostics(
-  snapshot: LiveEvidenceSnapshot,
-): OperationsDiagnostics {
+export function deriveOperationsDiagnostics(snapshot: LiveEvidenceSnapshot): OperationsDiagnostics {
   const authority = deriveAuthorityDisplay(
     snapshot.authority
       ? {

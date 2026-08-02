@@ -3,7 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { Countdown, EmptyState, LoadingState, Metric, Panel, StatusPill } from "@/components/arc/primitives";
+import {
+  Countdown,
+  EmptyState,
+  LoadingState,
+  Metric,
+  Panel,
+  StatusPill,
+} from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getHealthReport, getOperationsSnapshot, getSystemInfo } from "@/lib/operations.functions";
 import { listReplayRuns } from "@/lib/platform.functions";
@@ -14,7 +21,6 @@ import {
   TelemetrySourcePill,
   useRuntimeTelemetry,
 } from "@/components/arc/runtime-telemetry";
-
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -44,8 +50,6 @@ function DashboardPage() {
   const fetchSystem = useServerFn(getSystemInfo);
   const fetchReplay = useServerFn(listReplayRuns);
   const telemetry = useRuntimeTelemetry();
-
-
 
   const { data, isPending } = useQuery({
     queryKey: ["arc", "operations", "snapshot"],
@@ -97,7 +101,6 @@ function DashboardPage() {
           />
         </div>
       }
-
     >
       {isPending ? (
         <LoadingState label="Reading operational telemetry" />
@@ -107,7 +110,6 @@ function DashboardPage() {
           <LiveWindowsPanel view={telemetry.data} />
           <LiveRuntimePanel view={telemetry.data} />
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-
             <Metric
               label="System Status"
               value={worst.toUpperCase()}
@@ -273,7 +275,10 @@ function DashboardPage() {
               }
             >
               {(projection?.recentEvents.length ?? 0) === 0 ? (
-                <EmptyState message="No canonical events mirrored." hint="Waiting for VPS connection." />
+                <EmptyState
+                  message="No canonical events mirrored."
+                  hint="Waiting for VPS connection."
+                />
               ) : (
                 <ul className="space-y-1.5 font-mono text-xs">
                   {projection?.recentEvents.slice(0, 14).map((event) => (

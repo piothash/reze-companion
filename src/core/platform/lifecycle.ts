@@ -141,10 +141,10 @@ export class GracefulShutdown {
       }
     }
 
-    const failed = results.filter((entry) => entry.status === "failed" || entry.status === "timeout");
-    const criticalFailed = failed.filter(
-      (entry) => this.steps.get(entry.name)?.critical !== false,
+    const failed = results.filter(
+      (entry) => entry.status === "failed" || entry.status === "timeout",
     );
+    const criticalFailed = failed.filter((entry) => this.steps.get(entry.name)?.critical !== false);
     const clean = criticalFailed.length === 0;
 
     this.report = {
@@ -242,7 +242,9 @@ export function suppressDuplicateEmissions(
   for (const event of candidates) {
     const intentId = event.metadata.executionIntentId ?? null;
     const known =
-      (intentId !== null && guard.isKnownIntent(intentId) && event.type.endsWith("intent.created")) ||
+      (intentId !== null &&
+        guard.isKnownIntent(intentId) &&
+        event.type.endsWith("intent.created")) ||
       (intentId !== null && guard.isSettled(intentId));
     if (known) suppressed.push(event);
     else emit.push(event);

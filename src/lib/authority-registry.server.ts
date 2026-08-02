@@ -18,9 +18,7 @@ type AnyClient = any;
 
 function toView(row: Record<string, unknown>, nowMillis: number): AuthorityStatusView {
   const lastSeen = (row["last_seen"] as string | null) ?? null;
-  const capabilities = Array.isArray(row["capabilities"])
-    ? (row["capabilities"] as string[])
-    : [];
+  const capabilities = Array.isArray(row["capabilities"]) ? (row["capabilities"] as string[]) : [];
   const interval = (row["heartbeat_interval_millis"] as number | null) ?? 15_000;
   const num = (key: string): number | null => {
     const value = row[key];

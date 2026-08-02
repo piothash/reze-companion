@@ -47,7 +47,6 @@ export interface EnvVarSpec {
 /** COMPANION = control plane, VPS = trading authority, SHARED = both must match. */
 export type EnvOwner = "COMPANION" | "VPS" | "SHARED";
 
-
 export interface EnvIssue {
   readonly key: string;
   readonly message: string;
@@ -219,7 +218,11 @@ export const ARC_ENV_SPECS: readonly EnvVarSpec[] = [
     description: "Maximum retry delay",
   },
   { key: "ARC_REPLAY_ENABLED", kind: "boolean", defaultValue: "false", description: "Replay mode" },
-  { key: "ARC_REPLAY_CLOCK_ORIGIN", kind: "iso-datetime", description: "Deterministic clock origin" },
+  {
+    key: "ARC_REPLAY_CLOCK_ORIGIN",
+    kind: "iso-datetime",
+    description: "Deterministic clock origin",
+  },
   {
     key: "EXECUTION_PROFILE_ID",
     kind: "string",
@@ -327,15 +330,11 @@ export function assertEnvironmentValid(
   return report;
 }
 
-
 function issue(key: string, message: string, reasonCode: ReasonCode): EnvIssue {
   return { key, message, reasonCode };
 }
 
-function parseOne(
-  spec: EnvVarSpec,
-  raw: string,
-): { value: unknown } | { error: string } {
+function parseOne(spec: EnvVarSpec, raw: string): { value: unknown } | { error: string } {
   switch (spec.kind) {
     case "secret": {
       if (raw.length < (spec.minLength ?? 8)) return { error: "secret is implausibly short" };
@@ -409,7 +408,8 @@ export function validateEnvironment(
   for (const spec of specs) {
     const raw = source[spec.key];
     const present = raw !== undefined && raw.trim() !== "";
-    const required = spec.required === true || (spec.requiredOnMainnet === true && network === "mainnet");
+    const required =
+      spec.required === true || (spec.requiredOnMainnet === true && network === "mainnet");
 
     if (!present) {
       if (required) {

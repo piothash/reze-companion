@@ -60,9 +60,7 @@ export function deriveConfigurationActivation(
   if (latestVersion.status === "REJECTED") {
     return {
       state: "REJECTED",
-      detail:
-        latestVersion.rejectionReason ??
-        `The authority rejected v${latestVersion.version}.`,
+      detail: latestVersion.rejectionReason ?? `The authority rejected v${latestVersion.version}.`,
       confirmedByAuthority: true,
     };
   }
@@ -70,8 +68,7 @@ export function deriveConfigurationActivation(
   if (drifted) {
     return {
       state: "DRIFTED",
-      detail:
-        "The authority is running a configuration that does not match the published version.",
+      detail: "The authority is running a configuration that does not match the published version.",
       confirmedByAuthority: runtime?.live === true,
     };
   }

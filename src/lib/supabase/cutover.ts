@@ -107,11 +107,7 @@ export function evaluateMigrationReadiness(
     logicalName: spec.logicalName,
     physicalName: spec.physicalName,
     purpose: spec.purpose,
-    readiness: !present.has(spec.physicalName)
-      ? "MISSING"
-      : spec.aliased
-        ? "SATISFIED"
-        : "PRESENT",
+    readiness: !present.has(spec.physicalName) ? "MISSING" : spec.aliased ? "SATISFIED" : "PRESENT",
   }));
   const missing = rows.filter((row) => row.readiness === "MISSING").map((row) => row.logicalName);
   return {

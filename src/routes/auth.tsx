@@ -36,9 +36,7 @@ function AuthPage() {
   // Fail closed: when the backend is not the required cutover target, neither
   // sign-in nor registration is offered.
   const authAvailable = bootstrap.backendMatchesProduction;
-  const [mode, setMode] = useState<"signin" | "signup">(
-    registrationOpen ? "signup" : "signin",
-  );
+  const [mode, setMode] = useState<"signin" | "signup">(registrationOpen ? "signup" : "signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -57,9 +55,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (!authAvailable) {
-        throw new Error(
-          "This deployment is not connected to the required control-plane backend.",
-        );
+        throw new Error("This deployment is not connected to the required control-plane backend.");
       }
       if (mode === "signup") {
         if (!registrationOpen) throw new Error("Bootstrap registration is unavailable.");
@@ -134,8 +130,8 @@ function AuthPage() {
           </p>
         ) : bootstrap.mode === "BOOTSTRAP_OPEN" ? (
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            Bootstrap mode. Register the account intended to operate this deployment, then
-            finalize ownership from the console to close registration permanently.
+            Bootstrap mode. Register the account intended to operate this deployment, then finalize
+            ownership from the console to close registration permanently.
           </p>
         ) : (
           <div className="mt-4 border border-destructive/50 bg-destructive/10 p-3 text-center">

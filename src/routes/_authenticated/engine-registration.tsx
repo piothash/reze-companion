@@ -6,10 +6,7 @@ import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
 import { AuthorityRegistryPanel } from "@/components/arc/authority-registry-panel";
-import {
-  AuthorityRuntimePanel,
-  useAuthorityRuntime,
-} from "@/components/arc/authority-runtime";
+import { AuthorityRuntimePanel, useAuthorityRuntime } from "@/components/arc/authority-runtime";
 import { EmptyState, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -421,7 +418,9 @@ function EngineRegistrationPage() {
                     </TableCell>
                     <TableCell className="font-mono text-xs">{endpoint.environment}</TableCell>
                     <TableCell className="font-mono text-xs">{endpoint.baseUrl}</TableCell>
-                    <TableCell className="font-mono text-xs">{endpoint.apiVersion ?? "—"}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {endpoint.apiVersion ?? "—"}
+                    </TableCell>
                     <TableCell className="font-mono text-xs">
                       {endpoint.engineVersion ?? "—"} / {endpoint.platformVersion ?? "—"}
                     </TableCell>
@@ -494,7 +493,6 @@ function EngineRegistrationPage() {
 
         <AuthorityRegistryPanel />
       </div>
-
     </OperatorShell>
   );
 }

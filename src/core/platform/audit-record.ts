@@ -59,7 +59,8 @@ export interface OperatorAuditRecord {
  * Keys that must never reach the audit trail. Redaction happens here rather
  * than at each call site, so a new writer cannot leak by omission.
  */
-const FORBIDDEN_KEY = /(secret|password|passphrase|private[_-]?key|signing[_-]?key|token|apikey|api[_-]?key|authorization|mnemonic)/i;
+const FORBIDDEN_KEY =
+  /(secret|password|passphrase|private[_-]?key|signing[_-]?key|token|apikey|api[_-]?key|authorization|mnemonic)/i;
 
 export function redactAuditDetail(detail: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};

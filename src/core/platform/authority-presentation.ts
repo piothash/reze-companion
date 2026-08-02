@@ -16,12 +16,7 @@ import { heartbeatDeadlineMillis } from "./authority-registration";
  * STALE        — registered, but the heartbeat aged out.
  * ACTIVE       — signature-verified, fresh heartbeat, runtime identity present.
  */
-export const AUTHORITY_DISPLAY_STATUSES = [
-  "ACTIVE",
-  "STALE",
-  "REVOKED",
-  "UNREGISTERED",
-] as const;
+export const AUTHORITY_DISPLAY_STATUSES = ["ACTIVE", "STALE", "REVOKED", "UNREGISTERED"] as const;
 
 export type AuthorityDisplayStatus = (typeof AUTHORITY_DISPLAY_STATUSES)[number];
 

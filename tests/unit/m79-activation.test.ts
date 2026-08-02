@@ -24,7 +24,11 @@ const nothing: LiveEvidenceSnapshot = {
   startup: null,
   configuration: null,
   telemetry: null,
-  security: { signatureVerificationEnabled: false, ownershipFinalized: false, secretMaterialRejected: true },
+  security: {
+    signatureVerificationEnabled: false,
+    ownershipFinalized: false,
+    secretMaterialRejected: true,
+  },
 };
 
 const activated: LiveEvidenceSnapshot = {
@@ -55,8 +59,17 @@ const activated: LiveEvidenceSnapshot = {
     publishedVersion: 7,
     drift: false,
   },
-  telemetry: { source: "LIVE", emittedAtIso: iso(1_000), syncIntervalMillis: 5_000, missingFields: [] },
-  security: { signatureVerificationEnabled: true, ownershipFinalized: true, secretMaterialRejected: true },
+  telemetry: {
+    source: "LIVE",
+    emittedAtIso: iso(1_000),
+    syncIntervalMillis: 5_000,
+    missingFields: [],
+  },
+  security: {
+    signatureVerificationEnabled: true,
+    ownershipFinalized: true,
+    secretMaterialRejected: true,
+  },
 };
 
 const byId = (snapshot: LiveEvidenceSnapshot) =>

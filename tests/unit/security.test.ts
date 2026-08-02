@@ -135,7 +135,6 @@ describe("security — API surface", () => {
     expect(gateway).not.toMatch(/private_key:|wallet_key|mnemonic:/i);
   });
 
-
   it("no server function writes to append-only tables through an admin client", () => {
     for (const file of FUNCTION_FILES) {
       const source = read(file);

@@ -139,21 +139,22 @@ describe("runtime telemetry contract", () => {
   });
 
   it("orders windows by configured offset and selects the active one", () => {
-    const windows: TelemetryWindow[] = [3, 15, 7].map((offset) =>
-      ({
-        windowInstanceId: `w-${offset}`,
-        windowDefinitionId: null,
-        marketInstanceId: null,
-        offsetSeconds: offset,
-        state: "OPEN",
-        priority: null,
-        bufferPercent: null,
-        activatesAtIso: new Date(now - offset * 1_000).toISOString(),
-        expiresAtIso: new Date(now + offset * 1_000).toISOString(),
-        decision: null,
-        executionIntentId: null,
-        reasonCode: null,
-      }) satisfies TelemetryWindow,
+    const windows: TelemetryWindow[] = [3, 15, 7].map(
+      (offset) =>
+        ({
+          windowInstanceId: `w-${offset}`,
+          windowDefinitionId: null,
+          marketInstanceId: null,
+          offsetSeconds: offset,
+          state: "OPEN",
+          priority: null,
+          bufferPercent: null,
+          activatesAtIso: new Date(now - offset * 1_000).toISOString(),
+          expiresAtIso: new Date(now + offset * 1_000).toISOString(),
+          decision: null,
+          executionIntentId: null,
+          reasonCode: null,
+        }) satisfies TelemetryWindow,
     );
 
     expect(orderWindowsByOffset(windows).map((w) => w.offsetSeconds)).toEqual([15, 7, 3]);

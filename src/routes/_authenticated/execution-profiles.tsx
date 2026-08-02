@@ -6,10 +6,7 @@ import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
 import { EmptyState, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
-import {
-  AuthorityRuntimePanel,
-  useAuthorityRuntime,
-} from "@/components/arc/authority-runtime";
+import { AuthorityRuntimePanel, useAuthorityRuntime } from "@/components/arc/authority-runtime";
 import { deriveConfigurationActivation } from "@/core/platform/configuration-activation";
 import { fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -255,8 +252,6 @@ function ExecutionProfilesPage() {
   });
 
   const authorityQuery = useAuthorityRuntime();
-
-
 
   useEffect(() => {
     if (data?.profile) setDraft(toDraft(data.profile as unknown as Record<string, unknown>));

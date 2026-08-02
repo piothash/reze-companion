@@ -5,10 +5,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-import {
-  backendMatchesRequirement,
-  resolveSupabaseConfig,
-} from "@/lib/supabase/config";
+import { backendMatchesRequirement, resolveSupabaseConfig } from "@/lib/supabase/config";
 import {
   CUTOVER_GUARDED_ACTIONS,
   REQUIRED_CONTROL_PLANE_TABLES,
@@ -170,7 +167,9 @@ describe("M7.5 — authority registration contract", () => {
 
   it("requires a signature and timestamp on every registration", () => {
     expect(() => parseAuthorityRegistration({ ...registration, signature: "" })).toThrow();
-    expect(() => parseAuthorityRegistration({ ...registration, timestamp: "not-a-date" })).toThrow();
+    expect(() =>
+      parseAuthorityRegistration({ ...registration, timestamp: "not-a-date" }),
+    ).toThrow();
   });
 
   it("requires a signature on every heartbeat", () => {

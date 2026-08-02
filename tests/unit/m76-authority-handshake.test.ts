@@ -261,7 +261,11 @@ describe("M7.6 — authority registration", () => {
 
   it("rejects a registration signed with the wrong key", async () => {
     const forged = await signed(
-      { ...registrationBase, capabilities: [...registrationBase.capabilities], timestamp: new Date(NOW).toISOString() },
+      {
+        ...registrationBase,
+        capabilities: [...registrationBase.capabilities],
+        timestamp: new Date(NOW).toISOString(),
+      },
       "an-attacker-controlled-key-value",
     );
     const result = await handleAuthorityRegistration(backend, forged, NOW);
@@ -398,9 +402,9 @@ describe("M7.6 — derived liveness", () => {
 
   it("reports REGISTERED until the first heartbeat and REVOKED regardless of freshness", () => {
     expect(deriveAuthorityLiveness("registered", null, 15_000, NOW)).toBe("registered");
-    expect(
-      deriveAuthorityLiveness("revoked", new Date(NOW).toISOString(), 15_000, NOW),
-    ).toBe("revoked");
+    expect(deriveAuthorityLiveness("revoked", new Date(NOW).toISOString(), 15_000, NOW)).toBe(
+      "revoked",
+    );
   });
 });
 
@@ -483,9 +487,9 @@ describe("M7.6 — configuration dispatch", () => {
 
   it("refuses configuration traffic from a revoked authority", async () => {
     backend.tables["authority_registry"]![0]!["status"] = "revoked";
-    expect(
-      (await handleConfigurationPull(backend, registrationBase.authorityId, NOW)).status,
-    ).toBe(403);
+    expect((await handleConfigurationPull(backend, registrationBase.authorityId, NOW)).status).toBe(
+      403,
+    );
     expect((await handleConfigurationVerdict(backend, await verdict(), NOW)).status).toBe(403);
   });
 });

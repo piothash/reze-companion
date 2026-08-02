@@ -80,7 +80,10 @@ function ReplayPage() {
           {isPending ? (
             <LoadingState label="Reading replay runs" />
           ) : runs.length === 0 ? (
-            <EmptyState message="No replay runs recorded." hint="Start a replay to verify determinism against stored events." />
+            <EmptyState
+              message="No replay runs recorded."
+              hint="Start a replay to verify determinism against stored events."
+            />
           ) : (
             <ul className="space-y-3">
               {runs.map((run) => {

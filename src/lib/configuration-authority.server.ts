@@ -123,7 +123,11 @@ export async function readActiveConfiguration(endpoint: AuthorityEndpoint | null
   latencyMillis: number | null;
 }> {
   if (!endpoint) {
-    return { reply: null, detail: "No trading authority endpoint registered.", latencyMillis: null };
+    return {
+      reply: null,
+      detail: "No trading authority endpoint registered.",
+      latencyMillis: null,
+    };
   }
   const { reply, detail, latencyMillis } = await call(
     join(endpoint.baseUrl, "/api/configuration/active"),

@@ -63,7 +63,8 @@ export function validateWindowDefinitions(profile: ExecutionProfile): BootIssue[
     if (!Number.isFinite(window.offset) || window.offset <= 0) {
       issues.push(fail(`${at}.offset`, "offset must be a finite positive number"));
     }
-    if (millis <= 0) issues.push(fail(`${at}.offset`, "offset resolves to a non-positive duration"));
+    if (millis <= 0)
+      issues.push(fail(`${at}.offset`, "offset resolves to a non-positive duration"));
     if (millis < profile.windowActiveMillis) {
       issues.push(
         fail(
@@ -75,7 +76,9 @@ export function validateWindowDefinitions(profile: ExecutionProfile): BootIssue[
 
     const previous = seenMillis.get(millis);
     if (previous !== undefined) {
-      issues.push(fail(`${at}.offset`, `duplicate window offset — collides with windows[${previous}]`));
+      issues.push(
+        fail(`${at}.offset`, `duplicate window offset — collides with windows[${previous}]`),
+      );
     } else {
       seenMillis.set(millis, index);
     }
@@ -95,7 +98,9 @@ export function validateWindowDefinitions(profile: ExecutionProfile): BootIssue[
 
     if (window.retryCountOverride !== null) {
       if (!Number.isInteger(window.retryCountOverride) || window.retryCountOverride < 0) {
-        issues.push(fail(`${at}.retryCountOverride`, "retry override must be a non-negative integer"));
+        issues.push(
+          fail(`${at}.retryCountOverride`, "retry override must be a non-negative integer"),
+        );
       }
     }
   });
@@ -183,7 +188,8 @@ export function validateRiskProfile(trade: TradeDomainConfig): BootIssue[] {
   }
 
   if (execution.tickSize <= 0) issues.push(fail("execution.tickSize", "must be positive"));
-  if (execution.timeoutMillis <= 0) issues.push(fail("execution.timeoutMillis", "must be positive"));
+  if (execution.timeoutMillis <= 0)
+    issues.push(fail("execution.timeoutMillis", "must be positive"));
   if (execution.repricingEnabled && execution.repricingMaxAttempts < 1) {
     issues.push(fail("execution.repricingMaxAttempts", "repricing enabled with no attempts"));
   }
@@ -277,7 +283,8 @@ export function validateBootConfiguration(env: EnvSource): BootValidationResult 
 
   if (executionProfile && tradeConfig) {
     const perTrade = executionProfile.positionSize;
-    const quota = executionProfile.executionMode === "SINGLE_TRADE" ? 1 : executionProfile.maxTrades;
+    const quota =
+      executionProfile.executionMode === "SINGLE_TRADE" ? 1 : executionProfile.maxTrades;
     if (perTrade > tradeConfig.risk.maxIntentExposure) {
       issues.push(
         fail(

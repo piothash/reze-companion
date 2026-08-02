@@ -114,9 +114,7 @@ function qualificationDescriptor(
  * discovery → feed → TWAP → signal → market state → windows → decision →
  * intent → risk → exposure → order → fill → settlement → ledger.
  */
-export async function runQualificationScenario(
-  spec: QualificationSpec,
-): Promise<QualificationRun> {
+export async function runQualificationScenario(spec: QualificationSpec): Promise<QualificationRun> {
   const tickMillis = spec.tickMillis ?? 1_000;
   const marketConfig = spec.marketConfig ?? qualificationMarketConfig();
   const profile = spec.profile ?? qualificationProfile();
@@ -292,4 +290,3 @@ export async function runQualificationScenario(
     ticks,
   });
 }
-

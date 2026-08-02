@@ -228,10 +228,7 @@ export function missingTelemetryFields(authority: AuthorityEvidence | null): rea
 }
 
 /** Heartbeat age in milliseconds, or null when the authority never reported. */
-export function heartbeatAgeMillis(
-  lastSeenIso: string | null,
-  nowMillis: number,
-): number | null {
+export function heartbeatAgeMillis(lastSeenIso: string | null, nowMillis: number): number | null {
   if (!lastSeenIso) return null;
   const seen = Date.parse(lastSeenIso);
   return Number.isNaN(seen) ? null : nowMillis - seen;
@@ -249,11 +246,7 @@ export function heartbeatFresh(
   return age >= 0 && age <= budget;
 }
 
-function verdict(
-  condition: boolean,
-  pass: string,
-  fail: string,
-): [LiveGateStatus, string] {
+function verdict(condition: boolean, pass: string, fail: string): [LiveGateStatus, string] {
   return condition ? ["PASS", pass] : ["FAIL", fail];
 }
 
@@ -278,7 +271,8 @@ export function evaluateLiveAuthorityGates(
         const reasons: string[] = [];
         if (authority.status !== "active") reasons.push(`status ${authority.status.toUpperCase()}`);
         if (!authority.runtimeIdentity) reasons.push("runtime identity missing");
-        if (!fresh) reasons.push(age === null ? "no heartbeat" : `heartbeat ${Math.round(age / 1000)}s old`);
+        if (!fresh)
+          reasons.push(age === null ? "no heartbeat" : `heartbeat ${Math.round(age / 1000)}s old`);
         if (authority.latencyMillis === null) reasons.push("latency not reported");
         [status, detail] = verdict(
           reasons.length === 0,
@@ -357,9 +351,7 @@ export function evaluateLiveAuthorityGates(
 }
 
 /** FAIL beats PENDING beats PASS — the report never overstates readiness. */
-export function liveQualificationVerdict(
-  results: readonly LiveGateResult[],
-): LiveGateStatus {
+export function liveQualificationVerdict(results: readonly LiveGateResult[]): LiveGateStatus {
   if (results.some((result) => result.status === "FAIL")) return "FAIL";
   if (results.some((result) => result.status === "PENDING")) return "PENDING";
   return "PASS";

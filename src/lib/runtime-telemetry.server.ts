@@ -47,13 +47,22 @@ export interface TelemetryView {
 
 async function fetchTelemetry(
   endpoint: RegisteredEndpoint,
-): Promise<{ telemetry: RuntimeTelemetry | null; reasonCode: string; detail: string; latencyMillis: number }> {
+): Promise<{
+  telemetry: RuntimeTelemetry | null;
+  reasonCode: string;
+  detail: string;
+  latencyMillis: number;
+}> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMillis());
   const startedAt = Date.now();
   try {
     const url = `${endpoint.baseUrl.replace(/\/+$/, "")}${telemetryPath()}`;
-    const response = await fetch(url, { method: "GET", headers: headers(), signal: controller.signal });
+    const response = await fetch(url, {
+      method: "GET",
+      headers: headers(),
+      signal: controller.signal,
+    });
     const latencyMillis = Date.now() - startedAt;
 
     if (response.status === 401 || response.status === 403) {
@@ -112,7 +121,11 @@ async function fetchTelemetry(
 }
 
 /** Mirrors the newest telemetry so a PM2 restart or refresh recovers context. */
-async function mirror(client: AnyClient, endpointId: string, telemetry: RuntimeTelemetry): Promise<void> {
+async function mirror(
+  client: AnyClient,
+  endpointId: string,
+  telemetry: RuntimeTelemetry,
+): Promise<void> {
   await client
     .from("engine_runtime_identity")
     .update({ payload: { telemetry }, observed_at: new Date().toISOString() })
@@ -169,9 +182,7 @@ export async function readRuntimeTelemetry(client: AnyClient): Promise<Telemetry
   return {
     source: mirrored ? "MIRRORED" : "NONE",
     reasonCode: result.reasonCode,
-    detail: mirrored
-      ? `${result.detail} Showing the last mirrored telemetry.`
-      : result.detail,
+    detail: mirrored ? `${result.detail} Showing the last mirrored telemetry.` : result.detail,
     latencyMillis: result.latencyMillis,
     observedAtIso,
     syncIntervalMillis: endpoint.syncIntervalMillis,

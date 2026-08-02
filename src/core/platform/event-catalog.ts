@@ -131,7 +131,6 @@ export const EVENT_CATALOG = {
     "OPERATIONAL",
     "configuration",
   ),
-
 } as const satisfies Record<string, CatalogEntry>;
 
 export type CatalogName = keyof typeof EVENT_CATALOG;

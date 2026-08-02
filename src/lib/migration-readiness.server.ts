@@ -5,10 +5,7 @@
  * read-only `arc_schema_report()` reporter and evaluates the pure checklist.
  * It never creates, alters or drops anything.
  */
-import {
-  evaluateMigrationReadiness,
-  type MigrationReadinessReport,
-} from "./supabase/cutover";
+import { evaluateMigrationReadiness, type MigrationReadinessReport } from "./supabase/cutover";
 import { createPublishableServerClient } from "./supabase/backend.server";
 
 interface SchemaReportRow {

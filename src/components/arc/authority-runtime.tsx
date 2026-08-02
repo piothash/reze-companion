@@ -9,7 +9,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
-import { EmptyState, LoadingState, Panel, StatusDot, StatusPill, type StatusTone } from "./primitives";
+import {
+  EmptyState,
+  LoadingState,
+  Panel,
+  StatusDot,
+  StatusPill,
+  type StatusTone,
+} from "./primitives";
 import { fmtTime } from "@/lib/format";
 import { getAuthorityRuntime } from "@/lib/engine.functions";
 import {
@@ -76,7 +83,9 @@ function text(value: string | number | null | undefined): string {
 /** Live connection pill usable in any header. */
 export function ConnectionPill({ runtime }: { runtime: AuthorityRuntime | undefined }) {
   if (!runtime) return <StatusPill tone="neutral" label="CONNECTING" />;
-  return <StatusPill tone={runtimeTone(runtime.connection.state)} label={runtime.connection.state} />;
+  return (
+    <StatusPill tone={runtimeTone(runtime.connection.state)} label={runtime.connection.state} />
+  );
 }
 
 /** The expanded Runtime Configuration panel required by M6.8. */
@@ -165,8 +174,14 @@ export function AuthorityRuntimePanel({
         <Row label="Last synchronized" value={fmtTime(runtime.lastSynchronizedIso)} />
         <Row label="Engine version" value={text(identity?.engineVersion)} />
         <Row label="Platform version" value={text(identity?.platformVersion)} />
-        <Row label="API version" value={text(identity?.apiVersion ?? runtime.endpoint.apiVersion)} />
-        <Row label="Environment" value={text(identity?.environment ?? runtime.endpoint.environment)} />
+        <Row
+          label="API version"
+          value={text(identity?.apiVersion ?? runtime.endpoint.apiVersion)}
+        />
+        <Row
+          label="Environment"
+          value={text(identity?.environment ?? runtime.endpoint.environment)}
+        />
         <Row label="Network" value={text(identity?.network)} />
         <Row label="Feed provider" value={text(runtime.feed?.provider)} />
         <Row label="TWAP feed" value={text(runtime.feed?.twapFeed)} />
@@ -233,9 +248,7 @@ export function SubsystemHealthGrid({
             />
           </div>
           {entry.latencyMillis !== null ? (
-            <p className="mt-1 font-mono text-xs text-muted-foreground">
-              {entry.latencyMillis} ms
-            </p>
+            <p className="mt-1 font-mono text-xs text-muted-foreground">{entry.latencyMillis} ms</p>
           ) : null}
         </Panel>
       ))}
