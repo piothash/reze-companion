@@ -432,3 +432,24 @@ errors. 232 unit tests pass; typecheck clean.
 
 **M6.10 status: complete.** No trading logic was implemented; the VPS remains the
 sole trading authority.
+
+## M7.1 — Live VPS Authority Integration & Single Operator Authentication
+
+| Item | Status |
+| --- | --- |
+| Live authority handshake + telemetry polling (`/authority/handshake`, `/authority/telemetry`) | Implemented (M7.0) |
+| Configuration publish → Supabase immutable version → authority activation | Implemented (M6.7) |
+| Runtime state vocabulary LIVE / MIRRORED / PENDING / REJECTED / DRIFT | Implemented |
+| Feed provider abstraction, V1 testnet → V2 mainnet by `.env` only | Implemented (ADR-0005) |
+| **Single operator authentication** | **Implemented (M7.1)** |
+| — `owner` role added to `app_role`; earliest account promoted to OWNER | Done |
+| — First registration on a fresh deployment becomes OWNER automatically | Done (`handle_new_user`) |
+| — Email confirmation disabled (auto-confirm), no activation emails | Done |
+| — Public registration closed after bootstrap (provider-level `disable_signup`) | Done |
+| — Sign-in screen: email + password only; shows "Operator already configured" | Done |
+| — Public bootstrap probe returns a single boolean, no identity data | Done (`operator_bootstrapped()`) |
+| Live PM2 engine observation of the 14 startup gates | **Pending operator run** — see `docs/TESTNET_QUALIFICATION.md` |
+
+Security posture unchanged: the browser never receives the service role key, database
+credentials, wallet/trading keys or authority secrets. The VPS remains the sole trading
+authority (ADR-0001).

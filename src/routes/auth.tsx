@@ -1,13 +1,17 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { getOperatorBootstrapState } from "@/lib/auth.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
+  // Session lives in localStorage; rendering this screen on the server produces
+  // a hydration mismatch against the client's known auth state.
+  ssr: false,
+  loader: () => getOperatorBootstrapState(),
   head: () => ({
     meta: [
       { title: "Operator Sign In — ARC Companion" },
@@ -27,7 +31,8 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const { bootstrapped } = Route.useLoaderData();
+  const [mode, setMode] = useState<"signin" | "signup">(bootstrapped ? "signin" : "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -53,9 +58,11 @@ function AuthPage() {
         });
         if (error) throw error;
         if (!data.session) {
-          toast.info("Check your email to confirm your account.");
+          toast.info("Operator account created. Sign in to continue.");
+          setMode("signin");
           return;
         }
+        toast.success("Primary operator provisioned.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -67,16 +74,6 @@ function AuthPage() {
     }
   };
 
-  const google = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error("Google sign-in failed");
-      return;
-    }
-  };
-
   return (
     <div className="grid min-h-screen place-items-center bg-background grid-backdrop px-4">
       <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6">
@@ -85,7 +82,7 @@ function AuthPage() {
         </Link>
         <h1 className="mt-4 text-lg font-semibold">Operator access</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Control plane only. Trading authority stays on the VPS.
+          Single-operator control plane. Trading authority stays on the VPS.
         </p>
 
         <form onSubmit={submit} className="mt-6 grid gap-3">
@@ -117,17 +114,16 @@ function AuthPage() {
           </Button>
         </form>
 
-        <Button variant="outline" className="mt-3 w-full" onClick={google}>
-          Continue with Google
-        </Button>
-
-        <button
-          type="button"
-          className="mt-4 w-full text-xs text-muted-foreground underline-offset-4 hover:underline"
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-        >
-          {mode === "signin" ? "Need an operator account?" : "Already have an account?"}
-        </button>
+        {bootstrapped ? (
+          <p className="mt-4 text-center font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
+            Operator already configured
+          </p>
+        ) : (
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            No operator exists yet. The first account registered becomes the primary operator
+            (OWNER).
+          </p>
+        )}
       </div>
     </div>
   );
