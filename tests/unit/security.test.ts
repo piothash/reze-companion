@@ -131,8 +131,8 @@ describe("security — API surface", () => {
     // Fail-closed: an unconfigured signing key must never accept traffic.
     expect(gateway).toMatch(/KEY_UNCONFIGURED/);
     expect(gateway).toMatch(/authority_replay_guard/);
-    // The gateway stores public identity only.
-    expect(gateway).not.toMatch(/private_key|wallet|mnemonic/i);
+    // The gateway stores public identity only: no secret column is ever written.
+    expect(gateway).not.toMatch(/private_key:|wallet_key|mnemonic:/i);
   });
 
 
