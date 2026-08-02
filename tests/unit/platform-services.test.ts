@@ -154,12 +154,16 @@ function buildStream(): EventEnvelope[] {
       reasonCode: "EXE_COMPLETED",
       payload: {
         executionIntentId: "int-1",
+        outcomeKey: "UP",
         filled: true,
         partiallyFilled: false,
         averagePrice: 0.52,
         filledQuantity: 20,
+        cumulativeFilledQuantity: 20,
+        cumulativeNotional: 10.4,
         orders: [{ orderId: "ord-1" }],
       },
+
     }),
   );
   events.push(
