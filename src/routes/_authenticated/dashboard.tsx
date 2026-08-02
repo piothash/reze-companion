@@ -7,6 +7,14 @@ import { Countdown, EmptyState, LoadingState, Metric, Panel, StatusPill } from "
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getHealthReport, getOperationsSnapshot, getSystemInfo } from "@/lib/operations.functions";
 import { listReplayRuns } from "@/lib/platform.functions";
+import {
+  LiveFeedPanel,
+  LiveRuntimePanel,
+  LiveWindowsPanel,
+  TelemetrySourcePill,
+  useRuntimeTelemetry,
+} from "@/components/arc/runtime-telemetry";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
