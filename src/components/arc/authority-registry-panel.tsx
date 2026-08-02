@@ -43,7 +43,15 @@ function uptime(seconds: number | null): string {
   return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
 }
 
-function Field({ label, value, tone }: { label: string; value: string; tone?: string }) {
+function Field({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: string | undefined;
+}) {
   return (
     <div>
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
