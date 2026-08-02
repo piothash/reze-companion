@@ -28,6 +28,7 @@ import {
   readActiveConfiguration,
   type AuthorityEndpoint,
 } from "./configuration-authority.server";
+import { recordOperatorAudit } from "./audit-trail.server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
 type AnyClient = any;
@@ -329,18 +330,13 @@ export async function runConfigurationSync(
     ]);
   }
 
-  await client.from("audit_log").insert({
-    user_id: userId,
+  await recordOperatorAudit(client, userId, {
     action: `configuration.${request.origin.toLowerCase()}.${outcome.kind.toLowerCase()}`,
-    entity: "configuration_version",
-    entity_id: String(version),
-    metadata: {
-      configHash,
-      reasonCode: outcome.reasonCode,
-      detail: outcome.detail,
-      snapshotId,
-      correlationId,
-    },
+    resource: "configuration_version",
+    resourceId: String(version),
+    result: outcome.kind === "REJECTED" ? "REJECTED" : "SUCCESS",
+    correlationId,
+    detail: { configHash, reasonCode: outcome.reasonCode, detail: outcome.detail, snapshotId },
   });
 
   return {
@@ -467,12 +463,12 @@ export async function archiveVersion(
     }),
   ]);
 
-  await client.from("audit_log").insert({
-    user_id: userId,
+  await recordOperatorAudit(client, userId, {
     action: "configuration.archive.applied",
-    entity: "configuration_version",
-    entity_id: String(version),
-    metadata: { configHash: data.config_hash },
+    resource: "configuration_version",
+    resourceId: String(version),
+    correlationId: (data.correlation_id as string | null) ?? null,
+    detail: { configHash: data.config_hash },
   });
 
   return { version, status: "ARCHIVED", reasonCode: "CFG_ARCHIVED" };

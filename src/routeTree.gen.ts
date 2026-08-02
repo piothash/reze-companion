@@ -16,11 +16,13 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedConfigurationRouteImport } from './routes/_authenticated/configuration'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDeploymentRouteImport } from './routes/_authenticated/deployment'
 import { Route as AuthenticatedEngineRegistrationRouteImport } from './routes/_authenticated/engine-registration'
 import { Route as AuthenticatedExecutionProfilesRouteImport } from './routes/_authenticated/execution-profiles'
 import { Route as AuthenticatedHealthRouteImport } from './routes/_authenticated/health'
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedOperationsRouteImport } from './routes/_authenticated/operations'
 import { Route as AuthenticatedOwnershipRouteImport } from './routes/_authenticated/ownership'
 import { Route as AuthenticatedQualificationRouteImport } from './routes/_authenticated/qualification'
 import { Route as AuthenticatedReplayRouteImport } from './routes/_authenticated/replay'
@@ -72,6 +74,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDeploymentRoute = AuthenticatedDeploymentRouteImport.update({
+  id: '/deployment',
+  path: '/deployment',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEngineRegistrationRoute =
   AuthenticatedEngineRegistrationRouteImport.update({
     id: '/engine-registration',
@@ -100,6 +107,11 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOperationsRoute = AuthenticatedOperationsRouteImport.update({
+  id: '/operations',
+  path: '/operations',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOwnershipRoute = AuthenticatedOwnershipRouteImport.update({
   id: '/ownership',
   path: '/ownership',
@@ -188,11 +200,13 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuthenticatedAuditRoute
   '/configuration': typeof AuthenticatedConfigurationRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/deployment': typeof AuthenticatedDeploymentRoute
   '/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/operations': typeof AuthenticatedOperationsRoute
   '/ownership': typeof AuthenticatedOwnershipRoute
   '/qualification': typeof AuthenticatedQualificationRoute
   '/replay': typeof AuthenticatedReplayRoute
@@ -216,11 +230,13 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditRoute
   '/configuration': typeof AuthenticatedConfigurationRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/deployment': typeof AuthenticatedDeploymentRoute
   '/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/operations': typeof AuthenticatedOperationsRoute
   '/ownership': typeof AuthenticatedOwnershipRoute
   '/qualification': typeof AuthenticatedQualificationRoute
   '/replay': typeof AuthenticatedReplayRoute
@@ -246,11 +262,13 @@ export interface FileRoutesById {
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/configuration': typeof AuthenticatedConfigurationRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/deployment': typeof AuthenticatedDeploymentRoute
   '/_authenticated/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/_authenticated/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/_authenticated/health': typeof AuthenticatedHealthRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/operations': typeof AuthenticatedOperationsRoute
   '/_authenticated/ownership': typeof AuthenticatedOwnershipRoute
   '/_authenticated/qualification': typeof AuthenticatedQualificationRoute
   '/_authenticated/replay': typeof AuthenticatedReplayRoute
@@ -276,11 +294,13 @@ export interface FileRouteTypes {
     | '/audit'
     | '/configuration'
     | '/dashboard'
+    | '/deployment'
     | '/engine-registration'
     | '/execution-profiles'
     | '/health'
     | '/markets'
     | '/notifications'
+    | '/operations'
     | '/ownership'
     | '/qualification'
     | '/replay'
@@ -304,11 +324,13 @@ export interface FileRouteTypes {
     | '/audit'
     | '/configuration'
     | '/dashboard'
+    | '/deployment'
     | '/engine-registration'
     | '/execution-profiles'
     | '/health'
     | '/markets'
     | '/notifications'
+    | '/operations'
     | '/ownership'
     | '/qualification'
     | '/replay'
@@ -333,11 +355,13 @@ export interface FileRouteTypes {
     | '/_authenticated/audit'
     | '/_authenticated/configuration'
     | '/_authenticated/dashboard'
+    | '/_authenticated/deployment'
     | '/_authenticated/engine-registration'
     | '/_authenticated/execution-profiles'
     | '/_authenticated/health'
     | '/_authenticated/markets'
     | '/_authenticated/notifications'
+    | '/_authenticated/operations'
     | '/_authenticated/ownership'
     | '/_authenticated/qualification'
     | '/_authenticated/replay'
@@ -420,6 +444,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/deployment': {
+      id: '/_authenticated/deployment'
+      path: '/deployment'
+      fullPath: '/deployment'
+      preLoaderRoute: typeof AuthenticatedDeploymentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/engine-registration': {
       id: '/_authenticated/engine-registration'
       path: '/engine-registration'
@@ -453,6 +484,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/operations': {
+      id: '/_authenticated/operations'
+      path: '/operations'
+      fullPath: '/operations'
+      preLoaderRoute: typeof AuthenticatedOperationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ownership': {
@@ -568,11 +606,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedConfigurationRoute: typeof AuthenticatedConfigurationRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDeploymentRoute: typeof AuthenticatedDeploymentRoute
   AuthenticatedEngineRegistrationRoute: typeof AuthenticatedEngineRegistrationRoute
   AuthenticatedExecutionProfilesRoute: typeof AuthenticatedExecutionProfilesRoute
   AuthenticatedHealthRoute: typeof AuthenticatedHealthRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedOperationsRoute: typeof AuthenticatedOperationsRoute
   AuthenticatedOwnershipRoute: typeof AuthenticatedOwnershipRoute
   AuthenticatedQualificationRoute: typeof AuthenticatedQualificationRoute
   AuthenticatedReplayRoute: typeof AuthenticatedReplayRoute
@@ -587,11 +627,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedConfigurationRoute: AuthenticatedConfigurationRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDeploymentRoute: AuthenticatedDeploymentRoute,
   AuthenticatedEngineRegistrationRoute: AuthenticatedEngineRegistrationRoute,
   AuthenticatedExecutionProfilesRoute: AuthenticatedExecutionProfilesRoute,
   AuthenticatedHealthRoute: AuthenticatedHealthRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedOperationsRoute: AuthenticatedOperationsRoute,
   AuthenticatedOwnershipRoute: AuthenticatedOwnershipRoute,
   AuthenticatedQualificationRoute: AuthenticatedQualificationRoute,
   AuthenticatedReplayRoute: AuthenticatedReplayRoute,

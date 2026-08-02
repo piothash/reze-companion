@@ -16,4 +16,6 @@ export * from "./recovery";
 export * from "./analytics";
 export * from "./notifications";
 export * from "./audit";
+export * from "./audit-record";
+export * from "./operator-incident";
 export * from "./sync";

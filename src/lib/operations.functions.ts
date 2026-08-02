@@ -184,12 +184,12 @@ export const saveExecutionProfileConfig = createServerFn({ method: "POST" })
       : await client.from("configuration_profiles").insert(payload);
     if (result.error) throw new Error(`execution profile not saved: ${result.error.message}`);
 
-    await client.from("audit_log").insert({
-      user_id: context.userId,
+    const { recordOperatorAudit } = await import("./audit-trail.server");
+    await recordOperatorAudit(client, context.userId, {
       action: "configuration.execution_profile.updated",
-      entity: "execution_profile",
-      entity_id: profile.executionProfileId,
-      metadata: {
+      resource: "execution_profile",
+      resourceId: profile.executionProfileId,
+      detail: {
         executionMode: profile.executionMode,
         windows: profile.windows.length,
         digest: executionProfileDigest(profile),
