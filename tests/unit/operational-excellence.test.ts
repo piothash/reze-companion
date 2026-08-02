@@ -258,22 +258,22 @@ describe("graceful shutdown", () => {
 
 describe("graceful restart", () => {
   function stream() {
-    const factory = new EventEnvelopeFactory(new FixedClock(0), "trade");
+    const factory = new EventEnvelopeFactory(new FixedClock(0), "decision");
     return [
       factory.create({
-        type: "trade.intent.created",
+        type: "decision.intent.created",
         payload: { intentId: "intent-1" },
         correlationId: "corr-restart",
-        source: "trade",
-        reasonCode: "EXE_INTENT_CREATED",
+        source: "decision",
+        reasonCode: "DEC_INTENT_CREATED",
         executionIntentId: "intent-1",
       }),
       factory.create({
-        type: "trade.intent.created",
+        type: "decision.intent.created",
         payload: { intentId: "intent-2" },
         correlationId: "corr-restart",
-        source: "trade",
-        reasonCode: "EXE_INTENT_CREATED",
+        source: "decision",
+        reasonCode: "DEC_INTENT_CREATED",
         executionIntentId: "intent-2",
       }),
     ];
@@ -291,21 +291,21 @@ describe("graceful restart", () => {
   it("suppresses business events the stream already contains", () => {
     const events = stream();
     const { guard } = restoreAfterRestart(events, { clock: new FixedClock(0) });
-    const factory = new EventEnvelopeFactory(new FixedClock(0), "trade");
+    const factory = new EventEnvelopeFactory(new FixedClock(0), "decision");
     const replayCandidate = factory.create({
-      type: "trade.intent.created",
+      type: "decision.intent.created",
       payload: { intentId: "intent-1" },
       correlationId: "corr-restart",
-      source: "trade",
-      reasonCode: "EXE_INTENT_CREATED",
+      source: "decision",
+      reasonCode: "DEC_INTENT_CREATED",
       executionIntentId: "intent-1",
     });
     const freshCandidate = factory.create({
-      type: "trade.intent.created",
+      type: "decision.intent.created",
       payload: { intentId: "intent-9" },
       correlationId: "corr-restart",
-      source: "trade",
-      reasonCode: "EXE_INTENT_CREATED",
+      source: "decision",
+      reasonCode: "DEC_INTENT_CREATED",
       executionIntentId: "intent-9",
     });
 
