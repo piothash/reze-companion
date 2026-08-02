@@ -116,6 +116,72 @@ export type Database = {
         }
         Relationships: []
       }
+      configuration_versions: {
+        Row: {
+          applied_at: string | null
+          config: Json
+          config_hash: string
+          correlation_id: string
+          created_at: string
+          created_by: string
+          engine_version: string | null
+          execution_profile_id: string
+          id: string
+          origin: string
+          platform_version: string | null
+          profile_name: string
+          reason_code: string
+          rejection_reason: string | null
+          snapshot_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          applied_at?: string | null
+          config: Json
+          config_hash: string
+          correlation_id: string
+          created_at?: string
+          created_by: string
+          engine_version?: string | null
+          execution_profile_id: string
+          id?: string
+          origin?: string
+          platform_version?: string | null
+          profile_name: string
+          reason_code?: string
+          rejection_reason?: string | null
+          snapshot_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          version: number
+        }
+        Update: {
+          applied_at?: string | null
+          config?: Json
+          config_hash?: string
+          correlation_id?: string
+          created_at?: string
+          created_by?: string
+          engine_version?: string | null
+          execution_profile_id?: string
+          id?: string
+          origin?: string
+          platform_version?: string | null
+          profile_name?: string
+          reason_code?: string
+          rejection_reason?: string | null
+          snapshot_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       engine_endpoints: {
         Row: {
           base_url: string
@@ -488,6 +554,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      runtime_configuration_state: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          config_hash: string | null
+          created_at: string
+          endpoint_id: string | null
+          engine_version: string | null
+          execution_profile_id: string | null
+          id: string
+          last_synced_at: string
+          payload: Json
+          platform_version: string | null
+          profile_name: string
+          reason_code: string | null
+          runtime_status: string
+          snapshot_id: string | null
+          updated_at: string
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          config_hash?: string | null
+          created_at?: string
+          endpoint_id?: string | null
+          engine_version?: string | null
+          execution_profile_id?: string | null
+          id?: string
+          last_synced_at?: string
+          payload?: Json
+          platform_version?: string | null
+          profile_name: string
+          reason_code?: string | null
+          runtime_status?: string
+          snapshot_id?: string | null
+          updated_at?: string
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          config_hash?: string | null
+          created_at?: string
+          endpoint_id?: string | null
+          engine_version?: string | null
+          execution_profile_id?: string | null
+          id?: string
+          last_synced_at?: string
+          payload?: Json
+          platform_version?: string | null
+          profile_name?: string
+          reason_code?: string | null
+          runtime_status?: string
+          snapshot_id?: string | null
+          updated_at?: string
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "runtime_configuration_state_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "engine_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
