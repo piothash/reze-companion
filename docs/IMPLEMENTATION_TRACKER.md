@@ -196,14 +196,14 @@ Implementation notes:
 | Risk Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | Execution Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | Settlement Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Ledger | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Replay Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Analytics | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Notification Engine | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| API Layer | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Signal Tank | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Trade Inspector | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Ops Deck | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| Ledger | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Replay Engine | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Analytics | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Notification Engine | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| API Layer | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Signal Tank | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Trade Inspector | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Ops Deck | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Column meaning:
 
@@ -236,3 +236,23 @@ Column meaning:
 | Health surface observable | `GET /api/public/health` returns status, dependencies and version manifest |
 | Migration audit written | `docs/migration/reze-audit.md` |
 | No trading logic added | Audit §1 classifies every engine trading component as REMOVE |
+
+---
+
+## 5. M6 Evidence Log — Production Hardening
+
+| Claim | Evidence |
+|---|---|
+| Architecture conformance automated | `tests/unit/architecture.test.ts` — layer direction, charter, no reference imports, no TODO markers |
+| Security conformance automated | `tests/unit/security.test.ts` — secrets, authn on every server fn, input validation, public-route hygiene |
+| Recovery validated at every restart boundary | `src/core/platform/recovery.ts`, `tests/unit/recovery.test.ts` (13 tests); `docs/RECOVERY_VALIDATION_REPORT.md` |
+| Replay deterministic and idempotent | `tests/unit/replay-validation.test.ts` (7 tests); `docs/REPLAY_VALIDATION_REPORT.md` |
+| Configuration fully externalised | `tests/unit/hardening.test.ts` — fails if a business default is hardcoded |
+| Performance budgets met | `tests/unit/hardening.test.ts`; `docs/PERFORMANCE_REPORT.md` |
+| Supabase indexed for console paths | migration adding 9 indexes; `docs/PERFORMANCE_REPORT.md` §Index additions |
+| Duplicate suppression fixed | ledger dedupes by `recordId`; recovery dedupes by `eventId`; malformed payloads skipped, not fatal |
+| Full suite green | `bunx vitest run` — 209 tests / 16 files passing; lint + typecheck + build clean |
+| VPS deployment documented | `docs/VPS_DEPLOYMENT.md` |
+| Production gate | `docs/PRODUCTION_READINESS_REPORT.md` — all subsystems Production Ready |
+
+**M6 status: complete. Companion control plane is production ready and awaiting qualification.**
