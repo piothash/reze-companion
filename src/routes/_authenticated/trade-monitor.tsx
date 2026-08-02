@@ -6,6 +6,7 @@ import { OperatorShell } from "@/components/arc/operator-shell";
 import { EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
+import { getLedgerSummary } from "@/lib/platform.functions";
 
 export const Route = createFileRoute("/_authenticated/trade-monitor")({
   head: () => ({
@@ -37,7 +38,15 @@ function TradeMonitorPage() {
     refetchInterval: 15_000,
   });
 
+  const fetchLedger = useServerFn(getLedgerSummary);
+  const ledger = useQuery({
+    queryKey: ["arc", "ledger"],
+    queryFn: () => fetchLedger(),
+    refetchInterval: 60_000,
+  });
+
   const executions = data?.projection.executions ?? [];
+  const ledgerRecords = ledger.data?.records ?? [];
 
   return (
     <OperatorShell
@@ -99,7 +108,35 @@ function TradeMonitorPage() {
                 ]}
               />
 
-              <h3 className="label-caps mt-4">Timeline</h3>
+              <h3 className="label-caps mt-4">Ledger Entries</h3>
+              {ledgerRecords.filter(
+                (record) => record.executionIntentId === execution.executionIntentId,
+              ).length === 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  No ledger records reconstructed for this intent.
+                </p>
+              ) : (
+                <ul className="mt-2 space-y-1 font-mono text-xs">
+                  {ledgerRecords
+                    .filter((record) => record.executionIntentId === execution.executionIntentId)
+                    .map((record) => (
+                      <li
+                        key={record.recordId}
+                        className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-border/60 pb-1"
+                      >
+                        <span className="truncate">
+                          {record.kind} · qty {fmt(record.quantity, 4)} @ {fmt(record.price)} · fees{" "}
+                          {fmt(record.fees, 2)} · pnl {fmt(record.realizedPnl, 2)}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {fmtTime(record.occurredAtIso)}
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              )}
+
+              <h3 className="label-caps mt-4">Execution Timeline</h3>
               <ol className="mt-2 space-y-1 font-mono text-xs">
                 {execution.timeline.map((entry) => (
                   <li

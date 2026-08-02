@@ -47,12 +47,25 @@ function SystemPage() {
         <EmptyState message="Loading system information…" />
       ) : (
         <div className="space-y-4">
-          <Panel title="Build">
+          <Panel title="Platform Identity">
             <KeyValue
               rows={[
+                ["Platform Version", data?.platformVersion ?? "—"],
+                ["Engine Versions", data?.engineVersion ?? "—"],
+                ["Configuration Version", data?.configurationVersion ?? "—"],
+                ["Replay Version", data?.replayVersion ?? "—"],
+                ["Event Schema Version", data?.eventSchemaVersion ?? "—"],
                 ["Environment", data?.environment ?? "—"],
+              ]}
+            />
+          </Panel>
+          <Panel title="Build Information">
+            <KeyValue
+              rows={[
                 ["Network", data?.network ?? "—"],
                 ["Runtime", data?.runtime ?? "—"],
+                ["Git Commit", data?.gitCommit ?? "not exposed by build"],
+                ["Deployment Timestamp", fmtTime(data?.deployedAtIso ?? null)],
                 ["Observed", fmtTime(data?.buildIso ?? null)],
               ]}
             />

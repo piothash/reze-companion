@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { OperatorShell } from "@/components/arc/operator-shell";
 import { EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
-import { getConfigurationView } from "@/lib/operations.functions";
+import { getConfigurationView, getExecutionProfileConfig } from "@/lib/operations.functions";
 import {
   Table,
   TableBody,
@@ -58,12 +58,41 @@ interface ProfileRow {
   updated_at: string;
 }
 
+interface ExecutionProfileSummary {
+  executionProfileId: string;
+  executionMode: string;
+  maxTrades: number;
+  positionSize: number;
+  retryCount: number;
+  timeoutMillis: number;
+  windowActiveMillis: number;
+  repricingIntervalMillis: number;
+  bufferMode: string;
+  minLiquidity: number;
+  maxSpread: number;
+  windows: {
+    offset: number;
+    unit: string;
+    enabled: boolean;
+    twapBuffer: number;
+    positionSizeOverride: number | null;
+    retryCountOverride: number | null;
+  }[];
+}
+
 function ConfigurationPage() {
   const fetchConfig = useServerFn(getConfigurationView);
   const { data, isPending } = useQuery({
     queryKey: ["arc", "configuration"],
     queryFn: () => fetchConfig(),
   });
+
+  const fetchProfile = useServerFn(getExecutionProfileConfig);
+  const profileQuery = useQuery({
+    queryKey: ["arc", "execution-profile"],
+    queryFn: () => fetchProfile(),
+  });
+  const profile = profileQuery.data?.profile as unknown as ExecutionProfileSummary | undefined;
 
   const flags = (data?.featureFlags ?? []) as unknown as FlagRow[];
   const endpoints = (data?.endpoints ?? []) as unknown as EndpointRow[];
@@ -80,12 +109,71 @@ function ConfigurationPage() {
               rows={[
                 ["Environment", data?.environment ?? "—"],
                 ["Network", data?.network ?? "—"],
-                ["Feed Provider", data?.feedProvider ?? "—"],
+                ["TWAP Feed Provider", data?.feedProvider ?? "—"],
+                ["Feed ID", data?.feedId ?? "—"],
                 ["Execution Profile Version", data?.versions.executionProfile ?? "—"],
                 ["Buffer Profile Version", data?.versions.bufferProfile ?? "—"],
                 ["Risk Profile Version", data?.versions.riskProfile ?? "—"],
               ]}
             />
+          </Panel>
+
+          <Panel title="Execution Defaults" className="overflow-x-auto">
+            {profileQuery.isPending || !profile ? (
+              <EmptyState message="Loading execution profile…" />
+            ) : (
+              <>
+                <KeyValue
+                  rows={[
+                    ["Execution Profile", profile.executionProfileId],
+                    ["Execution Mode", profile.executionMode],
+                    ["Trade Quota (max trades)", String(profile.maxTrades)],
+                    ["Default Position Size", String(profile.positionSize)],
+                    ["Default Retry Count", String(profile.retryCount)],
+                    ["Order Timeout", `${profile.timeoutMillis} ms`],
+                    ["Window Active", `${profile.windowActiveMillis} ms`],
+                    ["Repricing Interval", `${profile.repricingIntervalMillis} ms`],
+                    ["Buffer Profile Mode", profile.bufferMode],
+                    ["Min Liquidity", String(profile.minLiquidity)],
+                    ["Max Spread", String(profile.maxSpread)],
+                    ["Configuration Digest", profileQuery.data?.digest ?? "—"],
+                  ]}
+                />
+                <Table className="mt-4">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Window</TableHead>
+                      <TableHead>Enabled</TableHead>
+                      <TableHead>Offset</TableHead>
+                      <TableHead>TWAP Buffer</TableHead>
+                      <TableHead>Position Size</TableHead>
+                      <TableHead>Retry</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {profile.windows.map((window, index) => (
+                      <TableRow key={`${window.offset}${window.unit}-${index}`}>
+                        <TableCell className="font-mono text-xs">W{index + 1}</TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {window.enabled ? "yes" : "no"}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {window.offset}
+                          {window.unit}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">{window.twapBuffer}</TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {window.positionSizeOverride ?? `${profile.positionSize} (inherited)`}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {window.retryCountOverride ?? `${profile.retryCount} (inherited)`}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
+            )}
           </Panel>
 
           <Panel title="Feature Flags">

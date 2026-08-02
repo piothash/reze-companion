@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
+import { Countdown, EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 import {
@@ -76,6 +76,8 @@ function WindowsPage() {
                   <TableHead>State</TableHead>
                   <TableHead>Buffer</TableHead>
                   <TableHead>Quota</TableHead>
+                  <TableHead>Timer</TableHead>
+                  <TableHead>Intent</TableHead>
                   <TableHead>Completion</TableHead>
                 </TableRow>
               </TableHeader>
@@ -92,6 +94,12 @@ function WindowsPage() {
                     <TableCell className="font-mono text-xs">
                       {fmtInt(window.tradeQuotaAtCreation)} →{" "}
                       {fmtInt(window.tradeQuotaAtCompletion)}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      <Countdown toIso={window.expiresAtIso} />
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {window.executionIntentId ?? "—"}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {window.completionReason ?? "—"}
@@ -129,6 +137,8 @@ function WindowsPage() {
                   ["Completed", fmtTime(window.completedAtIso)],
                   ["Evaluations", fmtInt(window.evaluationCount)],
                   ["Correlation ID", window.correlationId],
+                  ["Timer — Activates In", <Countdown key="act" toIso={window.activatesAtIso} />],
+                  ["Timer — Expires In", <Countdown key="exp" toIso={window.expiresAtIso} />],
                 ]}
               />
             </Panel>

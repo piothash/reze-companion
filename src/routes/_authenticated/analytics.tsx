@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Metric, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, Metric, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmt, fmtInt, fmtPct, fmtTime } from "@/lib/format";
 import { getAnalyticsSummary, getLedgerSummary } from "@/lib/platform.functions";
 import {
@@ -71,7 +71,7 @@ function AnalyticsPage() {
             <Metric label="Buffer Efficiency" value={fmtPct(metrics?.bufferEfficiency ?? null)} />
             <Metric label="Average Slippage" value={fmt(metrics?.averageSlippage ?? null)} />
             <Metric
-              label="Avg Fill Latency"
+              label="Execution Latency"
               value={
                 metrics?.averageFillLatencyMillis === null ||
                 metrics?.averageFillLatencyMillis === undefined
@@ -164,9 +164,20 @@ function AnalyticsPage() {
             {ledger.isPending ? (
               <EmptyState message="Loading ledger…" />
             ) : (
-              <pre className="overflow-x-auto font-mono text-xs text-muted-foreground">
-                {JSON.stringify(ledger.data?.summary ?? {}, null, 2)}
-              </pre>
+              <KeyValue
+                rows={[
+                  ["Ledger Version", ledger.data?.summary.ledgerVersion ?? "—"],
+                  ["Records", fmtInt(ledger.data?.summary.recordCount)],
+                  ["Trades", fmtInt(ledger.data?.summary.tradeCount)],
+                  ["Settlements", fmtInt(ledger.data?.summary.settlementCount)],
+                  ["Total Quantity", fmt(ledger.data?.summary.totalQuantity, 4)],
+                  ["Total Notional", fmt(ledger.data?.summary.totalNotional, 2)],
+                  ["Total Fees", fmt(ledger.data?.summary.totalFees, 2)],
+                  ["Realized PnL", fmt(ledger.data?.summary.realizedPnl, 2)],
+                  ["First Record", fmtTime(ledger.data?.summary.firstRecordAtIso)],
+                  ["Last Record", fmtTime(ledger.data?.summary.lastRecordAtIso)],
+                ]}
+              />
             )}
           </Panel>
         </div>
