@@ -248,9 +248,11 @@ export const getSystemInfo = createServerFn({ method: "GET" })
     const { VERSION_REGISTRY } = await import("@/core/contracts/versions");
     const { resolveOperatorBootstrapState } = await import("@/lib/auth-state.server");
     const { probeBackend } = await import("@/lib/supabase/backend.server");
-    const [authentication, backend] = await Promise.all([
+    const { probeMigrationReadiness } = await import("@/lib/migration-readiness.server");
+    const [authentication, backend, migration] = await Promise.all([
       resolveOperatorBootstrapState(),
       probeBackend(),
+      probeMigrationReadiness(),
     ]);
     return {
       versions: Object.values(VERSION_REGISTRY).map((spec) => ({
@@ -272,6 +274,7 @@ export const getSystemInfo = createServerFn({ method: "GET" })
       buildIso: new Date().toISOString(),
       authentication,
       backend,
+      migration,
     };
   });
 

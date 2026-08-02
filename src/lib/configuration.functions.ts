@@ -73,6 +73,8 @@ export const publishConfigurationVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => publishInput.parse(input))
   .handler(async ({ data, context }) => {
+    const { assertCutoverSafe } = await import("./supabase/backend.server");
+    assertCutoverSafe("configuration-publish");
     const { runConfigurationSync } = await import("./configuration-sync.server");
     return runConfigurationSync(context.supabase as AnyClient, context.userId, {
       candidate: data.profile,
@@ -96,6 +98,8 @@ export const activateConfigurationVersion = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    const { assertCutoverSafe } = await import("./supabase/backend.server");
+    assertCutoverSafe("configuration-publish");
     const { runConfigurationSync } = await import("./configuration-sync.server");
     return runConfigurationSync(context.supabase as AnyClient, context.userId, {
       sourceVersion: data.version,
@@ -110,6 +114,8 @@ export const archiveConfigurationVersion = createServerFn({ method: "POST" })
     z.object({ version: z.number().int().positive() }).parse(input),
   )
   .handler(async ({ data, context }) => {
+    const { assertCutoverSafe } = await import("./supabase/backend.server");
+    assertCutoverSafe("configuration-publish");
     const { archiveVersion } = await import("./configuration-sync.server");
     return archiveVersion(context.supabase as AnyClient, context.userId, data.version);
   });
