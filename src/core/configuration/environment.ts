@@ -95,9 +95,7 @@ export type ArcEnv = z.infer<typeof envSchema>;
 
 export class EnvironmentValidationError extends Error {
   constructor(readonly issues: { path: string; message: string }[]) {
-    super(
-      `ARC environment invalid — ${issues.map((i) => `${i.path}: ${i.message}`).join("; ")}`,
-    );
+    super(`ARC environment invalid — ${issues.map((i) => `${i.path}: ${i.message}`).join("; ")}`);
     this.name = "EnvironmentValidationError";
   }
 }
@@ -160,7 +158,10 @@ export function configFromEnv(env: ArcEnv, overrides: Record<string, unknown> = 
       initialDelayMillis: env.ARC_RETRY_INITIAL_DELAY_MS,
       maxDelayMillis: env.ARC_RETRY_MAX_DELAY_MS,
     }),
-    replay: defined({ enabled: env.ARC_REPLAY_ENABLED, clockOriginIso: env.ARC_REPLAY_CLOCK_ORIGIN }),
+    replay: defined({
+      enabled: env.ARC_REPLAY_ENABLED,
+      clockOriginIso: env.ARC_REPLAY_CLOCK_ORIGIN,
+    }),
     featureFlags: {},
     ...defined({ activeExecutionProfileId: env.ARC_EXECUTION_PROFILE_ID }),
     ...overrides,
@@ -170,8 +171,12 @@ export function configFromEnv(env: ArcEnv, overrides: Record<string, unknown> = 
 }
 
 /** Convenience: environment → validated configuration, failing fast on both. */
-export function bootstrapConfig(source: EnvSource, overrides: Record<string, unknown> = {}): ArcConfig {
+export function bootstrapConfig(
+  source: EnvSource,
+  overrides: Record<string, unknown> = {},
+): ArcConfig {
   return configFromEnv(loadEnv(source), overrides);
 }
 
-export const ENV_KEYS = Object.keys(arcConfigSchema.shape).length > 0 ? Object.keys(envSchema.shape) : [];
+export const ENV_KEYS =
+  Object.keys(arcConfigSchema.shape).length > 0 ? Object.keys(envSchema.shape) : [];

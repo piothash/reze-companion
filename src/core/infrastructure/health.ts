@@ -117,7 +117,11 @@ export class HealthRegistry {
       criticalStatus === "healthy" && anyStatus !== "healthy" ? "degraded" : criticalStatus;
 
     const reasonCode: ReasonCode =
-      status === "healthy" ? "HLT_HEALTHY" : status === "degraded" ? "HLT_DEGRADED" : "HLT_UNAVAILABLE";
+      status === "healthy"
+        ? "HLT_HEALTHY"
+        : status === "degraded"
+          ? "HLT_DEGRADED"
+          : "HLT_UNAVAILABLE";
 
     return {
       status,

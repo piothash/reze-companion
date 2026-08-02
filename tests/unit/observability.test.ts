@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { HealthRegistry, stalenessStatus, withTimeout, worstStatus } from "@/core/infrastructure/health";
+import {
+  HealthRegistry,
+  stalenessStatus,
+  withTimeout,
+  worstStatus,
+} from "@/core/infrastructure/health";
 import { Logger, MemoryTransport, redact } from "@/core/infrastructure/logging";
 import { createMetricsRegistry } from "@/core/infrastructure/metrics";
 import { bootstrapConfig } from "@/core/configuration/environment";
@@ -29,10 +34,10 @@ describe("structured logging", () => {
   });
 
   it("redacts secret-shaped keys at any depth", () => {
-    const redacted = redact(
-      { apiKey: "abc", nested: { privateKey: "xyz", safe: 1 } },
-      ["apiKey", "privateKey"],
-    ) as Record<string, unknown>;
+    const redacted = redact({ apiKey: "abc", nested: { privateKey: "xyz", safe: 1 } }, [
+      "apiKey",
+      "privateKey",
+    ]) as Record<string, unknown>;
     expect(redacted["apiKey"]).toBe("[redacted]");
     expect((redacted["nested"] as Record<string, unknown>)["privateKey"]).toBe("[redacted]");
     expect((redacted["nested"] as Record<string, unknown>)["safe"]).toBe(1);
@@ -94,7 +99,10 @@ describe("metrics", () => {
 describe("health", () => {
   it("reports healthy when every dependency is healthy", async () => {
     const registry = new HealthRegistry(config.health, new FixedClock(0));
-    registry.register({ name: "engine", check: async () => ({ status: "healthy", reasonCode: "HLT_HEALTHY" }) });
+    registry.register({
+      name: "engine",
+      check: async () => ({ status: "healthy", reasonCode: "HLT_HEALTHY" }),
+    });
     const report = await registry.report();
     expect(report.status).toBe("healthy");
   });
@@ -128,7 +136,9 @@ describe("health", () => {
   it("classifies staleness against a budget", () => {
     const now = 10_000;
     expect(stalenessStatus(new Date(now - 100).toISOString(), 1_000, now).status).toBe("healthy");
-    expect(stalenessStatus(new Date(now - 9_000).toISOString(), 1_000, now).status).toBe("unavailable");
+    expect(stalenessStatus(new Date(now - 9_000).toISOString(), 1_000, now).status).toBe(
+      "unavailable",
+    );
     expect(stalenessStatus(null, 1_000, now).status).toBe("unavailable");
   });
 

@@ -38,8 +38,7 @@ export function fromIsoUtc(iso: string): EpochMillis {
 /** Production clock. The only place in ARC allowed to read the host clock. */
 export class SystemClock implements Clock {
   private readonly origin = Date.now();
-  private readonly originHr =
-    typeof performance !== "undefined" ? performance.now() : 0;
+  private readonly originHr = typeof performance !== "undefined" ? performance.now() : 0;
 
   now(): EpochMillis {
     return Date.now();

@@ -7,7 +7,11 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { parseConfigOrThrow, executionProfileSchema, type ExecutionProfile } from "../configuration/schema";
+import {
+  parseConfigOrThrow,
+  executionProfileSchema,
+  type ExecutionProfile,
+} from "../configuration/schema";
 import {
   type AuditRecord,
   type AuditRepository,
@@ -58,7 +62,9 @@ export class SupabaseConfigurationRepository implements ConfigurationRepository 
   }
 
   async listSnapshots(): Promise<ConfigurationSnapshot[]> {
-    const { data, error } = await this.table().select("*").order("created_at", { ascending: false });
+    const { data, error } = await this.table()
+      .select("*")
+      .order("created_at", { ascending: false });
     if (error) throw new Error(`configuration snapshots unavailable: ${error.message}`);
     return ((data ?? []) as ProfileRow[]).map(toSnapshot);
   }

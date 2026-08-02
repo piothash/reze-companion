@@ -67,7 +67,9 @@ export const loggingSectionSchema = z.object({
   level: z.enum(LOG_LEVELS).default("info"),
   /** Structured JSON is mandatory in every environment except local debug. */
   format: z.enum(["json", "pretty"]).default("json"),
-  redactKeys: z.array(z.string().min(1)).default(["authorization", "apikey", "token", "secret", "password"]),
+  redactKeys: z
+    .array(z.string().min(1))
+    .default(["authorization", "apikey", "token", "secret", "password"]),
 });
 
 export const metricsSectionSchema = z.object({

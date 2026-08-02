@@ -73,7 +73,9 @@ describe("scheduler", () => {
 
   it("reports clock skew beyond tolerance without correcting it", () => {
     const { scheduler, clock } = harness();
-    const skew = scheduler.checkClockSkew(clock.now() + config.scheduler.clockSkewToleranceMillis + 1);
+    const skew = scheduler.checkClockSkew(
+      clock.now() + config.scheduler.clockSkewToleranceMillis + 1,
+    );
     expect(skew.withinTolerance).toBe(false);
   });
 });
@@ -111,7 +113,13 @@ describe("state machine framework", () => {
     const guarded = defineStateMachine<DoorState, DoorEvent>({
       ...doorMachine,
       transitions: [
-        { from: "closed", event: "OPEN", to: "open", reasonCode: "FSM_TRANSITION", guard: () => false },
+        {
+          from: "closed",
+          event: "OPEN",
+          to: "open",
+          reasonCode: "FSM_TRANSITION",
+          guard: () => false,
+        },
       ],
     });
     const machine = new StateMachine(guarded, new FixedClock(0));

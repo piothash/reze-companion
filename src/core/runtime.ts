@@ -8,7 +8,12 @@
 import { bootstrapConfig, type EnvSource } from "./configuration/environment";
 import { type ArcConfig } from "./configuration/schema";
 import { HealthRegistry, type HealthReport } from "./infrastructure/health";
-import { createLogger, JsonConsoleTransport, type Logger, type LogTransport } from "./infrastructure/logging";
+import {
+  createLogger,
+  JsonConsoleTransport,
+  type Logger,
+  type LogTransport,
+} from "./infrastructure/logging";
 import { createMetricsRegistry, type MetricsRegistry } from "./infrastructure/metrics";
 import { Scheduler, type TimerProvider } from "./infrastructure/scheduler";
 import { EventEnvelopeFactory } from "./contracts/event-envelope";

@@ -36,8 +36,14 @@ interface HistogramState {
 }
 
 export class MetricsRegistry {
-  private readonly counters = new Map<string, { name: string; labels: MetricLabels; value: number }>();
-  private readonly gauges = new Map<string, { name: string; labels: MetricLabels; value: number }>();
+  private readonly counters = new Map<
+    string,
+    { name: string; labels: MetricLabels; value: number }
+  >();
+  private readonly gauges = new Map<
+    string,
+    { name: string; labels: MetricLabels; value: number }
+  >();
   private readonly histograms = new Map<
     string,
     { name: string; labels: MetricLabels; state: HistogramState }
@@ -107,10 +113,22 @@ export class MetricsRegistry {
     const samples: MetricSample[] = [];
 
     for (const entry of this.counters.values()) {
-      samples.push({ name: entry.name, kind: "counter", labels: entry.labels, value: entry.value, timestamp });
+      samples.push({
+        name: entry.name,
+        kind: "counter",
+        labels: entry.labels,
+        value: entry.value,
+        timestamp,
+      });
     }
     for (const entry of this.gauges.values()) {
-      samples.push({ name: entry.name, kind: "gauge", labels: entry.labels, value: entry.value, timestamp });
+      samples.push({
+        name: entry.name,
+        kind: "gauge",
+        labels: entry.labels,
+        value: entry.value,
+        timestamp,
+      });
     }
     for (const entry of this.histograms.values()) {
       const buckets: Record<string, number> = {};
@@ -159,6 +177,9 @@ export class MetricsRegistry {
   }
 }
 
-export function createMetricsRegistry(namespace = "arc", clock: Clock = systemClock): MetricsRegistry {
+export function createMetricsRegistry(
+  namespace = "arc",
+  clock: Clock = systemClock,
+): MetricsRegistry {
   return new MetricsRegistry(namespace, clock);
 }

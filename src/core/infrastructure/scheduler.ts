@@ -137,9 +137,16 @@ export class Scheduler {
 
   /** Reports (never silently corrects) skew against an authoritative clock. */
   checkClockSkew(remoteNow: EpochMillis): ReturnType<typeof measureClockSkew> {
-    const skew = measureClockSkew(this.clock.now(), remoteNow, this.config.clockSkewToleranceMillis);
+    const skew = measureClockSkew(
+      this.clock.now(),
+      remoteNow,
+      this.config.clockSkewToleranceMillis,
+    );
     if (!skew.withinTolerance) {
-      this.logger.warn({ reasonCode: "SCH_CLOCK_SKEW", fields: { offsetMillis: skew.offsetMillis } });
+      this.logger.warn({
+        reasonCode: "SCH_CLOCK_SKEW",
+        fields: { offsetMillis: skew.offsetMillis },
+      });
     }
     return skew;
   }
@@ -152,7 +159,10 @@ export class Scheduler {
     this.handles.set(definition.name, handle);
   }
 
-  private async execute(definition: ScheduledTaskDefinition, scheduledFor: EpochMillis): Promise<void> {
+  private async execute(
+    definition: ScheduledTaskDefinition,
+    scheduledFor: EpochMillis,
+  ): Promise<void> {
     const status = this.status.get(definition.name);
     if (!status || !this.running) return;
 
@@ -190,9 +200,13 @@ export class Scheduler {
       });
     } finally {
       status.lastRunAt = this.clock.isoNow();
-      this.metrics?.observe("scheduler_task_duration_ms", this.clock.monotonic() - startedMonotonic, {
-        task: definition.name,
-      });
+      this.metrics?.observe(
+        "scheduler_task_duration_ms",
+        this.clock.monotonic() - startedMonotonic,
+        {
+          task: definition.name,
+        },
+      );
       if (this.running) this.arm(definition, definition.intervalMillis);
     }
   }

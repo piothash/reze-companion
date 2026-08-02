@@ -48,11 +48,9 @@ export function redact(
 export class JsonConsoleTransport implements LogTransport {
   write(record: LogRecord): void {
     const line = JSON.stringify(record);
-    // eslint-disable-next-line no-console -- single sanctioned logging sink
+
     if (record.level === "error") console.error(line);
-    // eslint-disable-next-line no-console -- single sanctioned logging sink
     else if (record.level === "warn") console.warn(line);
-    // eslint-disable-next-line no-console -- single sanctioned logging sink
     else console.log(line);
   }
 }

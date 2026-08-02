@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { FixedClock, SystemClock, fromIsoUtc, measureClockSkew, orderingKey, toIsoUtc } from "@/core/shared/time";
+import {
+  FixedClock,
+  SystemClock,
+  fromIsoUtc,
+  measureClockSkew,
+  orderingKey,
+  toIsoUtc,
+} from "@/core/shared/time";
 import { Ids, deterministicId, digest128, isId, parseId } from "@/core/shared/ids";
 
 describe("time foundation", () => {

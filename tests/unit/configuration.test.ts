@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { loadEnv, configFromEnv, bootstrapConfig, EnvironmentValidationError } from "@/core/configuration/environment";
-import { applyExecutionProfile, parseConfigOrThrow, validateConfig } from "@/core/configuration/schema";
+import {
+  loadEnv,
+  configFromEnv,
+  bootstrapConfig,
+  EnvironmentValidationError,
+} from "@/core/configuration/environment";
+import {
+  applyExecutionProfile,
+  parseConfigOrThrow,
+  validateConfig,
+} from "@/core/configuration/schema";
 import { versionOf } from "@/core/contracts/versions";
 
 const base = { ARC_ENVIRONMENT: "test", ARC_NETWORK: "testnet" } as const;
@@ -16,7 +25,9 @@ describe("environment loading", () => {
 
   it("fails fast on an invalid value", () => {
     expect(() => loadEnv({ ...base, ARC_ENVIRONMENT: "prod" })).toThrow(EnvironmentValidationError);
-    expect(() => loadEnv({ ...base, ARC_SCHEDULER_TICK_MS: "fast" })).toThrow(EnvironmentValidationError);
+    expect(() => loadEnv({ ...base, ARC_SCHEDULER_TICK_MS: "fast" })).toThrow(
+      EnvironmentValidationError,
+    );
   });
 
   it("parses comma separated lists", () => {
@@ -42,7 +53,10 @@ describe("configuration schema", () => {
   });
 
   it("reports validation issues instead of throwing", () => {
-    const result = validateConfig({ configVersion: "1.0.0", runtime: { environment: "nope", network: "testnet" } });
+    const result = validateConfig({
+      configVersion: "1.0.0",
+      runtime: { environment: "nope", network: "testnet" },
+    });
     expect(result.valid).toBe(false);
     expect(result.issues.length).toBeGreaterThan(0);
   });

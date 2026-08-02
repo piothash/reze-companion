@@ -7,8 +7,18 @@ import {
   isValidEnvelope,
   validateEnvelope,
 } from "@/core/contracts/event-envelope";
-import { REASON_CODES, reasonCodesByDomain, REASON_DOMAINS, type ReasonCode } from "@/core/contracts/reason-codes";
-import { assertCompatible, isCompatible, versionManifest, versionOf } from "@/core/contracts/versions";
+import {
+  REASON_CODES,
+  reasonCodesByDomain,
+  REASON_DOMAINS,
+  type ReasonCode,
+} from "@/core/contracts/reason-codes";
+import {
+  assertCompatible,
+  isCompatible,
+  versionManifest,
+  versionOf,
+} from "@/core/contracts/versions";
 import { FixedClock } from "@/core/shared/time";
 
 function factory() {

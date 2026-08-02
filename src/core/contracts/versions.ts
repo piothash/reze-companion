@@ -12,7 +12,12 @@ export interface VersionSpec {
   readonly description: string;
 }
 
-function v(id: string, version: string, compatible: readonly string[], description: string): VersionSpec {
+function v(
+  id: string,
+  version: string,
+  compatible: readonly string[],
+  description: string,
+): VersionSpec {
   return { id, version, compatible, description };
 }
 
@@ -21,7 +26,12 @@ export const VERSION_REGISTRY = {
   engine: v("engine", "0.1.0", ["0.1.0"], "Companion-side engine surface set (M0 foundation only)"),
   eventSchema: v("eventSchema", "1.0.0", ["1.0.0"], "Canonical event envelope schema"),
   configuration: v("configuration", "1.0.0", ["1.0.0"], "Configuration document schema"),
-  executionProfile: v("executionProfile", "1.0.0", ["1.0.0"], "Execution profile definition format"),
+  executionProfile: v(
+    "executionProfile",
+    "1.0.0",
+    ["1.0.0"],
+    "Execution profile definition format",
+  ),
   riskProfile: v("riskProfile", "1.0.0", ["1.0.0"], "Risk profile definition format"),
   windowDefinition: v("windowDefinition", "1.0.0", ["1.0.0"], "Execution window definition format"),
   replayFormat: v("replayFormat", "1.0.0", ["1.0.0"], "Deterministic replay record format"),

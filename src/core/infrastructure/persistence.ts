@@ -96,7 +96,11 @@ export class InMemoryFeatureFlagRepository implements FeatureFlagRepository {
   constructor(private readonly flags: Record<string, boolean> = {}) {}
 
   async list(): Promise<FeatureFlagRecord[]> {
-    return Object.entries(this.flags).map(([key, enabled]) => ({ key, enabled, description: null }));
+    return Object.entries(this.flags).map(([key, enabled]) => ({
+      key,
+      enabled,
+      description: null,
+    }));
   }
 
   async isEnabled(key: string, fallback = false): Promise<boolean> {
