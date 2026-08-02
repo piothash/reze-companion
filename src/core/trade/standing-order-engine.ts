@@ -88,14 +88,21 @@ export class StandingOrderSession {
   private retryReadyAtMillis: number | null = null;
   private terminalAtIso: string | null = null;
   private terminalNotified = false;
+  private observer: StandingOrderObserver | undefined;
 
   constructor(
     readonly constraints: ExecutionConstraints,
     private readonly options: StandingOrderEngineOptions,
   ) {
+    this.observer = options.observer;
     this.startedAtMillis = options.clock.now();
     this.deadlineMillis = this.startedAtMillis + constraints.timeoutMillis;
     this.nextRepriceAtMillis = this.startedAtMillis + constraints.repricingIntervalMillis;
+  }
+
+  /** Replaces the observer before the session starts. */
+  setObserver(observer: StandingOrderObserver): void {
+    this.observer = observer;
   }
 
   get executionState(): ExecutionState {
@@ -177,7 +184,7 @@ export class StandingOrderSession {
     });
     this.orders.push(order);
     order.submit();
-    await this.options.observer?.onOrderSubmitted?.(order.snapshot());
+    await this.observer?.onOrderSubmitted?.(order.snapshot());
 
     const result = await this.options.gateway.submit({
       orderId: order.orderId,
@@ -190,13 +197,13 @@ export class StandingOrderSession {
 
     if (!result.accepted) {
       order.reject(result.rejectionReason);
-      await this.options.observer?.onOrderUpdated?.(order.snapshot(), result.rejectionReason);
+      await this.observer?.onOrderUpdated?.(order.snapshot(), result.rejectionReason);
       await this.handleAttemptFailure(result.retryable ? "GATEWAY_ERROR" : "REJECTED");
       return order.snapshot();
     }
 
     order.acknowledge(result.venueOrderId);
-    await this.options.observer?.onOrderUpdated?.(order.snapshot(), "working");
+    await this.observer?.onOrderUpdated?.(order.snapshot(), "working");
 
     if (result.immediateFillQuantity && result.immediateFillQuantity > 0) {
       await this.applyFill({
@@ -208,7 +215,7 @@ export class StandingOrderSession {
     } else if (input.timeInForce === "IOC") {
       // An unfilled IOC never rests; it is dead on arrival.
       order.expire();
-      await this.options.observer?.onOrderUpdated?.(order.snapshot(), "ioc-unfilled");
+      await this.observer?.onOrderUpdated?.(order.snapshot(), "ioc-unfilled");
       await this.fail("NO_LIQUIDITY");
     }
 
@@ -236,7 +243,7 @@ export class StandingOrderSession {
       this.cumulativeNotional + result.fill.quantity * result.fill.price,
     );
 
-    await this.options.observer?.onOrderFilled?.(
+    await this.observer?.onOrderFilled?.(
       order.snapshot(),
       result.fill,
       this.cumulativeFilledQuantity,
@@ -248,7 +255,7 @@ export class StandingOrderSession {
     // tradable quantity. Subsequent fills never consume quota again.
     if (!this.quotaCommitted && this.hasMeaningfulFill) {
       this.quotaCommitted = true;
-      await this.options.observer?.onFirstMeaningfulFill?.(this.cumulativeFilledQuantity);
+      await this.observer?.onFirstMeaningfulFill?.(this.cumulativeFilledQuantity);
     }
 
     if (this.cumulativeFilled >= this.constraints.quantity - EPSILON) await this.complete();
@@ -308,7 +315,7 @@ export class StandingOrderSession {
       if (!cancelled.cancelled && !cancelled.alreadyTerminal) return;
     }
     order.cancel();
-    await this.options.observer?.onOrderCancelled?.(order.snapshot());
+    await this.observer?.onOrderCancelled?.(order.snapshot());
 
     this.repriceCount += 1;
     await this.placeOrder({ crossing: false, timeInForce: "GTC" });
@@ -325,7 +332,7 @@ export class StandingOrderSession {
       this.iocUsed = true;
       if (order?.venueOrderId) await this.options.gateway.cancel(order.venueOrderId);
       order?.cancel();
-      if (order) await this.options.observer?.onOrderCancelled?.(order.snapshot());
+      if (order) await this.observer?.onOrderCancelled?.(order.snapshot());
       this.attempt += 1;
       this.repriceCount = 0;
       await this.placeOrder({ crossing: true, timeInForce: "IOC" });
@@ -334,7 +341,7 @@ export class StandingOrderSession {
 
     if (order?.venueOrderId) await this.options.gateway.cancel(order.venueOrderId);
     order?.expire();
-    if (order) await this.options.observer?.onOrderUpdated?.(order.snapshot(), "expired");
+    if (order) await this.observer?.onOrderUpdated?.(order.snapshot(), "expired");
 
     if (this.cumulativeFilled > 0) await this.complete();
     else await this.fail("TIMEOUT");
@@ -353,7 +360,7 @@ export class StandingOrderSession {
     if (this.isTerminal) return;
     const order = this.activeOrder;
     if (order?.venueOrderId) await this.options.gateway.cancel(order.venueOrderId);
-    if (order?.cancel()) await this.options.observer?.onOrderCancelled?.(order.snapshot());
+    if (order?.cancel()) await this.observer?.onOrderCancelled?.(order.snapshot());
     if (this.cumulativeFilled > 0) {
       await this.complete();
       return;
@@ -383,7 +390,7 @@ export class StandingOrderSession {
   private async notifyTerminal(): Promise<void> {
     if (this.terminalNotified) return;
     this.terminalNotified = true;
-    await this.options.observer?.onTerminal?.(this.report());
+    await this.observer?.onTerminal?.(this.report());
   }
 
   report(): ExecutionReport {
@@ -472,10 +479,14 @@ export class StandingOrderEngine {
   }
 
   /** Creates a session. Returns the existing one when the intent is known. */
-  open(constraints: ExecutionConstraints): { session: StandingOrderSession; duplicate: boolean } {
+  open(
+    constraints: ExecutionConstraints,
+    observer?: StandingOrderObserver,
+  ): { session: StandingOrderSession; duplicate: boolean } {
     const existing = this.sessions.get(constraints.executionIntentId);
     if (existing) return { session: existing, duplicate: true };
     const session = new StandingOrderSession(constraints, this.options);
+    if (observer) session.setObserver(observer);
     this.sessions.set(constraints.executionIntentId, session);
     return { session, duplicate: false };
   }

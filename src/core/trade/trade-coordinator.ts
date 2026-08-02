@@ -18,6 +18,7 @@ import { ExposureLedger } from "./exposure";
 import { evaluateRisk } from "./risk-engine";
 import {
   StandingOrderEngine,
+  type StandingOrderObserver,
   type StandingOrderSession,
   type VenueFillEvent,
 } from "./standing-order-engine";
@@ -155,27 +156,32 @@ export class TradeCoordinator {
       execution: this.options.config.execution,
     });
 
-    const { session, duplicate } = this.engine.open(constraints);
+    const { session, duplicate } = this.engine.open(
+      constraints,
+      this.buildObserver(context, constraints.minMeaningfulQuantity),
+    );
     if (duplicate) return { accepted: false, reason: "DUPLICATE", verdict };
 
-    this.attachObserver(session, context);
     await session.start();
     return { accepted: true, session, verdict };
   }
 
-  private attachObserver(session: StandingOrderSession, context: TradeEventContext): void {
+  private buildObserver(context: TradeEventContext, minMeaningfulQuantity: number): StandingOrderObserver {
     const options = this.options;
     const events = this.events;
     const ledger = this.ledger;
     const settled = this.settled;
 
-    Object.assign(session as unknown as { options: unknown }, {});
-    // The session reads its observer through the engine options; attach here so
-    // every session shares one deterministic event path.
-    (session as unknown as { options: { observer?: unknown } }).options.observer = {
-      onOrderSubmitted: (order) => events.orderSubmitted(order, context).then(() => undefined),
-      onOrderUpdated: (order) => events.orderUpdated(order, context).then(() => undefined),
-      onOrderCancelled: (order) => events.orderCancelled(order, context).then(() => undefined),
+    return {
+      onOrderSubmitted: async (order) => {
+        await events.orderSubmitted(order, context);
+      },
+      onOrderUpdated: async (order) => {
+        await events.orderUpdated(order, context);
+      },
+      onOrderCancelled: async (order) => {
+        await events.orderCancelled(order, context);
+      },
       onOrderFilled: async (order, fill, cumulative, complete) => {
         ledger.commit(context.executionIntentId, fill.quantity * fill.price);
         await events.orderFilled(
@@ -188,7 +194,7 @@ export class TradeCoordinator {
           {
             executionIntentId: context.executionIntentId,
             cumulativeFilledQuantity: cumulative,
-            minMeaningfulQuantity: session.constraints.minMeaningfulQuantity,
+            minMeaningfulQuantity,
           },
           context,
         );
@@ -217,7 +223,7 @@ export class TradeCoordinator {
         }
         await options.onSettlement?.(report);
       },
-    } satisfies import("./standing-order-engine").StandingOrderObserver;
+    };
   }
 
   applyFill(event: VenueFillEvent & { executionIntentId: string }): Promise<boolean> {
