@@ -104,14 +104,32 @@ export const authorityRegistrationSchema = z.object({
 });
 export type AuthorityRegistration = z.infer<typeof authorityRegistrationSchema>;
 
+/** Runtime health the engine self-reports on every heartbeat. */
+export const AUTHORITY_RUNTIME_STATUSES = [
+  "starting",
+  "healthy",
+  "degraded",
+  "halted",
+  "unknown",
+] as const;
+export type AuthorityRuntimeStatus = (typeof AUTHORITY_RUNTIME_STATUSES)[number];
+
 /** `POST /authority/heartbeat` — periodic liveness proof from the engine. */
 export const authorityHeartbeatSchema = z.object({
   authorityId: z.string().trim().min(3).max(128),
   environment: z.enum(AUTHORITY_ENVIRONMENTS),
   engineVersion: z.string().trim().min(1).max(64),
   platformVersion: z.string().trim().min(1).max(64),
+  status: z.enum(AUTHORITY_RUNTIME_STATUSES).default("unknown"),
   configurationVersion: z.number().int().nonnegative().nullable().optional(),
   uptimeSeconds: z.number().int().nonnegative().optional(),
+  activeMarket: z.string().trim().max(200).nullable().optional(),
+  activeWindows: z.number().int().nonnegative().nullable().optional(),
+  eventSequence: z.number().int().nonnegative().nullable().optional(),
+  /** Stable per-process identity; changes only when the engine restarts. */
+  runtimeIdentity: z.string().trim().min(3).max(128).nullable().optional(),
+  /** Configuration-driven interval the engine is currently using. */
+  heartbeatIntervalMillis: z.number().int().min(1_000).max(600_000).optional(),
   timestamp: isoTimestamp,
   signature: z.string().trim().min(16).max(2048),
 });
@@ -129,6 +147,16 @@ export const authorityStatusSchema = z.object({
   capabilities: z.array(z.string()),
   registeredAt: z.string().nullable(),
   lastSeen: z.string().nullable(),
+  runtimeStatus: z.enum(AUTHORITY_RUNTIME_STATUSES).default("unknown"),
+  uptimeSeconds: z.number().nullable().default(null),
+  activeMarket: z.string().nullable().default(null),
+  activeWindows: z.number().nullable().default(null),
+  eventSequence: z.number().nullable().default(null),
+  latencyMillis: z.number().nullable().default(null),
+  heartbeatIntervalMillis: z.number().default(15_000),
+  configurationVersion: z.number().nullable().default(null),
+  runtimeIdentity: z.string().nullable().default(null),
+  registrationCount: z.number().default(0),
 });
 export type AuthorityStatusView = z.infer<typeof authorityStatusSchema>;
 
@@ -155,4 +183,31 @@ export function deriveAuthorityStatus(
   const lastSeen = Date.parse(lastSeenIso);
   if (Number.isNaN(lastSeen)) return "registered";
   return nowMillis - lastSeen <= AUTHORITY_STALE_AFTER_MILLIS ? "active" : "stale";
+}
+
+/**
+ * Heartbeat freshness relative to the interval the engine reports. An engine
+ * that heartbeats every 5s is stale far sooner than one on a 60s interval, but
+ * never sooner than two missed beats.
+ */
+export function heartbeatDeadlineMillis(intervalMillis: number | null | undefined): number {
+  const interval = intervalMillis && intervalMillis > 0 ? intervalMillis : 15_000;
+  return Math.max(interval * 3, AUTHORITY_STALE_AFTER_MILLIS);
+}
+
+/**
+ * Liveness derived from the last heartbeat and the engine's own interval.
+ * Used by the console; the engine never asserts `active` for itself.
+ */
+export function deriveAuthorityLiveness(
+  stored: AuthorityStatus,
+  lastSeenIso: string | null,
+  intervalMillis: number | null | undefined,
+  nowMillis: number,
+): AuthorityStatus {
+  if (stored === "revoked") return "revoked";
+  if (!lastSeenIso) return "registered";
+  const lastSeen = Date.parse(lastSeenIso);
+  if (Number.isNaN(lastSeen)) return "registered";
+  return nowMillis - lastSeen <= heartbeatDeadlineMillis(intervalMillis) ? "active" : "stale";
 }
