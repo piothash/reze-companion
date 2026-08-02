@@ -238,6 +238,80 @@ export const REASON_CODES = {
     "fatal",
     "State machine definition failed validation",
   ),
+
+  // Market State Domain (M1) — observation and state only, never decisions ---
+  MKT_DISCOVERED: spec("MKT_DISCOVERED", "MARKET", "info", "Market discovered from venue metadata"),
+  MKT_DISCOVERY_FAILED: spec(
+    "MKT_DISCOVERY_FAILED",
+    "MARKET",
+    "error",
+    "Market discovery request failed",
+  ),
+  MKT_METADATA_INVALID: spec(
+    "MKT_METADATA_INVALID",
+    "MARKET",
+    "error",
+    "Market metadata failed validation",
+  ),
+  MKT_LIFECYCLE_UPDATED: spec(
+    "MKT_LIFECYCLE_UPDATED",
+    "MARKET",
+    "info",
+    "Market lifecycle state changed",
+  ),
+  MKT_INVALIDATED: spec("MKT_INVALIDATED", "MARKET", "warning", "Market marked invalid"),
+  MKT_OBSERVATION_RECEIVED: spec(
+    "MKT_OBSERVATION_RECEIVED",
+    "MARKET",
+    "info",
+    "Feed observation ingested",
+  ),
+  MKT_OBSERVATION_REJECTED: spec(
+    "MKT_OBSERVATION_REJECTED",
+    "MARKET",
+    "warning",
+    "Feed observation rejected as malformed or out of order",
+  ),
+  MKT_FEED_STALE: spec("MKT_FEED_STALE", "MARKET", "warning", "Feed exceeded its staleness budget"),
+  MKT_FEED_UNAVAILABLE: spec(
+    "MKT_FEED_UNAVAILABLE",
+    "MARKET",
+    "error",
+    "Feed produced no usable observations",
+  ),
+  MKT_FEED_RECOVERED: spec("MKT_FEED_RECOVERED", "MARKET", "info", "Feed returned to fresh state"),
+  MKT_TWAP_UPDATED: spec("MKT_TWAP_UPDATED", "MARKET", "info", "Running TWAP recomputed"),
+  MKT_TWAP_INSUFFICIENT_DATA: spec(
+    "MKT_TWAP_INSUFFICIENT_DATA",
+    "MARKET",
+    "warning",
+    "TWAP basket does not satisfy the configured minimum",
+  ),
+  MKT_PTB_UPDATED: spec("MKT_PTB_UPDATED", "MARKET", "info", "Price-to-beat validated and updated"),
+  MKT_PTB_UNAVAILABLE: spec(
+    "MKT_PTB_UNAVAILABLE",
+    "MARKET",
+    "warning",
+    "Price-to-beat absent or failed validation",
+  ),
+  MKT_SIGNAL_CONDITIONED: spec(
+    "MKT_SIGNAL_CONDITIONED",
+    "MARKET",
+    "info",
+    "Effective TWAP conditioned and published",
+  ),
+  MKT_SIGNAL_UNUSABLE: spec(
+    "MKT_SIGNAL_UNUSABLE",
+    "MARKET",
+    "warning",
+    "Conditioned signal unusable under current configuration",
+  ),
+  MKT_STATE_PUBLISHED: spec(
+    "MKT_STATE_PUBLISHED",
+    "MARKET",
+    "info",
+    "Authoritative market state snapshot published",
+  ),
 } as const satisfies Record<string, ReasonCodeSpec>;
 
 export type ReasonCode = keyof typeof REASON_CODES;
