@@ -29,7 +29,7 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
       { readRuntimeTelemetry },
       { readRuntimeView },
       { startupPayload },
-      { missingTelemetryFields },
+      { missingTelemetryFields, deriveStartupChain },
     ] = await Promise.all([
       import("./authority-registry.server"),
       import("./runtime-telemetry.server"),
@@ -51,7 +51,7 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
       }
     };
 
-    const [authorities, telemetryView, runtimeView, startup, finalized] = await Promise.all([
+    const [authorities, telemetryView, runtimeView, companionStartup, finalized] = await Promise.all([
       safe("authority registry", () => listAuthorities(client, nowMillis)),
       safe("runtime telemetry", () => readRuntimeTelemetry(client)),
       safe("configuration runtime", () => readRuntimeView(client, context.userId)),
@@ -119,19 +119,38 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
             secretMaterialRejected: true,
           };
 
+    // The startup gate describes the *engine* chain, so it is derived from what
+    // the authority reports. Companion-side startup problems are surfaced as
+    // notes, never as a VPS verdict.
+    const engine = telemetryView?.source === "LIVE" ? telemetryView.telemetry : null;
+    const market = engine?.markets[0] ?? null;
+    const startup = deriveStartupChain(
+      engine
+        ? {
+            configurationVersion: authority?.configurationVersion ?? null,
+            feedConnected: engine.feed?.connected ?? null,
+            marketCount: engine.markets.length,
+            ptb: market?.ptb ?? null,
+            runningTwap: engine.feed?.runningTwap ?? null,
+            effectiveTwap: engine.feed?.effectiveTwap ?? market?.effectiveTwap ?? null,
+            marketStateVersion: market?.marketStateVersion ?? null,
+            armedWindows: engine.windows.length,
+          }
+        : null,
+    );
+    if (companionStartup && !companionStartup.allowed) {
+      notes.push(
+        `control-plane startup warnings: ${companionStartup.failedGates.join(", ") || "unknown"}`,
+      );
+    }
+
     return {
       observedAtIso: new Date(nowMillis).toISOString(),
       notes,
       snapshot: {
         nowMillis,
         authority,
-        startup: startup
-          ? {
-              allowed: startup.allowed,
-              failedGates: startup.failedGates,
-              warnings: startup.warnings,
-            }
-          : null,
+        startup,
         configuration,
         telemetry,
         security,

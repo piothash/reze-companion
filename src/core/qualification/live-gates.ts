@@ -92,6 +92,52 @@ export interface StartupEvidence {
   readonly allowed: boolean;
   readonly failedGates: readonly string[];
   readonly warnings: readonly string[];
+  /** Ordered VPS startup chain, in the order M7.8 mandates. */
+  readonly steps?: readonly { readonly step: string; readonly ok: boolean }[];
+}
+
+/** The engine startup chain the authority must have completed, in order. */
+export const STARTUP_CHAIN_STEPS = [
+  "configuration-loaded",
+  "feed-connected",
+  "market-discovery-ready",
+  "ptb-available",
+  "twap-running",
+  "signal-conditioning-ready",
+  "authoritative-market-state",
+  "windows-armed",
+] as const;
+
+export interface StartupChainInput {
+  readonly configurationVersion: number | null;
+  readonly feedConnected: boolean | null;
+  readonly marketCount: number;
+  readonly ptb: number | null;
+  readonly runningTwap: number | null;
+  readonly effectiveTwap: number | null;
+  readonly marketStateVersion: number | null;
+  readonly armedWindows: number;
+}
+
+/**
+ * Derives the startup chain from what the authority reports. The companion
+ * never infers a step it was not told about — an unreported step is not ok.
+ */
+export function deriveStartupChain(input: StartupChainInput | null): StartupEvidence | null {
+  if (!input) return null;
+  const ok: Record<(typeof STARTUP_CHAIN_STEPS)[number], boolean> = {
+    "configuration-loaded": input.configurationVersion !== null,
+    "feed-connected": input.feedConnected === true,
+    "market-discovery-ready": input.marketCount > 0,
+    "ptb-available": input.ptb !== null,
+    "twap-running": input.runningTwap !== null,
+    "signal-conditioning-ready": input.effectiveTwap !== null,
+    "authoritative-market-state": input.marketStateVersion !== null,
+    "windows-armed": input.armedWindows > 0,
+  };
+  const steps = STARTUP_CHAIN_STEPS.map((step) => ({ step, ok: ok[step] }));
+  const failedGates = steps.filter((entry) => !entry.ok).map((entry) => entry.step);
+  return { allowed: failedGates.length === 0, failedGates, warnings: [], steps };
 }
 
 export interface ConfigurationEvidence {
