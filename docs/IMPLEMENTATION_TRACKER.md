@@ -565,3 +565,18 @@ the plain `server.ts` name so the bundler refuses any client-side import of it.
 | `docs/qualification/M7_8_LIVE_AUTHORITY_REPORT.md` | Done |
 | Tests: evaluator, staleness, drift, telemetry completeness, startup chain derivation | Done (368 total) |
 | Signing key configured, ownership finalized, VPS registered and publishing telemetry | Pending operator run |
+
+## M7.9 — Security Finalization, Authority Activation & Live Gate Completion
+
+| Item | Status |
+| --- | --- |
+| Signed registration required; unsigned, forged, stale and replayed messages rejected | Done (M7.6 gateway, re-verified) |
+| Fail-closed when `ARC_AUTHORITY_SIGNING_KEY` is absent (`503 KEY_UNCONFIGURED`) | Done |
+| Ownership lifecycle: bootstrap → owner → finalize → registration permanently disabled | Done |
+| `ownership.finalized` audit entry written by `finalize_ownership()` | Done |
+| Pure activation checklist (`src/core/qualification/activation.ts`) — 7 steps, owner-attributed | Done |
+| Step states derived from evidence only: DONE / READY / WAITING / BLOCKED, never a tick-box | Done |
+| "Activation Checklist — M7.9" panel on `/qualification` with DONE count | Done |
+| Tests: prerequisite ordering, blocking, drift/staleness reopening, missing telemetry fields | Done (383 total) |
+| `docs/qualification/M7_9_SECURITY_ACTIVATION_REPORT.md` | Done |
+| Signing key set on both sides · ownership finalized · VPS ACTIVE · live gates green | Pending operator run |

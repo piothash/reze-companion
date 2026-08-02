@@ -12,11 +12,21 @@ import {
   QUALIFICATION_SPEC,
   evaluateQualificationGates,
   qualificationVerdict,
+  activationComplete,
+  buildActivationChecklist,
   evaluateLiveAuthorityGates,
   liveQualificationVerdict,
   runQualificationScenario,
+  type ActivationStatus,
   type GateStatus,
 } from "@/core/qualification";
+
+const ACTIVATION_TONE: Record<ActivationStatus, StatusTone> = {
+  DONE: "healthy",
+  READY: "degraded",
+  WAITING: "neutral",
+  BLOCKED: "unavailable",
+};
 
 export const Route = createFileRoute("/_authenticated/qualification")({
   head: () => ({
@@ -83,7 +93,7 @@ function QualificationPage() {
 
   if (scenario.isPending || !scenario.data) {
     return (
-      <OperatorShell title="Testnet Qualification" subtitle="M7.7–M7.8 — validation only">
+      <OperatorShell title="Testnet Qualification" subtitle="M7.7–M7.9 — validation only">
         <LoadingState label="Running deterministic qualification scenario" />
       </OperatorShell>
     );
@@ -113,6 +123,8 @@ function QualificationPage() {
     ? evaluateLiveAuthorityGates(evidence.data.snapshot)
     : [];
   const liveVerdict = evidence.data ? liveQualificationVerdict(liveResults) : "PENDING";
+  const activation = evidence.data ? buildActivationChecklist(evidence.data.snapshot) : [];
+  const activationDone = activationComplete(activation);
   const harnessVerdict = qualificationVerdict(results);
   const verdict: GateStatus =
     harnessVerdict === "FAIL" || liveVerdict === "FAIL"
@@ -125,7 +137,7 @@ function QualificationPage() {
   return (
     <OperatorShell
       title="Testnet Qualification"
-      subtitle="M7.7–M7.8 — validation only; the VPS remains the sole trading authority"
+      subtitle="M7.7–M7.9 — validation only; the VPS remains the sole trading authority"
       actions={<StatusPill tone={STATUS_TONE[verdict]} label={`GATE ${verdict}`} />}
     >
       <div className="space-y-4">
@@ -147,6 +159,43 @@ function QualificationPage() {
             hint={`${replay.mismatches.length} mismatch(es)`}
           />
         </div>
+
+        <Panel
+          title="Activation Checklist — M7.9"
+          actions={
+            <StatusPill
+              tone={activationDone ? "healthy" : "degraded"}
+              label={
+                activation.length === 0
+                  ? "PENDING"
+                  : `${activation.filter((step) => step.status === "DONE").length}/${activation.length} DONE`
+              }
+            />
+          }
+        >
+          {evidence.isPending ? (
+            <LoadingState label="Resolving activation state" />
+          ) : (
+            <div className="divide-y divide-border">
+              {activation.map((step) => (
+                <div
+                  key={step.id}
+                  className="grid gap-2 py-3 first:pt-0 last:pb-0 sm:grid-cols-[6rem_minmax(0,1fr)_7rem] sm:items-start"
+                >
+                  <p className="label-caps">{step.owner}</p>
+                  <div>
+                    <p className="text-sm">{step.title}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{step.action}</p>
+                    <p className="mt-1 font-mono text-xs text-muted-foreground">{step.detail}</p>
+                  </div>
+                  <div className="sm:justify-self-end">
+                    <StatusPill tone={ACTIVATION_TONE[step.status]} label={step.status} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
 
         <Panel
           title="Live Authority Gates — M7.8"
