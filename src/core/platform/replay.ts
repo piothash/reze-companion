@@ -313,36 +313,37 @@ export function replayEvents(
         const filledQuantity = snapshot.filledQuantity ?? 0;
 
 
-        const projected = orders.get(snapshot.orderId) ?? {
-          orderId: snapshot.orderId,
-          executionIntentId: snapshot.executionIntentId,
+        const projected = orders.get(orderId) ?? {
+          orderId,
+          executionIntentId: intentId,
           state: "CREATED" as OrderState,
           filledQuantity: 0,
           transitions: [] as string[],
         };
-        if (snapshot.state !== projected.state) {
+        if (nextState !== projected.state) {
           const allowed = ORDER_TRANSITIONS[projected.state];
-          if (!allowed.includes(snapshot.state)) {
+          if (!allowed.includes(nextState)) {
             fail({
               validation: "FSM_TRANSITIONS",
               reasonCode: "RPL_TRANSITION_INVALID",
               eventId: event.eventId,
-              detail: `order ${snapshot.orderId}: ${projected.state} → ${snapshot.state}`,
+              detail: `order ${orderId}: ${projected.state} → ${nextState}`,
             });
           }
-          projected.transitions.push(`${projected.state}->${snapshot.state}`);
-          projected.state = snapshot.state;
+          projected.transitions.push(`${projected.state}->${nextState}`);
+          projected.state = nextState;
         }
-        projected.filledQuantity = snapshot.filledQuantity;
-        orders.set(snapshot.orderId, projected);
-        if (!executionIntentIds.has(snapshot.executionIntentId)) {
+        projected.filledQuantity = filledQuantity;
+        orders.set(orderId, projected);
+        if (!executionIntentIds.has(intentId)) {
           fail({
             validation: "EXECUTION_IDS",
             reasonCode: "RPL_UNKNOWN_EXECUTION",
             eventId: event.eventId,
-            detail: `order references unknown execution intent ${snapshot.executionIntentId}`,
+            detail: `order references unknown execution intent ${intentId}`,
           });
         }
+
         break;
       }
       case TRADE_EVENT_TYPES.executionCompleted:
