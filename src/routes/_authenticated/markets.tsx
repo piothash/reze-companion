@@ -31,6 +31,7 @@ export const Route = createFileRoute("/_authenticated/markets")({
 
 function MarketsPage() {
   const fetchSnapshot = useServerFn(getOperationsSnapshot);
+  const telemetry = useRuntimeTelemetry();
   const { data, isPending } = useQuery({
     queryKey: ["arc", "operations", "snapshot"],
     queryFn: () => fetchSnapshot({ data: { limit: 400 } }),
@@ -42,17 +43,27 @@ function MarketsPage() {
   const activeWindow = projection?.activeWindows[0] ?? null;
 
   return (
-    <OperatorShell title="Markets" subtitle="Pure observability — no trading controls">
+    <OperatorShell
+      title="Markets"
+      subtitle="Live authority metadata — no trading controls"
+      actions={<TelemetrySourcePill view={telemetry.data} />}
+    >
+      <div className="space-y-4">
+        <LiveMarketPanel view={telemetry.data} />
+        <LiveFeedPanel view={telemetry.data} />
+      </div>
+      <div className="mt-4">
       {isPending ? (
         <LoadingState label="Reading market state" />
       ) : markets.length === 0 ? (
-        <Panel title="Market State">
+        <Panel title="Mirrored Market State">
           <EmptyState
-            message="No market is being tracked."
-            hint="Waiting for VPS connection — authoritative market state is mirrored from the engine."
+            message="No market has been mirrored into the control plane yet."
+            hint="Mirrored state is rebuilt from canonical engine events."
           />
         </Panel>
       ) : (
+
         <div className="space-y-4">
           {markets.map((market) => (
             <Panel
