@@ -229,7 +229,10 @@ function validate(draft: ProfileDraft): string[] {
 function ExecutionProfilesPage() {
   const queryClient = useQueryClient();
   const fetchProfile = useServerFn(getExecutionProfileConfig);
-  const saveProfile = useServerFn(saveExecutionProfileConfig);
+  const publishProfile = useServerFn(publishConfigurationVersion);
+  const activateVersion = useServerFn(activateConfigurationVersion);
+  const archiveVersionFn = useServerFn(archiveConfigurationVersion);
+  const fetchRuntime = useServerFn(getConfigurationRuntimeView);
   const [draft, setDraft] = useState<ProfileDraft | null>(null);
   const [manualPriority, setManualPriority] = useState(false);
 
@@ -239,18 +242,65 @@ function ExecutionProfilesPage() {
     retry: false,
   });
 
+  const runtimeQuery = useQuery({
+    queryKey: ["arc", "configuration-runtime"],
+    queryFn: () => fetchRuntime(),
+    retry: false,
+    refetchInterval: 15_000,
+  });
+
   useEffect(() => {
     if (data?.profile) setDraft(toDraft(data.profile as unknown as Record<string, unknown>));
   }, [data]);
 
+  const refreshAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["arc", "execution-profile"] });
+    queryClient.invalidateQueries({ queryKey: ["arc", "configuration-runtime"] });
+  };
+
+  /** The console never claims success on its own — it reports the authority verdict. */
+  const reportOutcome = (result: {
+    outcome: string;
+    version: number | null;
+    reasonCode: string;
+    detail: string;
+  }) => {
+    const suffix = result.version ? ` · v${result.version}` : "";
+    if (result.outcome === "APPLIED") {
+      toast.success(`Configuration active on the trading authority${suffix}`, {
+        description: result.detail,
+      });
+    } else if (result.outcome === "PENDING") {
+      toast.warning(`Version stored, not yet running${suffix}`, { description: result.detail });
+    } else {
+      toast.error(`Rejected — ${result.reasonCode}`, { description: result.detail });
+    }
+    refreshAll();
+  };
+
   const mutation = useMutation({
-    mutationFn: (payload: ProfileDraft) => saveProfile({ data: payload as never }),
+    mutationFn: (payload: ProfileDraft) =>
+      publishProfile({ data: { profile: payload, origin: "SAVE" } as never }),
+    onSuccess: (result) => reportOutcome(result as never),
+    onError: (mutationError: Error) => toast.error(mutationError.message),
+  });
+
+  const activation = useMutation({
+    mutationFn: (version: number) =>
+      activateVersion({ data: { version, origin: "ROLLBACK" } as never }),
+    onSuccess: (result) => reportOutcome(result as never),
+    onError: (mutationError: Error) => toast.error(mutationError.message),
+  });
+
+  const archival = useMutation({
+    mutationFn: (version: number) => archiveVersionFn({ data: { version } as never }),
     onSuccess: () => {
-      toast.success("Execution profile saved");
-      queryClient.invalidateQueries({ queryKey: ["arc", "execution-profile"] });
+      toast.success("Version archived");
+      refreshAll();
     },
     onError: (mutationError: Error) => toast.error(mutationError.message),
   });
+
 
   const patch = (partial: Partial<ProfileDraft>) =>
     setDraft((current) => (current ? { ...current, ...partial } : current));
