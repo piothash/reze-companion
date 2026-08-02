@@ -100,7 +100,7 @@ class FakeBackend {
         pending = [merged];
         return builder;
       },
-      update: async (patch: Row) => {
+      update: (patch: Row) => {
         // `update()` is awaited directly after `.eq()`, so filters are applied here.
         const apply = () => {
           for (const row of rows) {
