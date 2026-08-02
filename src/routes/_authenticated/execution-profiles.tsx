@@ -145,6 +145,7 @@ function ExecutionProfilesPage() {
   const { data, isPending, error } = useQuery({
     queryKey: ["arc", "execution-profile"],
     queryFn: () => fetchProfile(),
+    retry: false,
   });
 
   useEffect(() => {

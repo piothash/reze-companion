@@ -91,6 +91,7 @@ function ConfigurationPage() {
   const profileQuery = useQuery({
     queryKey: ["arc", "execution-profile"],
     queryFn: () => fetchProfile(),
+    retry: false,
   });
   const profile = profileQuery.data?.profile as unknown as ExecutionProfileSummary | undefined;
 
