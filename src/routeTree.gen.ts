@@ -16,6 +16,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedConfigurationRouteImport } from './routes/_authenticated/configuration'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDeploymentRouteImport } from './routes/_authenticated/deployment'
 import { Route as AuthenticatedEngineRegistrationRouteImport } from './routes/_authenticated/engine-registration'
 import { Route as AuthenticatedExecutionProfilesRouteImport } from './routes/_authenticated/execution-profiles'
 import { Route as AuthenticatedHealthRouteImport } from './routes/_authenticated/health'
@@ -71,6 +72,11 @@ const AuthenticatedConfigurationRoute =
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDeploymentRoute = AuthenticatedDeploymentRouteImport.update({
+  id: '/deployment',
+  path: '/deployment',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEngineRegistrationRoute =
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuthenticatedAuditRoute
   '/configuration': typeof AuthenticatedConfigurationRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/deployment': typeof AuthenticatedDeploymentRoute
   '/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
@@ -223,6 +230,7 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditRoute
   '/configuration': typeof AuthenticatedConfigurationRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/deployment': typeof AuthenticatedDeploymentRoute
   '/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/health': typeof AuthenticatedHealthRoute
@@ -254,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/configuration': typeof AuthenticatedConfigurationRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/deployment': typeof AuthenticatedDeploymentRoute
   '/_authenticated/engine-registration': typeof AuthenticatedEngineRegistrationRoute
   '/_authenticated/execution-profiles': typeof AuthenticatedExecutionProfilesRoute
   '/_authenticated/health': typeof AuthenticatedHealthRoute
@@ -285,6 +294,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/configuration'
     | '/dashboard'
+    | '/deployment'
     | '/engine-registration'
     | '/execution-profiles'
     | '/health'
@@ -314,6 +324,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/configuration'
     | '/dashboard'
+    | '/deployment'
     | '/engine-registration'
     | '/execution-profiles'
     | '/health'
@@ -344,6 +355,7 @@ export interface FileRouteTypes {
     | '/_authenticated/audit'
     | '/_authenticated/configuration'
     | '/_authenticated/dashboard'
+    | '/_authenticated/deployment'
     | '/_authenticated/engine-registration'
     | '/_authenticated/execution-profiles'
     | '/_authenticated/health'
@@ -430,6 +442,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/deployment': {
+      id: '/_authenticated/deployment'
+      path: '/deployment'
+      fullPath: '/deployment'
+      preLoaderRoute: typeof AuthenticatedDeploymentRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/engine-registration': {
@@ -587,6 +606,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedConfigurationRoute: typeof AuthenticatedConfigurationRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDeploymentRoute: typeof AuthenticatedDeploymentRoute
   AuthenticatedEngineRegistrationRoute: typeof AuthenticatedEngineRegistrationRoute
   AuthenticatedExecutionProfilesRoute: typeof AuthenticatedExecutionProfilesRoute
   AuthenticatedHealthRoute: typeof AuthenticatedHealthRoute
@@ -607,6 +627,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedConfigurationRoute: AuthenticatedConfigurationRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDeploymentRoute: AuthenticatedDeploymentRoute,
   AuthenticatedEngineRegistrationRoute: AuthenticatedEngineRegistrationRoute,
   AuthenticatedExecutionProfilesRoute: AuthenticatedExecutionProfilesRoute,
   AuthenticatedHealthRoute: AuthenticatedHealthRoute,
