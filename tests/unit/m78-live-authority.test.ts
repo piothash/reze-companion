@@ -8,6 +8,8 @@ import { describe, expect, it } from "vitest";
 import {
   LIVE_GATES,
   REQUIRED_TELEMETRY_FIELDS,
+  STARTUP_CHAIN_STEPS,
+  deriveStartupChain,
   evaluateLiveAuthorityGates,
   heartbeatFresh,
   liveQualificationVerdict,
@@ -229,5 +231,39 @@ describe("M7.8 — live authority gates", () => {
       startup: { allowed: false, failedGates: ["risk-profile"], warnings: [] },
     });
     expect(liveQualificationVerdict(mixed)).toBe("FAIL");
+  });
+});
+
+describe("M7.8 — engine startup chain derivation", () => {
+  const full = {
+    configurationVersion: 7,
+    feedConnected: true,
+    marketCount: 1,
+    ptb: 64_000,
+    runningTwap: 63_980,
+    effectiveTwap: 63_990,
+    marketStateVersion: 12,
+    armedWindows: 5,
+  };
+
+  it("is PENDING when the authority reported nothing", () => {
+    expect(deriveStartupChain(null)).toBeNull();
+  });
+
+  it("passes only when every mandated step is reported", () => {
+    const chain = deriveStartupChain(full)!;
+    expect(chain.allowed).toBe(true);
+    expect(chain.steps?.map((entry) => entry.step)).toEqual([...STARTUP_CHAIN_STEPS]);
+  });
+
+  it("names each unreported step as a failed gate", () => {
+    const chain = deriveStartupChain({ ...full, ptb: null, armedWindows: 0 })!;
+    expect(chain.allowed).toBe(false);
+    expect(chain.failedGates).toEqual(["ptb-available", "windows-armed"]);
+  });
+
+  it("never infers a step that was not reported", () => {
+    const chain = deriveStartupChain({ ...full, feedConnected: null })!;
+    expect(chain.failedGates).toContain("feed-connected");
   });
 });
