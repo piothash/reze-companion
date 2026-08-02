@@ -120,14 +120,19 @@ function ConfigurationPage() {
           </Panel>
 
           <Panel title="Execution Defaults" className="overflow-x-auto">
-            {profileQuery.error || (!profileQuery.isPending && !profile) ? (
+            {profileQuery.error ? (
               <p className="py-3 font-mono text-xs text-destructive">
-                {(profileQuery.error as Error | null)?.message ??
-                  "ARC execution profile invalid — configuration is not provisioned."}
+                {(profileQuery.error as Error).message}
               </p>
-            ) : profileQuery.isPending || !profile ? (
+            ) : profileQuery.isPending ? (
               <LoadingState label="Reading execution profile" />
+            ) : !profile ? (
+              <EmptyState
+                message="No execution profile configured."
+                hint="Create one on the Execution Profiles page to begin."
+              />
             ) : (
+
               <>
                 <KeyValue
                   rows={[
