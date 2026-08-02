@@ -193,7 +193,7 @@ export function buildLifecycleStream(): EventEnvelope[] {
       ...base,
       executionIntentId: "int-1",
       type: EVENT_CATALOG.TradeSettled.type,
-      reasonCode: "LDG_SETTLEMENT_RECORDED",
+      reasonCode: "LDG_RECORDED",
       payload: { executionIntentId: "int-1", realizedPnl: 1.5, outcomeKey: "UP" },
     }),
   );
