@@ -21,6 +21,7 @@ import { Route as AuthenticatedExecutionProfilesRouteImport } from './routes/_au
 import { Route as AuthenticatedHealthRouteImport } from './routes/_authenticated/health'
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedOperationsRouteImport } from './routes/_authenticated/operations'
 import { Route as AuthenticatedOwnershipRouteImport } from './routes/_authenticated/ownership'
 import { Route as AuthenticatedQualificationRouteImport } from './routes/_authenticated/qualification'
 import { Route as AuthenticatedReplayRouteImport } from './routes/_authenticated/replay'
@@ -100,6 +101,11 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOperationsRoute = AuthenticatedOperationsRouteImport.update({
+  id: '/operations',
+  path: '/operations',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOwnershipRoute = AuthenticatedOwnershipRouteImport.update({
   id: '/ownership',
   path: '/ownership',
@@ -193,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/operations': typeof AuthenticatedOperationsRoute
   '/ownership': typeof AuthenticatedOwnershipRoute
   '/qualification': typeof AuthenticatedQualificationRoute
   '/replay': typeof AuthenticatedReplayRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/health': typeof AuthenticatedHealthRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/operations': typeof AuthenticatedOperationsRoute
   '/ownership': typeof AuthenticatedOwnershipRoute
   '/qualification': typeof AuthenticatedQualificationRoute
   '/replay': typeof AuthenticatedReplayRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/_authenticated/health': typeof AuthenticatedHealthRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/operations': typeof AuthenticatedOperationsRoute
   '/_authenticated/ownership': typeof AuthenticatedOwnershipRoute
   '/_authenticated/qualification': typeof AuthenticatedQualificationRoute
   '/_authenticated/replay': typeof AuthenticatedReplayRoute
@@ -281,6 +290,7 @@ export interface FileRouteTypes {
     | '/health'
     | '/markets'
     | '/notifications'
+    | '/operations'
     | '/ownership'
     | '/qualification'
     | '/replay'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/health'
     | '/markets'
     | '/notifications'
+    | '/operations'
     | '/ownership'
     | '/qualification'
     | '/replay'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/_authenticated/health'
     | '/_authenticated/markets'
     | '/_authenticated/notifications'
+    | '/_authenticated/operations'
     | '/_authenticated/ownership'
     | '/_authenticated/qualification'
     | '/_authenticated/replay'
@@ -453,6 +465,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/operations': {
+      id: '/_authenticated/operations'
+      path: '/operations'
+      fullPath: '/operations'
+      preLoaderRoute: typeof AuthenticatedOperationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ownership': {
@@ -573,6 +592,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHealthRoute: typeof AuthenticatedHealthRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedOperationsRoute: typeof AuthenticatedOperationsRoute
   AuthenticatedOwnershipRoute: typeof AuthenticatedOwnershipRoute
   AuthenticatedQualificationRoute: typeof AuthenticatedQualificationRoute
   AuthenticatedReplayRoute: typeof AuthenticatedReplayRoute
@@ -592,6 +612,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHealthRoute: AuthenticatedHealthRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedOperationsRoute: AuthenticatedOperationsRoute,
   AuthenticatedOwnershipRoute: AuthenticatedOwnershipRoute,
   AuthenticatedQualificationRoute: AuthenticatedQualificationRoute,
   AuthenticatedReplayRoute: AuthenticatedReplayRoute,
