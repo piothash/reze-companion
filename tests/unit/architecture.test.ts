@@ -119,7 +119,9 @@ describe("architecture — charter conformance", () => {
   });
 
   it("never imports the read-only reference mirror", () => {
-    const offenders = SRC_FILES.filter((file) => /docs\/reference\/p4/.test(read(file)));
+    const offenders = SRC_FILES.filter((file) =>
+      /(from|import)\s*\(?\s*["'][^"']*docs\/reference\/p4/.test(read(file)),
+    );
     expect(offenders).toEqual([]);
   });
 

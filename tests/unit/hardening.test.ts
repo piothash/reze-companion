@@ -16,7 +16,7 @@ import { MARKET_EVENT_TYPES } from "@/core/market/events";
 import { computeAnalytics, reconstructLedger, replayEvents } from "@/core/platform";
 import { recoverFromEvents } from "@/core/platform/recovery";
 import { loadExecutionProfile } from "@/core/decision/configuration";
-import { loadMarketConfiguration } from "@/core/market/configuration";
+import { loadMarketConfig } from "@/core/market/configuration";
 import { loadEnvironment } from "@/core/configuration/environment";
 
 const ROOT = process.cwd();
@@ -63,9 +63,9 @@ describe("configuration — nothing business-related hardcoded", () => {
     const profile = loadExecutionProfile({
       EXECUTION_PROFILE_ID: "prod",
       EXECUTION_MODE: "MULTI_TRADE",
-      MAX_TRADES: "3",
-      POSITION_SIZE: "25",
-      TICK_SIZE: "0.01",
+      EXECUTION_MAX_TRADES: "3",
+      EXECUTION_POSITION_SIZE: "25",
+      EXECUTION_TICK_SIZE: "0.01",
       EXECUTION_WINDOWS: "60s:0.004,30s:0.002,10s:0.001",
     });
     expect(profile.executionProfileId).toBe("prod");
@@ -75,11 +75,15 @@ describe("configuration — nothing business-related hardcoded", () => {
   });
 
   it("market feed, network and venue are configurable", () => {
-    const config = loadMarketConfiguration({
-      ARC_NETWORK: "testnet",
-      MARKET_FEED_PROVIDER: "pyth",
+    const config = loadMarketConfig({
+      TWAP_FEED_PROVIDER: "pyth",
+      TWAP_NETWORK: "testnet",
+      TWAP_FEED_ID: "feed-btc-usd",
+      TWAP_WINDOW_SECONDS: "60",
     });
-    expect(config).toBeTruthy();
+    expect(config.feed.network).toBe("testnet");
+    expect(config.feed.feedId).toBe("feed-btc-usd");
+    expect(config.twap.windowSeconds).toBe(60);
   });
 
   it("rejects an invalid environment instead of silently defaulting", () => {
