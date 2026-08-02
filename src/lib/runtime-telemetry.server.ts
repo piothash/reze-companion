@@ -45,9 +45,7 @@ export interface TelemetryView {
   telemetry: RuntimeTelemetry | null;
 }
 
-async function fetchTelemetry(
-  endpoint: RegisteredEndpoint,
-): Promise<{
+async function fetchTelemetry(endpoint: RegisteredEndpoint): Promise<{
   telemetry: RuntimeTelemetry | null;
   reasonCode: string;
   detail: string;
