@@ -119,7 +119,11 @@ function ConfigurationPage() {
           </Panel>
 
           <Panel title="Execution Defaults" className="overflow-x-auto">
-            {profileQuery.isPending || !profile ? (
+            {profileQuery.error ? (
+              <p className="py-3 font-mono text-xs text-destructive">
+                {(profileQuery.error as Error).message}
+              </p>
+            ) : profileQuery.isPending || !profile ? (
               <EmptyState message="Loading execution profile…" />
             ) : (
               <>

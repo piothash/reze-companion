@@ -142,7 +142,7 @@ function ExecutionProfilesPage() {
   const saveProfile = useServerFn(saveExecutionProfileConfig);
   const [draft, setDraft] = useState<ProfileDraft | null>(null);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, error } = useQuery({
     queryKey: ["arc", "execution-profile"],
     queryFn: () => fetchProfile(),
   });
@@ -196,7 +196,16 @@ function ExecutionProfilesPage() {
         </div>
       }
     >
-      {isPending || !draft ? (
+      {error ? (
+        <Panel title="Execution Profile Unavailable">
+          <p className="font-mono text-sm text-destructive">{(error as Error).message}</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            No execution profile is stored and the environment does not define one. Window offsets,
+            buffers and quotas are never hardcoded — provision them on the VPS environment or store
+            a configuration profile, then reload this page.
+          </p>
+        </Panel>
+      ) : isPending || !draft ? (
         <EmptyState message="Loading execution profile…" />
       ) : (
         <div className="space-y-4">
