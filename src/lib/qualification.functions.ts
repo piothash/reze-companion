@@ -65,6 +65,20 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
       }),
     ]);
 
+    // Highest canonical sequence the control plane has durably recorded. A
+    // restart that reports a lower sequence means the engine replayed events
+    // it had already emitted (M8.0 restart-integrity check).
+    const recordedSequence = await safe("event sequence", async () => {
+      const { data } = await client
+        .from("platform_events")
+        .select("sequence")
+        .order("sequence", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const value = (data as { sequence?: number } | null)?.sequence;
+      return typeof value === "number" ? value : null;
+    });
+
     // The active authority is the newest one that is not revoked.
     const authorityRow =
       (authorities ?? []).find((item) => item.status !== "revoked") ?? null;
@@ -156,7 +170,10 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
           processUptimeSeconds: authorityRow.uptimeSeconds,
           registrationCount: authorityRow.registrationCount,
           eventSequence: authorityRow.eventSequence,
-          sequenceRegressed: false,
+          sequenceRegressed:
+            authorityRow.eventSequence !== null &&
+            recordedSequence !== null &&
+            authorityRow.eventSequence < recordedSequence,
         }
       : null;
 
