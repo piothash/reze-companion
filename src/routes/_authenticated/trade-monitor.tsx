@@ -39,7 +39,9 @@ export const Route = createFileRoute("/_authenticated/trade-monitor")({
 
 function TradeMonitorPage() {
   const fetchSnapshot = useServerFn(getOperationsSnapshot);
+  const telemetry = useRuntimeTelemetry();
   const { data, isPending } = useQuery({
+
     queryKey: ["arc", "operations", "snapshot"],
     queryFn: () => fetchSnapshot({ data: { limit: 400 } }),
     refetchInterval: 15_000,
