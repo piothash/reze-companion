@@ -19,6 +19,8 @@ export const OPERATOR_NAV = [
   { to: "/signal-tank", label: "Signal Tank", description: "TWAP vs PTB decisions" },
   { to: "/replay", label: "Replay", description: "Deterministic reconstruction" },
   { to: "/qualification", label: "Qualification", description: "Testnet gate checklist" },
+  { to: "/operations", label: "Operations", description: "Incidents and diagnostics" },
+  { to: "/deployment", label: "Deployment", description: "Production readiness checklist" },
   { to: "/analytics", label: "Analytics", description: "Execution performance" },
   { to: "/health", label: "Health", description: "Component health" },
   { to: "/notifications", label: "Notifications", description: "Operator alerts" },
