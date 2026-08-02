@@ -78,9 +78,10 @@ describe("configuration — nothing business-related hardcoded", () => {
     const config = loadMarketConfig({
       MARKET_DISCOVERY_BASE_URL: "https://venue.example",
       MARKET_SLUG_TEMPLATE: "btc-{slot}",
-      TWAP_FEED_PROVIDER: "http-json",
+      TWAP_FEED_PROVIDER: "testnet",
       TWAP_NETWORK: "testnet",
       TWAP_FEED_ID: "feed-btc-usd",
+      TWAP_FEED_ENDPOINT: "https://feed.example.test/{network}/{feedId}",
       TWAP_WINDOW_SECONDS: "60",
     });
     expect(config.feed.network).toBe("testnet");
