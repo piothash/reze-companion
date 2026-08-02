@@ -115,6 +115,17 @@ export class InMemoryEventStore implements AppendOnlyEventStore {
     const existing = this.byIdempotencyKey.get(validated.idempotencyKey);
     if (existing) return { appended: false, duplicate: true, eventId: existing.eventId };
 
+    // An eventId identifies exactly one immutable fact: re-appending it with a
+    // different body would be a silent mutation of history.
+    const priorById = this.byEventId.get(validated.eventId);
+    if (priorById) {
+      throw new EventStoreViolationError(
+        "EVT_MUTATION_REJECTED",
+        `eventId ${validated.eventId} already stored with different content`,
+      );
+    }
+
+
     const newest = this.records[this.records.length - 1];
     if (!this.allowRetroactive && newest && compareEnvelopes(validated, newest) < 0) {
       throw new EventStoreViolationError(
