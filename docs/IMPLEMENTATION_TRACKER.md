@@ -633,3 +633,19 @@ the plain `server.ts` name so the bundler refuses any client-side import of it.
 | Verification: build · typecheck · lint · tests (458) · docs · architecture · qualification · security | PASS |
 | Frozen domains unchanged (market state, TWAP, PTB, decision, risk, standing orders, replay, recovery, contracts, gates) | Verified |
 | Live VPS activation (signing key on VPS, PM2 ARMED) | Pending operator run |
+
+## M8.3 — Final Production Release (repository audit, fresh clone, packaging)
+
+| Item | Status |
+| --- | --- |
+| Repository completeness audit: engine domains, 18 operator routes, migrations, deployment docs | PASS |
+| Fresh-clone gaps closed: `test` / `test:coverage` / `typecheck` / `check:env` / `verify` scripts added | Done |
+| `ecosystem.config.cjs` — PM2 definitions for `arc-companion` and single non-clustered `arc-engine` | Done |
+| `scripts/check-env.mjs` — fail-fast environment preflight (companion / vps roles) | Done |
+| Templates completed: `SUPABASE_PUBLISHABLE_KEY`, `ARC_AUTHORITY_ID`, `ARC_COMPANION_URL` | Done |
+| `CHANGELOG.md` — v1.0.0 ARC Production Release | Done |
+| README rewritten as a fresh-clone runbook (quick start, scripts, deployment assets) | Done |
+| `tests/unit/m83-final-release.test.ts` — scripts, assets, routes, schema, env coverage, secret sweep | Done |
+| Verification: typecheck · lint · full test suite · build | PASS |
+| Frozen domains unchanged | Verified |
+| Live VPS activation, PM2 start, live authority qualification | Manual production steps — not claimed complete |
