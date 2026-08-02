@@ -5,7 +5,7 @@
  * healthy / degraded / unavailable per dependency and for the runtime overall.
  * Consecutive-failure thresholds come from configuration, never hardcoded.
  */
-import { type HealthConfig } from "./types";
+import { type ArcConfig } from "../configuration/schema";
 import { REASON_CODES, type ReasonCode } from "../contracts/reason-codes";
 import { type Clock, systemClock } from "../shared/time";
 
