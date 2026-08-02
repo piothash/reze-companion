@@ -121,16 +121,25 @@ Legend: `⬜` not started · `🟨` in progress · `✅` complete · `N/A` not a
 - Read API: `src/lib/platform.functions.ts` — authenticated, read-only server functions (events, ledger, analytics, replay runs, replay execution). No control or trading path exists.
 
 
-### M5 — Operations
+### M5 — Operations Platform
 
 | Field | Value |
 |---|---|
-| Status | ⬜ Not started |
+| Status | ✅ Complete |
 | Dependencies | M3, M4 |
-| Exit Criteria | Ops Deck, trade inspector and audit trail complete; every control command authenticated and audited |
-| Acceptance Status | ⬜ |
-| Replay Status | ⬜ |
-| Production Status | ⬜ |
+| Exit Criteria | Complete operator platform: 13 surfaces, execution profile editing, audit trail; no trading control path exists |
+| Acceptance Status | ✅ Build, lint, typecheck clean; all 13 routes resolve behind the auth gate |
+| Replay Status | ✅ Replay surface drives the M4 deterministic replay runner |
+| Production Status | 🟨 Awaiting live event mirroring from the VPS engine |
+
+Implementation notes:
+
+- Operator projection: `src/core/platform/operations-view.ts` reduces canonical events into market, window, execution, signal and quota views. No strategy or trading logic.
+- Operations API: `src/lib/operations.functions.ts` — authenticated reads plus companion-owned writes only (execution profile, notification acknowledgement). Profile writes are audited.
+- UI shell: `src/components/arc/operator-shell.tsx` + `navigation.ts` (13 surfaces: Dashboard, Markets, Execution Profiles, Active Windows, Trade Monitor, Signal Tank, Replay, Analytics, Health, Notifications, Configuration, System, Audit).
+- Legacy trading vocabulary (majority, confidence, crowd sentiment, votes) is absent from the UI; the platform is TWAP-native by construction.
+- The legacy `/console` route was removed; `/auth` now lands on `/dashboard`.
+
 
 ### M6 — Production Hardening
 
