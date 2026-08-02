@@ -1,5 +1,5 @@
 /**
- * ARC — M7.9 activation checklist.
+ * ARC — M7.9 activation checklist, M7.10 diagnostics.
  *
  * Pure. Turns the M7.8 live evidence snapshot into the ordered list of actions
  * that still stand between the control plane and a green qualification console.
@@ -7,6 +7,9 @@
  * This module decides nothing about trading. It only reports which operational
  * step is next, who owns it (the operator or the VPS trading authority), and
  * what evidence would close it. Steps never self-report DONE without evidence.
+ *
+ * Every step carries full diagnostics: current state, the evidence that is
+ * missing, the required action, and the transition that will follow.
  */
 import type { LiveEvidenceSnapshot } from "./live-gates";
 import { heartbeatFresh, missingTelemetryFields } from "./live-gates";
@@ -31,6 +34,12 @@ export interface ActivationStep {
   readonly evidence: string;
   readonly status: ActivationStatus;
   readonly detail: string;
+  /** Why the step is in its current state, in operator language. */
+  readonly reason: string;
+  /** The concrete call, page or command that produces the missing evidence. */
+  readonly required: string;
+  /** What the console will show once the evidence arrives. */
+  readonly transition: string;
 }
 
 export const ACTIVATION_STEP_IDS = [
@@ -64,11 +73,15 @@ export function buildActivationChecklist(
 
   const signingKeyDone = security?.signatureVerificationEnabled === true;
   const ownershipDone = security?.ownershipFinalized === true;
+  const prerequisites = signingKeyDone && ownershipDone;
   const registered = authority !== null && authority.status !== "revoked";
   const fresh =
     authority !== null &&
     heartbeatFresh(authority.lastSeenIso, authority.heartbeatIntervalMillis, nowMillis);
   const active = registered && fresh && authority.runtimeIdentity !== null;
+  const missingTelemetry = missingTelemetryFields(authority);
+
+  const blockedBy = (what: string) => `Blocked: ${what}`;
 
   const steps: ActivationStep[] = [
     {
@@ -82,6 +95,11 @@ export function buildActivationChecklist(
       detail: signingKeyDone
         ? "Signing key present; every authority message is signature-verified."
         : "No signing key configured — the gateway fail-closes and rejects all authority traffic.",
+      reason: signingKeyDone
+        ? "The gateway reports signature verification is enforced."
+        : "No shared signing key is present, so every authority message is refused with KEY_UNCONFIGURED.",
+      required: "Set ARC_AUTHORITY_SIGNING_KEY (32+ chars) on the companion and the VPS engine.",
+      transition: "Authority Signing on the System page turns to CONFIGURED.",
     },
     {
       id: "ownership",
@@ -94,6 +112,11 @@ export function buildActivationChecklist(
       detail: ownershipDone
         ? "Ownership is finalized; signup is permanently closed."
         : "Ownership is not finalized — registration is still open.",
+      reason: ownershipDone
+        ? "Ownership is finalized and registration is permanently closed."
+        : "Ownership is still open, so an unintended account could still claim the control plane.",
+      required: "Finalize ownership on the Ownership page as the intended operator account.",
+      transition: "Registration closes permanently and the security gate stops failing.",
     },
     {
       id: "register",
@@ -102,16 +125,19 @@ export function buildActivationChecklist(
       action:
         "Start the PM2 engine so it POSTs a signed registration to /api/public/authority/register.",
       evidence: "A non-revoked authority row with a runtime identity.",
-      status: registered
-        ? "DONE"
-        : signingKeyDone && ownershipDone
-          ? "WAITING"
-          : "BLOCKED",
+      status: registered ? "DONE" : prerequisites ? "WAITING" : "BLOCKED",
       detail: registered
         ? `Authority ${authority.authorityId} registered in ${authority.environment}.`
-        : signingKeyDone && ownershipDone
+        : prerequisites
           ? "Awaiting the first signed registration from the VPS."
-          : "Blocked: the signing key and finalized ownership must come first.",
+          : blockedBy("the signing key and finalized ownership must come first."),
+      reason: registered
+        ? `Authority ${authority.authorityId} holds a non-revoked registry row.`
+        : prerequisites
+          ? "No verified VPS authority registration has been received."
+          : "The signing key and finalized ownership are prerequisites and are not both in place.",
+      required: "POST /api/public/authority/register — signed by the engine on boot.",
+      transition: "Engine Registry shows the authority; the heartbeat step opens.",
     },
     {
       id: "heartbeat",
@@ -124,7 +150,16 @@ export function buildActivationChecklist(
         ? `Heartbeat fresh; runtime identity ${authority.runtimeIdentity}.`
         : registered
           ? "Registered, but no fresh heartbeat with a runtime identity yet."
-          : "Blocked: the authority must register first.",
+          : blockedBy("the authority must register first."),
+      reason: active
+        ? "A verified heartbeat arrived inside the declared interval with a runtime identity."
+        : registered
+          ? authority.runtimeIdentity === null
+            ? "The authority has not reported a runtime identity."
+            : "No verified VPS authority heartbeat received inside the declared interval."
+          : "No authority is registered, so no heartbeat can be verified.",
+      required: "POST /api/public/authority/heartbeat — on the engine's declared interval.",
+      transition: "Engine Registry status moves from STALE to ACTIVE.",
     },
     {
       id: "startup",
@@ -134,13 +169,7 @@ export function buildActivationChecklist(
         "Let the engine complete configuration → feed → discovery → PTB → TWAP → signal → market state → windows armed.",
       evidence: "Telemetry reports every startup step.",
       status:
-        startup?.allowed === true
-          ? "DONE"
-          : startup && startup.failedGates.length > 0
-            ? "WAITING"
-            : active
-              ? "WAITING"
-              : "BLOCKED",
+        startup?.allowed === true ? "DONE" : active ? "WAITING" : "BLOCKED",
       detail:
         startup?.allowed === true
           ? "Every startup step reported by the authority."
@@ -148,7 +177,17 @@ export function buildActivationChecklist(
             ? `Unreported step(s): ${startup.failedGates.join(", ")}.`
             : active
               ? "Awaiting startup telemetry from the authority."
-              : "Blocked: the authority must be ACTIVE first.",
+              : blockedBy("the authority must be ACTIVE first."),
+      reason:
+        startup?.allowed === true
+          ? "The authority reported every step of the startup chain."
+          : startup && startup.failedGates.length > 0
+            ? `The authority has not reported: ${startup.failedGates.join(", ")}.`
+            : active
+              ? "No startup telemetry has been received from the authority."
+              : "The authority is not ACTIVE, so no startup evidence can be trusted.",
+      required: "Engine telemetry covering all eight startup steps on the Startup Evidence panel.",
+      transition: "Startup Evidence turns fully green and the startup gate passes.",
     },
     {
       id: "configuration",
@@ -174,29 +213,46 @@ export function buildActivationChecklist(
             : `Runtime status ${configuration.runtimeStatus ?? "unknown"} — not yet LIVE.`
         : active
           ? "No configuration version has reached the authority yet."
-          : "Blocked: the authority must be ACTIVE first.",
+          : blockedBy("the authority must be ACTIVE first."),
+      reason: !active
+        ? "The authority is not ACTIVE, so it cannot confirm a configuration."
+        : configuration?.drift
+          ? "The running configuration hash does not match the published version."
+          : configuration?.live === true
+            ? "The authority has not confirmed the published version as LIVE."
+            : "No live configuration read has been answered by the authority.",
+      required: "Publish an execution profile version, then let the engine pull and ACCEPT it.",
+      transition: "Configuration activation moves PENDING → ACCEPTED → ACTIVE.",
     },
     {
       id: "telemetry",
       owner: "VPS",
       title: "Telemetry complete and current",
       action: "Let the engine publish full telemetry on its sync interval.",
-      evidence:
-        "Live telemetry within the sync budget carrying every mandated field.",
+      evidence: "Live telemetry within the sync budget carrying every mandated field.",
       status:
-        active && telemetry?.source === "LIVE" && missingTelemetryFields(authority).length === 0
+        active && telemetry?.source === "LIVE" && missingTelemetry.length === 0
           ? "DONE"
           : active
             ? "WAITING"
             : "BLOCKED",
       detail:
         telemetry?.source === "LIVE"
-          ? missingTelemetryFields(authority).length === 0
+          ? missingTelemetry.length === 0
             ? "All mandated telemetry fields reported."
-            : `Missing field(s): ${missingTelemetryFields(authority).join(", ")}.`
+            : `Missing field(s): ${missingTelemetry.join(", ")}.`
           : active
             ? `Telemetry source is ${telemetry?.source ?? "NONE"} — live telemetry required.`
-            : "Blocked: the authority must be ACTIVE first.",
+            : blockedBy("the authority must be ACTIVE first."),
+      reason: !active
+        ? "The authority is not ACTIVE, so its telemetry cannot be trusted."
+        : telemetry?.source !== "LIVE"
+          ? `Telemetry is ${telemetry?.source ?? "NONE"} rather than a live read.`
+          : missingTelemetry.length > 0
+            ? `The authority did not report: ${missingTelemetry.join(", ")}.`
+            : "All mandated telemetry fields arrived on a current heartbeat.",
+      required: "Engine telemetry carrying all eight mandated fields on its sync interval.",
+      transition: "The telemetry gate passes and the dashboard shows live values.",
     },
   ];
 

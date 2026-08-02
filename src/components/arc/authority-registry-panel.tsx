@@ -12,12 +12,18 @@ import { useServerFn } from "@tanstack/react-start";
 import { EmptyState, LoadingState, Panel } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { listRegisteredAuthorities } from "@/lib/authority.functions";
+import { getAuthoritySigningStatus } from "@/lib/security.functions";
+import {
+  deriveAuthorityDisplay,
+  formatHeartbeatAge,
+  type AuthorityDisplayStatus,
+} from "@/core/platform/authority-presentation";
 
-const STATUS_TONE: Record<string, string> = {
-  active: "text-primary",
-  registered: "text-muted-foreground",
-  stale: "text-warning",
-  revoked: "text-destructive",
+const STATUS_TONE: Record<AuthorityDisplayStatus, string> = {
+  ACTIVE: "text-primary",
+  STALE: "text-warning",
+  REVOKED: "text-destructive",
+  UNREGISTERED: "text-muted-foreground",
 };
 
 const RUNTIME_TONE: Record<string, string> = {
@@ -67,8 +73,15 @@ export function AuthorityRegistryPanel() {
     queryFn: () => fetchAuthorities(),
     refetchInterval: 5_000,
   });
+  const fetchSigning = useServerFn(getAuthoritySigningStatus);
+  const signing = useQuery({
+    queryKey: ["arc", "authority-signing"],
+    queryFn: () => fetchSigning(),
+    refetchInterval: 60_000,
+  });
 
   const now = Date.now();
+  const signatureVerified = signing.data?.securityStatus === "ENFORCED";
 
   return (
     <Panel title="Trading Authority Registry">
@@ -78,12 +91,23 @@ export function AuthorityRegistryPanel() {
         <LoadingState label="Reading authority registry" />
       ) : (data ?? []).length === 0 ? (
         <EmptyState
-          message="No trading authority registered."
+          message="No trading authority registered — UNREGISTERED."
           hint="The VPS engine registers itself through POST /api/public/authority/register on boot and keeps its record live with POST /api/public/authority/heartbeat. Until it does, no authority is allowed to trade."
         />
       ) : (
         <div className="space-y-4">
-          {(data ?? []).map((authority) => (
+          {(data ?? []).map((authority) => {
+            const display = deriveAuthorityDisplay(
+              {
+                status: authority.status,
+                lastSeenIso: authority.lastSeen,
+                heartbeatIntervalMillis: authority.heartbeatIntervalMillis,
+                runtimeIdentity: authority.runtimeIdentity,
+                signatureVerified,
+              },
+              now,
+            );
+            return (
             <div
               key={authority.authorityId}
               className="rounded border border-border bg-card/40 p-4"
@@ -97,21 +121,24 @@ export function AuthorityRegistryPanel() {
                 </div>
                 <span
                   className={`font-mono text-xs uppercase tracking-wider ${
-                    STATUS_TONE[authority.status] ?? "text-muted-foreground"
+                    STATUS_TONE[display.status]
                   }`}
                 >
-                  {authority.status}
+                  {display.status}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Field label="Authority ID" value={authority.authorityId} />
+                <Field label="Runtime identity" value={authority.runtimeIdentity ?? "—"} />
                 <Field label="Environment" value={authority.environment.toUpperCase()} />
                 <Field label="Version" value={authority.engineVersion ?? "—"} />
                 <Field
-                  label="Last heartbeat"
-                  value={ago(authority.lastSeen, now)}
-                  tone={authority.status === "stale" ? "text-warning" : undefined}
+                  label="Heartbeat age"
+                  value={formatHeartbeatAge(display.heartbeatAgeMillis)}
+                  tone={display.status === "ACTIVE" ? undefined : "text-warning"}
                 />
+
                 <Field
                   label="Latency"
                   value={
@@ -150,10 +177,12 @@ export function AuthorityRegistryPanel() {
 
               <p className="mt-3 font-mono text-[10px] text-muted-foreground">
                 heartbeat interval {Math.round(authority.heartbeatIntervalMillis / 1000)}s ·
-                runtime identity {authority.runtimeIdentity ?? "—"}
+                stale after {Math.round(display.heartbeatDeadlineMillis / 1000)}s
+                {display.blockers.length > 0 ? ` · ${display.blockers.join("; ")}` : ""}
               </p>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
       <p className="mt-3 text-xs text-muted-foreground">

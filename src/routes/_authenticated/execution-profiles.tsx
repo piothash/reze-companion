@@ -10,6 +10,7 @@ import {
   AuthorityRuntimePanel,
   useAuthorityRuntime,
 } from "@/components/arc/authority-runtime";
+import { deriveConfigurationActivation } from "@/core/platform/configuration-activation";
 import { fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1110,21 +1111,48 @@ function RuntimePanel({
     );
   }
 
-  const { runtime, authority, drift, latestActive } = view;
+  const { runtime, authority, drift, latestActive, versions } = view;
+  const latestVersion = versions[0] ?? latestActive;
+  // ACTIVE is only ever shown when the authority itself confirms the running
+  // hash on a live read — never from a stored or mirrored value.
+  const activation = deriveConfigurationActivation({
+    latestVersion: latestVersion
+      ? {
+          version: latestVersion.version,
+          status: latestVersion.status,
+          configHash: latestVersion.configHash,
+          rejectionReason: latestVersion.rejectionReason ?? null,
+        }
+      : null,
+    runtime: runtime
+      ? {
+          live: runtime.live,
+          runtimeStatus: runtime.runtimeStatus,
+          configHash: runtime.configHash,
+          snapshotId: runtime.snapshotId,
+          version: runtime.version,
+        }
+      : null,
+    drifted: drift.drifted,
+  });
+  const ACTIVATION_TONE: Record<string, "positive" | "negative" | "warning" | "neutral"> = {
+    ACTIVE: "positive",
+    ACCEPTED: "positive",
+    PENDING: "warning",
+    DRIFTED: "warning",
+    REJECTED: "negative",
+    NOT_PUBLISHED: "neutral",
+  };
   const tone = !authority.registered
     ? "neutral"
     : !authority.reachable
       ? "negative"
-      : drift.drifted
-        ? "warning"
-        : "positive";
+      : (ACTIVATION_TONE[activation.state] ?? "neutral");
   const label = !authority.registered
     ? "NO AUTHORITY"
     : !authority.reachable
       ? "UNREACHABLE"
-      : drift.drifted
-        ? "DRIFT"
-        : "IN SYNC";
+      : activation.state;
 
   return (
     <Panel
@@ -1141,8 +1169,13 @@ function RuntimePanel({
           <dl className="grid gap-y-2 sm:grid-cols-2 sm:gap-x-6">
             {(
               [
+                ["Activation", activation.state],
+                [
+                  "Authority confirmed",
+                  activation.confirmedByAuthority ? "YES" : "NO — awaiting live read",
+                ],
                 ["Running version", runtime?.version ? `v${runtime.version}` : "—"],
-                ["Saved version", latestActive ? `v${latestActive.version}` : "—"],
+                ["Saved version", latestVersion ? `v${latestVersion.version}` : "—"],
                 ["Runtime status", runtime?.runtimeStatus ?? "UNKNOWN"],
                 ["Snapshot", shortHash(runtime?.snapshotId ?? null)],
                 ["Running hash", shortHash(runtime?.configHash ?? null)],
@@ -1168,6 +1201,7 @@ function RuntimePanel({
             ))}
           </dl>
           <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
+            {activation.detail}{" "}
             {drift.drifted ? `${drift.reasonCode} — ${drift.detail}` : authority.detail}
             {runtime && !runtime.live
               ? " · Values mirrored from the last successful sync, not a live read."

@@ -127,6 +127,7 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
     const startup = deriveStartupChain(
       engine
         ? {
+            engineOnline: true,
             configurationVersion: authority?.configurationVersion ?? null,
             feedConnected: engine.feed?.connected ?? null,
             marketCount: engine.markets.length,

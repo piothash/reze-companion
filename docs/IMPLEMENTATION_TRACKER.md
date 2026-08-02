@@ -580,3 +580,22 @@ the plain `server.ts` name so the bundler refuses any client-side import of it.
 | Tests: prerequisite ordering, blocking, drift/staleness reopening, missing telemetry fields | Done (383 total) |
 | `docs/qualification/M7_9_SECURITY_ACTIVATION_REPORT.md` | Done |
 | Signing key set on both sides · ownership finalized · VPS ACTIVE · live gates green | Pending operator run |
+
+## M7.10 — Production Activation Readiness & Operator Finalization Hardening
+
+| Item | Status |
+| --- | --- |
+| `handle_new_user()` hardened: owner claimed once, nothing granted after finalization | Done |
+| No seeds, no hidden owners, no email verification for the bootstrap operator | Done |
+| Signing key metadata only (`getAuthoritySigningStatus`) — value never displayed, stored or logged | Done |
+| "Authority Signing" panel on `/system` (configured, strength, last verified, ownership) | Done |
+| Activation diagnostics: reason / missing evidence / required action / expected transition | Done |
+| Engine registry statuses ACTIVE · STALE · REVOKED · UNREGISTERED, derived from verified evidence | Done |
+| Registry shows authority id, runtime identity, version, heartbeat age, latency | Done |
+| Configuration activation NOT_PUBLISHED → PENDING → ACCEPTED → ACTIVE (+ REJECTED, DRIFTED) | Done |
+| ACTIVE only on a live authority confirmation — never from a mirrored or stored value | Done |
+| Nine-step VPS startup evidence panel on `/qualification` | Done |
+| Security tests: unsigned, wrong key, stale, replayed, ownership locking, activation diagnostics | Done (408 total) |
+| Architecture compliance: no trading logic, no forbidden imports, reference tree untouched | Done |
+| `docs/qualification/M7_10_ACTIVATION_READINESS_REPORT.md` | Done |
+| Signing key configured · ownership finalized · VPS registered and ACTIVE | Pending operator run |

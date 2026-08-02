@@ -5,6 +5,8 @@
  * analytics, notifications, audit trail and synchronization policy. No
  * strategy, no trading decisions, no order placement lives here.
  */
+export * from "./authority-presentation";
+export * from "./configuration-activation";
 export * from "./event-catalog";
 export * from "./event-store";
 export * from "./events";

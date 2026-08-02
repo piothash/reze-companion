@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
+import { StartupEvidencePanel } from "@/components/arc/startup-evidence-panel";
 import { LoadingState, Metric, Panel, StatusPill, type StatusTone } from "@/components/arc/primitives";
 import { getRuntimeTelemetry } from "@/lib/engine.functions";
 import { getConfigurationRuntimeView } from "@/lib/configuration.functions";
@@ -186,7 +187,20 @@ function QualificationPage() {
                   <div>
                     <p className="text-sm">{step.title}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">{step.action}</p>
-                    <p className="mt-1 font-mono text-xs text-muted-foreground">{step.detail}</p>
+                    {step.status === "DONE" ? (
+                      <p className="mt-1 font-mono text-xs text-muted-foreground">{step.detail}</p>
+                    ) : (
+                      <dl className="mt-2 grid gap-x-3 gap-y-1 font-mono text-xs sm:grid-cols-[8rem_minmax(0,1fr)]">
+                        <dt className="label-caps">Reason</dt>
+                        <dd className="text-muted-foreground">{step.reason}</dd>
+                        <dt className="label-caps">Missing</dt>
+                        <dd className="text-muted-foreground">{step.evidence}</dd>
+                        <dt className="label-caps">Required</dt>
+                        <dd className="text-foreground">{step.required}</dd>
+                        <dt className="label-caps">Then</dt>
+                        <dd className="text-muted-foreground">{step.transition}</dd>
+                      </dl>
+                    )}
                   </div>
                   <div className="sm:justify-self-end">
                     <StatusPill tone={ACTIVATION_TONE[step.status]} label={step.status} />
@@ -196,6 +210,12 @@ function QualificationPage() {
             </div>
           )}
         </Panel>
+
+        <StartupEvidencePanel
+          startup={evidence.data?.snapshot.startup ?? null}
+          loading={evidence.isPending}
+        />
+
 
         <Panel
           title="Live Authority Gates — M7.8"
