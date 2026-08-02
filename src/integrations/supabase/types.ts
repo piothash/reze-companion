@@ -85,56 +85,89 @@ export type Database = {
       }
       authority_registry: {
         Row: {
+          active_market: string | null
+          active_windows: number | null
           authority_id: string
           capabilities: Json
+          configuration_version: number | null
           created_at: string
           endpoint_id: string | null
           engine_version: string | null
           environment: string
+          event_sequence: number | null
+          heartbeat_interval_millis: number
           id: string
+          last_registered_at: string | null
           last_seen: string | null
+          latency_millis: number | null
           name: string
           platform_version: string | null
           public_key: string | null
           registered_at: string
+          registration_count: number
+          runtime_identity: string | null
+          runtime_status: string
           status: string
           updated_at: string
+          uptime_seconds: number | null
           user_id: string
           version: string | null
         }
         Insert: {
+          active_market?: string | null
+          active_windows?: number | null
           authority_id: string
           capabilities?: Json
+          configuration_version?: number | null
           created_at?: string
           endpoint_id?: string | null
           engine_version?: string | null
           environment?: string
+          event_sequence?: number | null
+          heartbeat_interval_millis?: number
           id?: string
+          last_registered_at?: string | null
           last_seen?: string | null
+          latency_millis?: number | null
           name: string
           platform_version?: string | null
           public_key?: string | null
           registered_at?: string
+          registration_count?: number
+          runtime_identity?: string | null
+          runtime_status?: string
           status?: string
           updated_at?: string
+          uptime_seconds?: number | null
           user_id: string
           version?: string | null
         }
         Update: {
+          active_market?: string | null
+          active_windows?: number | null
           authority_id?: string
           capabilities?: Json
+          configuration_version?: number | null
           created_at?: string
           endpoint_id?: string | null
           engine_version?: string | null
           environment?: string
+          event_sequence?: number | null
+          heartbeat_interval_millis?: number
           id?: string
+          last_registered_at?: string | null
           last_seen?: string | null
+          latency_millis?: number | null
           name?: string
           platform_version?: string | null
           public_key?: string | null
           registered_at?: string
+          registration_count?: number
+          runtime_identity?: string | null
+          runtime_status?: string
           status?: string
           updated_at?: string
+          uptime_seconds?: number | null
           user_id?: string
           version?: string | null
         }
@@ -147,6 +180,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      authority_replay_guard: {
+        Row: {
+          authority_id: string
+          created_at: string
+          endpoint: string
+          id: string
+          message_timestamp: string
+          seen_at: string
+          signature_digest: string
+        }
+        Insert: {
+          authority_id: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          message_timestamp: string
+          seen_at?: string
+          signature_digest: string
+        }
+        Update: {
+          authority_id?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          message_timestamp?: string
+          seen_at?: string
+          signature_digest?: string
+        }
+        Relationships: []
       }
       configuration_profiles: {
         Row: {
