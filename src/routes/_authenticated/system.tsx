@@ -169,7 +169,17 @@ function SystemPage() {
           >
             <KeyValue
               rows={[
+                [
+                  "Status",
+                  signing.data === undefined
+                    ? "—"
+                    : signing.data.configured
+                      ? "Configured"
+                      : "Not Configured",
+                ],
+                ["Source", "Server Environment"],
                 ["Signing Key Configured", signing.data?.configured ? "YES" : "NO"],
+
                 [
                   "Meets Minimum Strength",
                   signing.data === undefined
