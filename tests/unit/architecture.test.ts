@@ -103,7 +103,11 @@ describe("architecture — charter conformance", () => {
         // Prose in doc comments explicitly forbids the concepts; only code counts.
         const trimmed = line.trim();
         if (trimmed.startsWith("*") || trimmed.startsWith("//")) continue;
-        if (/\b(majorityDirection|majorityConfidence|crowdSentiment|voteCount|binanceDirection)\b/.test(line)) {
+        if (
+          /\b(majorityDirection|majorityConfidence|crowdSentiment|voteCount|binanceDirection)\b/.test(
+            line,
+          )
+        ) {
           offenders.push(`${file}: ${trimmed}`);
         }
       }

@@ -30,12 +30,7 @@ export interface RecoveredWindow {
 }
 
 export type RecoveredIntentPhase =
-  | "CREATED"
-  | "RISK_APPROVED"
-  | "RISK_DENIED"
-  | "EXECUTING"
-  | "COMPLETED"
-  | "FAILED";
+  "CREATED" | "RISK_APPROVED" | "RISK_DENIED" | "EXECUTING" | "COMPLETED" | "FAILED";
 
 export interface RecoveredIntent {
   executionIntentId: string;
@@ -221,7 +216,8 @@ export function recoverFromEvents(events: readonly EventEnvelope[]): RecoverySta
           (event.payload as { executionIntentId?: string }).executionIntentId;
         if (!id) break;
         const intent = intentOf(id, event.metadata.windowInstanceId ?? null);
-        intent.phase = event.type === TRADE_EVENT_TYPES.riskApproved ? "RISK_APPROVED" : "RISK_DENIED";
+        intent.phase =
+          event.type === TRADE_EVENT_TYPES.riskApproved ? "RISK_APPROVED" : "RISK_DENIED";
         break;
       }
 
@@ -322,7 +318,12 @@ export function recoverFromEvents(events: readonly EventEnvelope[]): RecoverySta
       .map((window) => window.windowInstanceId),
     intents: intentList,
     openIntentIds: intentList
-      .filter((intent) => intent.phase !== "COMPLETED" && intent.phase !== "FAILED" && intent.phase !== "RISK_DENIED")
+      .filter(
+        (intent) =>
+          intent.phase !== "COMPLETED" &&
+          intent.phase !== "FAILED" &&
+          intent.phase !== "RISK_DENIED",
+      )
       .map((intent) => intent.executionIntentId),
     orders: orderList,
     openOrderIds: orderList.filter((order) => !order.terminal).map((order) => order.orderId),

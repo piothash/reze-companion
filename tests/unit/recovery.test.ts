@@ -301,8 +301,12 @@ describe("recovery — restart at every lifecycle boundary", () => {
   it("recovery agrees with replay on intents, orders and quota", () => {
     const state = recoverFromEvents(STREAM);
     const replay = replayEvents(STREAM);
-    expect(state.intents.map((i) => i.executionIntentId)).toEqual(replay.projection.executionIntentIds);
-    expect(state.orders.map((o) => o.orderId)).toEqual(replay.projection.orders.map((o) => o.orderId));
+    expect(state.intents.map((i) => i.executionIntentId)).toEqual(
+      replay.projection.executionIntentIds,
+    );
+    expect(state.orders.map((o) => o.orderId)).toEqual(
+      replay.projection.orders.map((o) => o.orderId),
+    );
     expect(state.quota).toEqual(replay.projection.quota);
   });
 });
