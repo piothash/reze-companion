@@ -106,6 +106,8 @@ function MarketsPage() {
           ))}
         </div>
       )}
+      </div>
     </OperatorShell>
+
   );
 }
