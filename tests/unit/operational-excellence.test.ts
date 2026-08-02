@@ -134,7 +134,10 @@ describe("watchdogs", () => {
   });
 
   it("escalates to critical after repeated failures", () => {
-    const registry = new WatchdogRegistry(defaultWatchdogPolicies(POLICY_OPTIONS), new FixedClock(0));
+    const registry = new WatchdogRegistry(
+      defaultWatchdogPolicies(POLICY_OPTIONS),
+      new FixedClock(0),
+    );
     for (let index = 0; index < 25; index += 1) {
       registry.fail("execution", "boom");
     }

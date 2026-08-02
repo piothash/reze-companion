@@ -55,7 +55,9 @@ export function useRuntimeTelemetry() {
 
 export function TelemetrySourcePill({ view }: { view: TelemetryView | undefined }) {
   const source = view?.source ?? "NONE";
-  return <StatusPill tone={SOURCE_TONE[source]} label={source === "NONE" ? "NO AUTHORITY" : source} />;
+  return (
+    <StatusPill tone={SOURCE_TONE[source]} label={source === "NONE" ? "NO AUTHORITY" : source} />
+  );
 }
 
 /** Ticks once a second so countdowns are live without refetching. */
@@ -76,7 +78,10 @@ function seconds(value: number | null): string {
 /** Running TWAP, effective TWAP, observation count, freshness and latency. */
 export function LiveFeedPanel({ view }: { view: TelemetryView | undefined }) {
   const feed = view?.telemetry?.feed ?? null;
-  const freshness = classifyFeedFreshness(feed?.ageMillis ?? null, feed?.maxStalenessMillis ?? null);
+  const freshness = classifyFeedFreshness(
+    feed?.ageMillis ?? null,
+    feed?.maxStalenessMillis ?? null,
+  );
 
   if (!feed) {
     return (
@@ -102,7 +107,11 @@ export function LiveFeedPanel({ view }: { view: TelemetryView | undefined }) {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Running TWAP" value={fmt(feed.runningTwap)} hint="Engine rolling window" />
         <Metric label="Effective TWAP" value={fmt(feed.effectiveTwap)} hint="Conditioned signal" />
-        <Metric label="Observations" value={fmtInt(feed.observationCount)} hint={`Window ${fmtInt(feed.windowSeconds)}s`} />
+        <Metric
+          label="Observations"
+          value={fmtInt(feed.observationCount)}
+          hint={`Window ${fmtInt(feed.windowSeconds)}s`}
+        />
         <Metric
           label="Feed Latency"
           value={feed.latencyMillis === null ? "—" : `${feed.latencyMillis} ms`}
@@ -119,7 +128,10 @@ export function LiveFeedPanel({ view }: { view: TelemetryView | undefined }) {
             ["Status", feed.status ?? "—"],
             ["Connected", feed.connected === null ? "—" : feed.connected ? "yes" : "no"],
             ["Last Observation", fmtTime(feed.lastObservationIso)],
-            ["Staleness Budget", feed.maxStalenessMillis === null ? "—" : `${feed.maxStalenessMillis} ms`],
+            [
+              "Staleness Budget",
+              feed.maxStalenessMillis === null ? "—" : `${feed.maxStalenessMillis} ms`,
+            ],
             ["Missed Observations", fmtInt(feed.missedObservations)],
             ["Feed Reconnects", fmtInt(feed.reconnectCount)],
             ["Precision", fmtInt(feed.precision)],
@@ -168,13 +180,16 @@ export function LiveWindowsPanel({ view }: { view: TelemetryView | undefined }) 
                 }`}
               >
                 <p className="label-caps">
-                  {window.offsetSeconds === null ? window.windowInstanceId : `${window.offsetSeconds}s window`}
+                  {window.offsetSeconds === null
+                    ? window.windowInstanceId
+                    : `${window.offsetSeconds}s window`}
                 </p>
                 <p className="mt-1 font-mono text-lg leading-tight">
                   {seconds(untilClose ?? untilOpen)}
                 </p>
                 <p className="mt-1 font-mono text-xs text-muted-foreground">
-                  {window.state ?? "—"} · buffer {window.bufferPercent === null ? "—" : `${window.bufferPercent}%`}
+                  {window.state ?? "—"} · buffer{" "}
+                  {window.bufferPercent === null ? "—" : `${window.bufferPercent}%`}
                 </p>
                 <p className="font-mono text-xs text-muted-foreground">
                   {window.decision ?? "NO_SIGNAL"}
@@ -196,7 +211,10 @@ export function LiveMarketPanel({ view }: { view: TelemetryView | undefined }) {
       <Panel title="Live Market Metadata" actions={<TelemetrySourcePill view={view} />}>
         <EmptyState
           message="No live market is published by the trading authority."
-          hint={view?.detail ?? "Market discovery runs on the engine; the console mirrors what it reports."}
+          hint={
+            view?.detail ??
+            "Market discovery runs on the engine; the console mirrors what it reports."
+          }
         />
       </Panel>
     );
@@ -223,7 +241,10 @@ export function LiveMarketPanel({ view }: { view: TelemetryView | undefined }) {
               ["Slug", market.slug ?? "—"],
               ["Venue", market.venue ?? "—"],
               ["Status", market.status ?? "—"],
-              ["Trading Enabled", market.tradingEnabled === null ? "—" : market.tradingEnabled ? "yes" : "no"],
+              [
+                "Trading Enabled",
+                market.tradingEnabled === null ? "—" : market.tradingEnabled ? "yes" : "no",
+              ],
               ["End Time", fmtTime(market.endTimeIso)],
               ["Resolution Time", fmtTime(market.resolutionIso)],
               ["PTB (official metadata)", fmt(market.ptb)],
@@ -268,9 +289,19 @@ export function LiveRuntimePanel({ view }: { view: TelemetryView | undefined }) 
         <KeyValue
           rows={[
             ["Scheduler", scheduler?.status ?? "—"],
-            ["Tick Interval", scheduler?.tickIntervalMillis === null || scheduler === null ? "—" : `${scheduler.tickIntervalMillis} ms`],
+            [
+              "Tick Interval",
+              scheduler?.tickIntervalMillis === null || scheduler === null
+                ? "—"
+                : `${scheduler.tickIntervalMillis} ms`,
+            ],
             ["Last Tick", fmtTime(scheduler?.lastTickIso ?? null)],
-            ["Tick Drift", scheduler?.driftMillis === null || scheduler === null ? "—" : `${scheduler.driftMillis} ms`],
+            [
+              "Tick Drift",
+              scheduler?.driftMillis === null || scheduler === null
+                ? "—"
+                : `${scheduler.driftMillis} ms`,
+            ],
           ]}
         />
         <KeyValue

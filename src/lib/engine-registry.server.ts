@@ -72,12 +72,18 @@ export async function saveRegistration(
     await client.from("engine_endpoints").update({ is_active: false }).neq("id", saved.id);
   }
 
-  await audit(client, userId, id ? "engine.registration.updated" : "engine.registration.created", saved.id, {
-    name: saved.name,
-    environment: saved.environment,
-    host: saved.baseUrl,
-    apiVersion: saved.apiVersion,
-  });
+  await audit(
+    client,
+    userId,
+    id ? "engine.registration.updated" : "engine.registration.created",
+    saved.id,
+    {
+      name: saved.name,
+      environment: saved.environment,
+      host: saved.baseUrl,
+      apiVersion: saved.apiVersion,
+    },
+  );
 
   return saved;
 }

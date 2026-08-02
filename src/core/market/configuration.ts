@@ -8,12 +8,7 @@
 import { z } from "zod";
 
 import { digest128 } from "../shared/ids";
-import {
-  FEED_GENERATIONS,
-  FEED_PROVIDER_IDS,
-  resolveFeedProvider,
-} from "./feed-provider";
-
+import { FEED_GENERATIONS, FEED_PROVIDER_IDS, resolveFeedProvider } from "./feed-provider";
 
 export const MARKET_CONFIG_VERSION = "1.0.0";
 

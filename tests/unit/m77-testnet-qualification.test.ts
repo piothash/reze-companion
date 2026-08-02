@@ -29,9 +29,7 @@ describe("M7.7 — startup and lifecycle qualification", () => {
   it("publishes an ordered, monotonic market state stream", async () => {
     const run = await baseline();
     expect(run.marketStateVersions.length).toBeGreaterThan(1);
-    expect(run.marketStateVersions).toEqual(
-      [...run.marketStateVersions].sort((a, b) => a - b),
-    );
+    expect(run.marketStateVersions).toEqual([...run.marketStateVersions].sort((a, b) => a - b));
   });
 
   it("walks the full lifecycle: state → decision → intent → risk → order → fill → settlement", async () => {

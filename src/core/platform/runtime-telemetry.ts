@@ -145,7 +145,8 @@ export function classifyFeedFreshness(
   ageMillis: number | null | undefined,
   maxStalenessMillis: number | null | undefined,
 ): FeedFreshnessClass {
-  if (ageMillis === null || ageMillis === undefined || !Number.isFinite(ageMillis)) return "UNKNOWN";
+  if (ageMillis === null || ageMillis === undefined || !Number.isFinite(ageMillis))
+    return "UNKNOWN";
   const budget =
     maxStalenessMillis !== null && maxStalenessMillis !== undefined && maxStalenessMillis > 0
       ? maxStalenessMillis

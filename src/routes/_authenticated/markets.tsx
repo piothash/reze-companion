@@ -13,7 +13,6 @@ import {
   useRuntimeTelemetry,
 } from "@/components/arc/runtime-telemetry";
 
-
 export const Route = createFileRoute("/_authenticated/markets")({
   head: () => ({
     meta: [
@@ -60,61 +59,59 @@ function MarketsPage() {
         <LiveFeedPanel view={telemetry.data} />
       </div>
       <div className="mt-4">
-      {isPending ? (
-        <LoadingState label="Reading market state" />
-      ) : markets.length === 0 ? (
-        <Panel title="Mirrored Market State">
-          <EmptyState
-            message="No market has been mirrored into the control plane yet."
-            hint="Mirrored state is rebuilt from canonical engine events."
-          />
-        </Panel>
-      ) : (
-
-        <div className="space-y-4">
-          {markets.map((market) => (
-            <Panel
-              key={market.marketInstanceId}
-              title={market.question ?? market.marketInstanceId}
-              actions={
-                <StatusPill
-                  tone={market.feedFresh ? "healthy" : "degraded"}
-                  label={market.lifecycle ?? "UNKNOWN"}
+        {isPending ? (
+          <LoadingState label="Reading market state" />
+        ) : markets.length === 0 ? (
+          <Panel title="Mirrored Market State">
+            <EmptyState
+              message="No market has been mirrored into the control plane yet."
+              hint="Mirrored state is rebuilt from canonical engine events."
+            />
+          </Panel>
+        ) : (
+          <div className="space-y-4">
+            {markets.map((market) => (
+              <Panel
+                key={market.marketInstanceId}
+                title={market.question ?? market.marketInstanceId}
+                actions={
+                  <StatusPill
+                    tone={market.feedFresh ? "healthy" : "degraded"}
+                    label={market.lifecycle ?? "UNKNOWN"}
+                  />
+                }
+              >
+                <KeyValue
+                  rows={[
+                    ["Market Instance", market.marketInstanceId],
+                    ["Venue", market.venue ?? "—"],
+                    ["Resolution Time", fmtTime(market.resolutionIso)],
+                    ["Lifecycle", market.lifecycle ?? "—"],
+                    ["PTB", fmt(market.ptb)],
+                    ["Current TWAP", fmt(market.twap)],
+                    ["Effective TWAP", fmt(market.effectiveTwap)],
+                    ["Market State Version", fmtInt(market.marketStateVersion)],
+                    [
+                      "Feed Freshness",
+                      market.feedAgeMillis === null
+                        ? "—"
+                        : `${market.feedAgeMillis} ms · ${market.feedFresh ? "fresh" : "stale"}`,
+                    ],
+                    ["Execution Profile", market.executionProfileId ?? "—"],
+                    ["Profile Version", market.executionProfileVersion ?? "—"],
+                    ["Current Window", activeWindow?.windowInstanceId ?? "none active"],
+                    [
+                      "Trade Quota",
+                      `${fmtInt(projection?.quota?.remaining)} / ${fmtInt(projection?.quota?.initial)}`,
+                    ],
+                    ["Snapshot Time", fmtTime(market.timestampIso)],
+                  ]}
                 />
-              }
-            >
-              <KeyValue
-                rows={[
-                  ["Market Instance", market.marketInstanceId],
-                  ["Venue", market.venue ?? "—"],
-                  ["Resolution Time", fmtTime(market.resolutionIso)],
-                  ["Lifecycle", market.lifecycle ?? "—"],
-                  ["PTB", fmt(market.ptb)],
-                  ["Current TWAP", fmt(market.twap)],
-                  ["Effective TWAP", fmt(market.effectiveTwap)],
-                  ["Market State Version", fmtInt(market.marketStateVersion)],
-                  [
-                    "Feed Freshness",
-                    market.feedAgeMillis === null
-                      ? "—"
-                      : `${market.feedAgeMillis} ms · ${market.feedFresh ? "fresh" : "stale"}`,
-                  ],
-                  ["Execution Profile", market.executionProfileId ?? "—"],
-                  ["Profile Version", market.executionProfileVersion ?? "—"],
-                  ["Current Window", activeWindow?.windowInstanceId ?? "none active"],
-                  [
-                    "Trade Quota",
-                    `${fmtInt(projection?.quota?.remaining)} / ${fmtInt(projection?.quota?.initial)}`,
-                  ],
-                  ["Snapshot Time", fmtTime(market.timestampIso)],
-                ]}
-              />
-            </Panel>
-          ))}
-        </div>
-      )}
+              </Panel>
+            ))}
+          </div>
+        )}
       </div>
     </OperatorShell>
-
   );
 }

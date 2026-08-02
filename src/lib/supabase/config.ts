@@ -115,10 +115,7 @@ export function resolveSupabaseConfig(source: SupabaseEnvSource): SupabaseBacken
  * Optional deployment guard: when `ARC_REQUIRED_SUPABASE_URL` is present the
  * companion refuses to operate against any other backend.
  */
-export function backendMatchesRequirement(
-  source: SupabaseEnvSource,
-  url: string | null,
-): boolean {
+export function backendMatchesRequirement(source: SupabaseEnvSource, url: string | null): boolean {
   const required = source["ARC_REQUIRED_SUPABASE_URL"]?.trim().replace(/\/$/, "");
   if (!required) return true;
   return url !== null && url.replace(/\/$/, "") === required;

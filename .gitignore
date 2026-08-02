@@ -37,3 +37,13 @@ dist-ssr
 *.db-shm
 *.sqlite
 *.sqlite3
+
+# Environment files — only *.example templates are committed
+.env
+.env.*
+!.env.example
+!.env.production.example
+!.env.vps.example
+
+# Build metadata
+*.tsbuildinfo

@@ -95,15 +95,10 @@ function SystemPage() {
                 ["Configuration", data?.backend.configured ? "COMPLETE" : "INCOMPLETE"],
                 ["Database", data?.backend.databaseConnected ? "HEALTHY" : "UNREACHABLE"],
                 ["Auth", data?.backend.authReachable ? "HEALTHY" : "UNREACHABLE"],
-                [
-                  "Privileged Key",
-                  data?.backend.serviceRoleConfigured ? "CONFIGURED" : "ABSENT",
-                ],
+                ["Privileged Key", data?.backend.serviceRoleConfigured ? "CONFIGURED" : "ABSENT"],
                 [
                   "Ownership",
-                  data?.authentication.ownershipFinalized
-                    ? "FINALIZED"
-                    : "BOOTSTRAP AVAILABLE",
+                  data?.authentication.ownershipFinalized ? "FINALIZED" : "BOOTSTRAP AVAILABLE",
                 ],
                 [
                   "Registration",
@@ -112,7 +107,9 @@ function SystemPage() {
                 ["Environment", `${data?.environment ?? "—"} / ${data?.network ?? "—"}`],
               ]}
             />
-            {data && data.backend.deploymentTargetEnforced && !data.backend.matchesDeploymentTarget ? (
+            {data &&
+            data.backend.deploymentTargetEnforced &&
+            !data.backend.matchesDeploymentTarget ? (
               <p className="mt-3 border border-destructive/50 bg-destructive/10 p-3 font-mono text-xs uppercase text-destructive">
                 Cutover guard failed — sign-in, ownership changes, configuration publishing and
                 authority registration are disabled.
@@ -172,7 +169,17 @@ function SystemPage() {
           >
             <KeyValue
               rows={[
+                [
+                  "Status",
+                  signing.data === undefined
+                    ? "—"
+                    : signing.data.configured
+                      ? "Configured"
+                      : "Not Configured",
+                ],
+                ["Source", "Server Environment"],
                 ["Signing Key Configured", signing.data?.configured ? "YES" : "NO"],
+
                 [
                   "Meets Minimum Strength",
                   signing.data === undefined
@@ -195,7 +202,10 @@ function SystemPage() {
                   "Signature Verification",
                   signing.data?.securityStatus === "ENFORCED" ? "ENFORCED" : "FAIL-CLOSED",
                 ],
-                ["Last Verified Authority Message", fmtTime(signing.data?.lastVerificationIso ?? null)],
+                [
+                  "Last Verified Authority Message",
+                  fmtTime(signing.data?.lastVerificationIso ?? null),
+                ],
                 ["Last Verified Action", signing.data?.lastVerificationAction ?? "—"],
                 ["Ownership", signing.data?.ownershipFinalized ? "FINALIZED" : "OPEN"],
                 ["Registration", signing.data?.registrationOpen ? "ENABLED" : "DISABLED"],
@@ -211,7 +221,6 @@ function SystemPage() {
           </Panel>
 
           <Panel title="Authentication Integration">
-
             <KeyValue
               rows={[
                 ["State", data?.authentication.mode ?? "—"],

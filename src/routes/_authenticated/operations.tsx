@@ -174,9 +174,11 @@ function OperationsPage() {
             />
             <Metric
               label="Latency"
-              value={authority?.latencyMillis === null || authority === null
-                ? "—"
-                : `${authority.latencyMillis} ms`}
+              value={
+                authority?.latencyMillis === null || authority === null
+                  ? "—"
+                  : `${authority.latencyMillis} ms`
+              }
               hint="reported on the last verified heartbeat"
             />
             <Metric

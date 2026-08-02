@@ -153,9 +153,7 @@ function DeploymentPage() {
           {DEPLOYMENT_SECTIONS.map((section: DeploymentSection) => {
             const sectionChecks = checks.filter((check) => check.section === section);
             if (sectionChecks.length === 0) return null;
-            const sectionPassed = sectionChecks.filter(
-              (check) => check.status === "PASS",
-            ).length;
+            const sectionPassed = sectionChecks.filter((check) => check.status === "PASS").length;
             return (
               <Panel
                 key={section}

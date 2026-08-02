@@ -108,87 +108,82 @@ export function AuthorityRegistryPanel() {
               now,
             );
             return (
-            <div
-              key={authority.authorityId}
-              className="rounded border border-border bg-card/40 p-4"
-            >
-              <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-                <div>
-                  <p className="font-mono text-sm">{authority.name}</p>
-                  <p className="font-mono text-xs text-muted-foreground">
-                    {authority.authorityId}
-                  </p>
+              <div
+                key={authority.authorityId}
+                className="rounded border border-border bg-card/40 p-4"
+              >
+                <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+                  <div>
+                    <p className="font-mono text-sm">{authority.name}</p>
+                    <p className="font-mono text-xs text-muted-foreground">
+                      {authority.authorityId}
+                    </p>
+                  </div>
+                  <span
+                    className={`font-mono text-xs uppercase tracking-wider ${
+                      STATUS_TONE[display.status]
+                    }`}
+                  >
+                    {display.status}
+                  </span>
                 </div>
-                <span
-                  className={`font-mono text-xs uppercase tracking-wider ${
-                    STATUS_TONE[display.status]
-                  }`}
-                >
-                  {display.status}
-                </span>
+
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <Field label="Authority ID" value={authority.authorityId} />
+                  <Field label="Runtime identity" value={authority.runtimeIdentity ?? "—"} />
+                  <Field label="Environment" value={authority.environment.toUpperCase()} />
+                  <Field label="Version" value={authority.engineVersion ?? "—"} />
+                  <Field
+                    label="Heartbeat age"
+                    value={formatHeartbeatAge(display.heartbeatAgeMillis)}
+                    tone={display.status === "ACTIVE" ? undefined : "text-warning"}
+                  />
+
+                  <Field
+                    label="Latency"
+                    value={authority.latencyMillis === null ? "—" : `${authority.latencyMillis} ms`}
+                  />
+                  <Field
+                    label="Runtime"
+                    value={authority.runtimeStatus.toUpperCase()}
+                    tone={RUNTIME_TONE[authority.runtimeStatus]}
+                  />
+                  <Field label="Uptime" value={uptime(authority.uptimeSeconds)} />
+                  <Field
+                    label="Active windows"
+                    value={authority.activeWindows === null ? "—" : String(authority.activeWindows)}
+                  />
+                  <Field
+                    label="Config version"
+                    value={
+                      authority.configurationVersion === null
+                        ? "—"
+                        : `v${authority.configurationVersion}`
+                    }
+                  />
+                  <Field label="Active market" value={authority.activeMarket ?? "—"} />
+                  <Field
+                    label="Event sequence"
+                    value={authority.eventSequence === null ? "—" : String(authority.eventSequence)}
+                  />
+                  <Field label="Registered" value={fmtTime(authority.registeredAt)} />
+                  <Field label="Registrations" value={String(authority.registrationCount)} />
+                </div>
+
+                <p className="mt-3 font-mono text-[10px] text-muted-foreground">
+                  heartbeat interval {Math.round(authority.heartbeatIntervalMillis / 1000)}s · stale
+                  after {Math.round(display.heartbeatDeadlineMillis / 1000)}s
+                  {display.blockers.length > 0 ? ` · ${display.blockers.join("; ")}` : ""}
+                </p>
               </div>
-
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <Field label="Authority ID" value={authority.authorityId} />
-                <Field label="Runtime identity" value={authority.runtimeIdentity ?? "—"} />
-                <Field label="Environment" value={authority.environment.toUpperCase()} />
-                <Field label="Version" value={authority.engineVersion ?? "—"} />
-                <Field
-                  label="Heartbeat age"
-                  value={formatHeartbeatAge(display.heartbeatAgeMillis)}
-                  tone={display.status === "ACTIVE" ? undefined : "text-warning"}
-                />
-
-                <Field
-                  label="Latency"
-                  value={
-                    authority.latencyMillis === null ? "—" : `${authority.latencyMillis} ms`
-                  }
-                />
-                <Field
-                  label="Runtime"
-                  value={authority.runtimeStatus.toUpperCase()}
-                  tone={RUNTIME_TONE[authority.runtimeStatus]}
-                />
-                <Field label="Uptime" value={uptime(authority.uptimeSeconds)} />
-                <Field
-                  label="Active windows"
-                  value={authority.activeWindows === null ? "—" : String(authority.activeWindows)}
-                />
-                <Field
-                  label="Config version"
-                  value={
-                    authority.configurationVersion === null
-                      ? "—"
-                      : `v${authority.configurationVersion}`
-                  }
-                />
-                <Field label="Active market" value={authority.activeMarket ?? "—"} />
-                <Field
-                  label="Event sequence"
-                  value={authority.eventSequence === null ? "—" : String(authority.eventSequence)}
-                />
-                <Field label="Registered" value={fmtTime(authority.registeredAt)} />
-                <Field
-                  label="Registrations"
-                  value={String(authority.registrationCount)}
-                />
-              </div>
-
-              <p className="mt-3 font-mono text-[10px] text-muted-foreground">
-                heartbeat interval {Math.round(authority.heartbeatIntervalMillis / 1000)}s ·
-                stale after {Math.round(display.heartbeatDeadlineMillis / 1000)}s
-                {display.blockers.length > 0 ? ` · ${display.blockers.join("; ")}` : ""}
-              </p>
-            </div>
             );
           })}
         </div>
       )}
       <p className="mt-3 text-xs text-muted-foreground">
         Public identity only: no wallet keys, exchange credentials or execution secrets are ever
-        stored in the control plane. Liveness is derived from verified heartbeats — an engine
-        cannot declare itself active.
+        stored in the control plane. Liveness is derived from verified heartbeats — an engine cannot
+        declare itself active.
       </p>
     </Panel>
   );

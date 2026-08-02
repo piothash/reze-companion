@@ -240,7 +240,8 @@ export interface DashboardStateInput {
   /** A handshake is in flight and no previous result exists. */
   readonly connecting?: boolean;
   /** Status of the newest stored configuration version, when one exists. */
-  readonly latestVersionStatus?: "PENDING" | "ACTIVE" | "REJECTED" | "ARCHIVED" | "SUPERSEDED" | null;
+  readonly latestVersionStatus?:
+    "PENDING" | "ACTIVE" | "REJECTED" | "ARCHIVED" | "SUPERSEDED" | null;
   /** True while a publish/activate dispatch is awaiting a verdict. */
   readonly applying?: boolean;
   readonly drifted?: boolean;

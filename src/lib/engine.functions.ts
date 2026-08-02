@@ -11,10 +11,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import {
-  ENGINE_ENVIRONMENTS,
-  engineRegistrationSchema,
-} from "@/core/platform/authority-handshake";
+import { ENGINE_ENVIRONMENTS, engineRegistrationSchema } from "@/core/platform/authority-handshake";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
 type AnyClient = any;
@@ -47,7 +44,12 @@ export const saveEngineRegistration = createServerFn({ method: "POST" })
     const { requireOperator } = await import("./roles.server");
     const { saveRegistration } = await import("./engine-registry.server");
     await requireOperator(context.supabase as AnyClient, context.userId);
-    return saveRegistration(context.supabase as AnyClient, context.userId, data.id, data.registration);
+    return saveRegistration(
+      context.supabase as AnyClient,
+      context.userId,
+      data.id,
+      data.registration,
+    );
   });
 
 /** Makes one engine the active trading authority for this control plane. */
@@ -125,10 +127,7 @@ export const getAuthorityRuntime = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { readAuthorityRuntime } = await import("./authority-handshake.server");
     const { resolveCapabilities } = await import("./roles.server");
-    const capabilities = await resolveCapabilities(
-      context.supabase as AnyClient,
-      context.userId,
-    );
+    const capabilities = await resolveCapabilities(context.supabase as AnyClient, context.userId);
     const view = await readAuthorityRuntime(context.supabase as AnyClient, context.userId, {
       canWrite: capabilities.canWrite,
     });

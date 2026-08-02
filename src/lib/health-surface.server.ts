@@ -115,7 +115,11 @@ export async function readyPayload(): Promise<ReadyPayload> {
 
   return {
     status: ready ? "ready" : "not-ready",
-    reasonCode: ready ? "HLT_HEALTHY" : startup.allowed ? "HLT_UNAVAILABLE" : "SYSTEM_START_BLOCKED",
+    reasonCode: ready
+      ? "HLT_HEALTHY"
+      : startup.allowed
+        ? "HLT_UNAVAILABLE"
+        : "SYSTEM_START_BLOCKED",
     observedAt: runtime.clock.isoNow(),
     health,
     watchdogs,

@@ -53,7 +53,8 @@ export const FEED_PROVIDER_PROFILES: Record<FeedProviderId, FeedProviderProfile>
     requiresEndpoint: false,
     defaultValuePath: "price",
     defaultTimestampPath: "timestamp",
-    description: "Deterministic in-process observations. Tests and replay only — never a deployment.",
+    description:
+      "Deterministic in-process observations. Tests and replay only — never a deployment.",
   },
   "http-json": {
     id: "http-json",

@@ -168,8 +168,7 @@ export function buildActivationChecklist(
       action:
         "Let the engine complete configuration → feed → discovery → PTB → TWAP → signal → market state → windows armed.",
       evidence: "Telemetry reports every startup step.",
-      status:
-        startup?.allowed === true ? "DONE" : active ? "WAITING" : "BLOCKED",
+      status: startup?.allowed === true ? "DONE" : active ? "WAITING" : "BLOCKED",
       detail:
         startup?.allowed === true
           ? "Every startup step reported by the authority."

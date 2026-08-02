@@ -245,7 +245,6 @@ export const REASON_CODES = {
     "Runtime handshake has not been attempted yet",
   ),
 
-
   // Infrastructure ----------------------------------------------------------
   INF_STARTUP: spec("INF_STARTUP", "INFRASTRUCTURE", "info", "Runtime foundation started"),
   INF_SHUTDOWN: spec("INF_SHUTDOWN", "INFRASTRUCTURE", "info", "Runtime foundation stopped"),

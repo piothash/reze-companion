@@ -73,9 +73,7 @@ export function StatusBar() {
       />
       <Cell
         label="Closes"
-        value={
-          data?.market?.resolutionIso ? <Countdown toIso={data.market.resolutionIso} /> : "—"
-        }
+        value={data?.market?.resolutionIso ? <Countdown toIso={data.market.resolutionIso} /> : "—"}
       />
       <Cell
         label="Feed"

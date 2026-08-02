@@ -162,7 +162,6 @@ export function Timeline({
   );
 }
 
-
 export function KeyValue({ rows }: { rows: [string, ReactNode][] }) {
   return (
     <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">

@@ -132,7 +132,6 @@ function ConfigurationPage() {
                 hint="Create one on the Execution Profiles page to begin."
               />
             ) : (
-
               <>
                 <KeyValue
                   rows={[
@@ -215,7 +214,10 @@ function ConfigurationPage() {
 
           <Panel title="Engine Endpoints" className="overflow-x-auto">
             {endpoints.length === 0 ? (
-              <EmptyState message="No VPS engine endpoints registered." hint="Register an endpoint to connect the control plane to the trading authority." />
+              <EmptyState
+                message="No VPS engine endpoints registered."
+                hint="Register an endpoint to connect the control plane to the trading authority."
+              />
             ) : (
               <Table>
                 <TableHeader>
@@ -248,7 +250,10 @@ function ConfigurationPage() {
 
           <Panel title="Configuration Profiles">
             {profiles.length === 0 ? (
-              <EmptyState message="No stored configuration profiles." hint="Create an execution profile to persist configuration." />
+              <EmptyState
+                message="No stored configuration profiles."
+                hint="Create an execution profile to persist configuration."
+              />
             ) : (
               <ul className="space-y-2">
                 {profiles.map((profile) => (

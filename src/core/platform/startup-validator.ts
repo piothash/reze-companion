@@ -92,9 +92,7 @@ export interface StartupOptions {
 export class SystemStartBlockedError extends Error {
   readonly reasonCode = "SYSTEM_START_BLOCKED";
   constructor(readonly report: StartupReport) {
-    super(
-      `SYSTEM_START_BLOCKED — failed gates: ${report.failedGates.join(", ") || "unknown"}`,
-    );
+    super(`SYSTEM_START_BLOCKED — failed gates: ${report.failedGates.join(", ") || "unknown"}`);
     this.name = "SystemStartBlockedError";
   }
 }
@@ -184,7 +182,9 @@ export async function validateStartup(options: StartupOptions): Promise<StartupR
       "configuration-validity",
       configGate,
       [],
-      configHolder.value ? `configVersion=${configHolder.value.configVersion}` : "configuration rejected",
+      configHolder.value
+        ? `configVersion=${configHolder.value.configVersion}`
+        : "configuration rejected",
       configDuration,
     ),
   );
@@ -276,7 +276,9 @@ export async function validateStartup(options: StartupOptions): Promise<StartupR
       "window-definitions",
       bootIssues("windows"),
       bootWarnings("windows"),
-      boot.executionProfile ? `${boot.executionProfile.windows.length} windows declared` : "rejected",
+      boot.executionProfile
+        ? `${boot.executionProfile.windows.length} windows declared`
+        : "rejected",
       0,
     ),
   );
@@ -285,7 +287,9 @@ export async function validateStartup(options: StartupOptions): Promise<StartupR
       "risk-profile",
       [...bootIssues("risk"), ...bootIssues("execution.")],
       bootWarnings("risk"),
-      boot.tradeConfig ? `maxExposure=${boot.tradeConfig.risk.maxExposure}` : "risk profile rejected",
+      boot.tradeConfig
+        ? `maxExposure=${boot.tradeConfig.risk.maxExposure}`
+        : "risk profile rejected",
       0,
     ),
   );
@@ -302,9 +306,7 @@ export async function validateStartup(options: StartupOptions): Promise<StartupR
   );
 
   // Any boot issue not attributed above must still block startup.
-  const attributed = new Set(
-    gates.flatMap((entry) => entry.issues.map((issue) => issue)),
-  );
+  const attributed = new Set(gates.flatMap((entry) => entry.issues.map((issue) => issue)));
   const unattributed = boot.issues.map(describe).filter((issue) => !attributed.has(issue));
   if (unattributed.length > 0) {
     gates.push(
@@ -324,9 +326,7 @@ export async function validateStartup(options: StartupOptions): Promise<StartupR
     const [result, duration] = await timed(async () => {
       try {
         const flags = await probes.featureFlags!();
-        const missing = (options.requiredFeatureFlags ?? []).filter(
-          (key) => !(key in flags),
-        );
+        const missing = (options.requiredFeatureFlags ?? []).filter((key) => !(key in flags));
         return missing.map((key) => `required feature flag missing: ${key}`);
       } catch (error) {
         return [error instanceof Error ? error.message : String(error)];
@@ -335,9 +335,7 @@ export async function validateStartup(options: StartupOptions): Promise<StartupR
     gates.push(fromIssues("feature-flags", result, [], "feature flags resolved", duration));
   } else {
     const declared = Object.keys(configHolder.value?.featureFlags ?? {});
-    const missing = (options.requiredFeatureFlags ?? []).filter(
-      (key) => !declared.includes(key),
-    );
+    const missing = (options.requiredFeatureFlags ?? []).filter((key) => !declared.includes(key));
     gates.push(
       fromIssues(
         "feature-flags",
@@ -362,7 +360,8 @@ export async function validateStartup(options: StartupOptions): Promise<StartupR
     });
     gates.push(fromIssues("scheduler-initialization", result, [], "scheduler ready", duration));
   } else {
-    const issues = configHolder.value === null ? ["scheduler cannot initialize without configuration"] : [];
+    const issues =
+      configHolder.value === null ? ["scheduler cannot initialize without configuration"] : [];
     gates.push(
       fromIssues(
         "scheduler-initialization",

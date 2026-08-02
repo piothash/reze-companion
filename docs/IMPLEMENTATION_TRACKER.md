@@ -618,3 +618,18 @@ the plain `server.ts` name so the bundler refuses any client-side import of it.
 | Tests: readiness gate, no-override assertion, secret exposure, legacy purge | Done (429 total) |
 | `docs/qualification/M8_PRODUCTION_READINESS_REPORT.md` | Done |
 | Mainnet verdict | NOT QUALIFIED — pending live authority evidence |
+
+## M8.2 — Final Production Cutover, Environment Provisioning & Release
+
+| Item | Status |
+| --- | --- |
+| Signing key provisioned as a server-side environment variable only — never committed, logged, stored or displayed | Done |
+| `/system` Authority Signing shows Status · Last Verified · Source: Server Environment (metadata only) | Done |
+| `.env.example`, `.env.production.example`, `.env.vps.example` with purpose / default / required / owner comments | Done |
+| Environment validation: operator-friendly startup failure, no silent defaults (`formatEnvFailure`, `assertEnvironmentValid`) | Done |
+| Repository cleanup: 32 unused UI modules, unused hook, 28 unused dependencies, build metadata, stale lockfile | Done |
+| Release preparation: README, production setup guide, documentation link verification | Done |
+| `docs/deployment/PRODUCTION_SETUP.md` · `docs/release/M8_2_RELEASE_SUMMARY.md` | Done |
+| Verification: build · typecheck · lint · tests (458) · docs · architecture · qualification · security | PASS |
+| Frozen domains unchanged (market state, TWAP, PTB, decision, risk, standing orders, replay, recovery, contracts, gates) | Verified |
+| Live VPS activation (signing key on VPS, PM2 ARMED) | Pending operator run |

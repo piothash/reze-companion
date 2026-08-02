@@ -63,7 +63,11 @@ export function createPublishableServerClient(): SupabaseClient | null {
 }
 
 /** The required cutover target, when a deployment guard is configured. */
-export function requiredBackendTarget(): { url: string | null; maskedUrl: string; projectRef: string | null } {
+export function requiredBackendTarget(): {
+  url: string | null;
+  maskedUrl: string;
+  projectRef: string | null;
+} {
   const raw = serverEnv()["ARC_REQUIRED_SUPABASE_URL"]?.trim().replace(/\/$/, "") ?? null;
   return {
     url: raw,

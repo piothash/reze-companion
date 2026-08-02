@@ -4,7 +4,11 @@
  * Configuration-first: every qualification value lives here, never inside the
  * harness or the engines it drives.
  */
-import { DEFAULT_PROFILE_SEED, parseExecutionProfileOrThrow, type ExecutionProfile } from "../decision/configuration";
+import {
+  DEFAULT_PROFILE_SEED,
+  parseExecutionProfileOrThrow,
+  type ExecutionProfile,
+} from "../decision/configuration";
 import { loadMarketConfig, type MarketDomainConfig } from "../market/configuration";
 import { parseTradeConfigOrThrow, type TradeDomainConfig } from "../trade/configuration";
 import { type QualificationSpec } from "./scenario";

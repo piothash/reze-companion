@@ -47,10 +47,7 @@ function signingKey(): string | undefined {
 
 /** Owner of the control plane — authority rows belong to the operator. */
 async function resolveOwner(client: AnyClient): Promise<string | null> {
-  const { data } = await client
-    .from("operator_ownership")
-    .select("owner_user_id")
-    .maybeSingle();
+  const { data } = await client.from("operator_ownership").select("owner_user_id").maybeSingle();
   return (data?.owner_user_id as string | null) ?? null;
 }
 
@@ -153,7 +150,11 @@ export async function handleAuthorityRegistration(
     nowMillis,
   );
   if (!verification.ok) {
-    return gatewayError(verificationStatus(verification), verification.reasonCode, verification.detail);
+    return gatewayError(
+      verificationStatus(verification),
+      verification.reasonCode,
+      verification.detail,
+    );
   }
   if (
     verification.signatureDigest &&
@@ -258,7 +259,11 @@ export async function handleAuthorityHeartbeat(
 ): Promise<GatewayResponse> {
   const parsed = authorityHeartbeatSchema.safeParse(body);
   if (!parsed.success) {
-    return gatewayError(400, "HEARTBEAT_INVALID", parsed.error.issues[0]?.message ?? "invalid heartbeat");
+    return gatewayError(
+      400,
+      "HEARTBEAT_INVALID",
+      parsed.error.issues[0]?.message ?? "invalid heartbeat",
+    );
   }
   const heartbeat = parsed.data;
 
@@ -302,11 +307,7 @@ export async function handleAuthorityHeartbeat(
     );
   }
   if (existing.status === "revoked") {
-    return gatewayError(
-      403,
-      "AUTHORITY_REVOKED",
-      "This authority was revoked by the operator.",
-    );
+    return gatewayError(403, "AUTHORITY_REVOKED", "This authority was revoked by the operator.");
   }
 
   // A changed runtime identity means the engine restarted. That is recorded,
@@ -344,11 +345,17 @@ export async function handleAuthorityHeartbeat(
   }
 
   if (restarted) {
-    await auditGateway(client, existing.user_id as string, "authority.restarted", heartbeat.authorityId, {
-      previousRuntimeIdentity: existing.runtime_identity,
-      runtimeIdentity: heartbeat.runtimeIdentity,
-      eventSequence: heartbeat.eventSequence ?? null,
-    });
+    await auditGateway(
+      client,
+      existing.user_id as string,
+      "authority.restarted",
+      heartbeat.authorityId,
+      {
+        previousRuntimeIdentity: existing.runtime_identity,
+        runtimeIdentity: heartbeat.runtimeIdentity,
+        eventSequence: heartbeat.eventSequence ?? null,
+      },
+    );
   }
   await pruneNonces(client, nowMillis);
 
@@ -394,7 +401,9 @@ export async function handleConfigurationPull(
 
   const { data } = await client
     .from("configuration_versions")
-    .select("version, config, config_hash, execution_profile_id, correlation_id, status, created_at")
+    .select(
+      "version, config, config_hash, execution_profile_id, correlation_id, status, created_at",
+    )
     .eq("user_id", authority.user_id)
     .in("status", ["PENDING", "MIRRORED"])
     .order("version", { ascending: false })
@@ -503,7 +512,11 @@ export async function handleConfigurationVerdict(
     .eq("version", input.version)
     .maybeSingle();
   if (!version) {
-    return gatewayError(404, "CFG_VERSION_NOT_FOUND", `configuration version ${input.version} not found`);
+    return gatewayError(
+      404,
+      "CFG_VERSION_NOT_FOUND",
+      `configuration version ${input.version} not found`,
+    );
   }
   // Drift guard: the engine must have validated exactly what was published.
   if (version.config_hash !== input.configHash) {
@@ -530,24 +543,22 @@ export async function handleConfigurationVerdict(
   if (error) return gatewayError(500, "CFG_VERDICT_NOT_RECORDED", error.message);
 
   if (accepted) {
-    await client
-      .from("runtime_configuration_state")
-      .upsert(
-        {
-          user_id: authority.user_id,
-          profile_name: version.profile_name,
-          execution_profile_id: version.execution_profile_id,
-          version: input.version,
-          snapshot_id: input.snapshotId ?? null,
-          config_hash: input.configHash,
-          runtime_status: "LIVE",
-          reason_code: input.reasonCode ?? "CFG_ACCEPTED",
-          activated_at: nowIso,
-          last_synced_at: nowIso,
-          payload: { authorityId: input.authorityId, correlationId: version.correlation_id },
-        },
-        { onConflict: "user_id,profile_name" },
-      );
+    await client.from("runtime_configuration_state").upsert(
+      {
+        user_id: authority.user_id,
+        profile_name: version.profile_name,
+        execution_profile_id: version.execution_profile_id,
+        version: input.version,
+        snapshot_id: input.snapshotId ?? null,
+        config_hash: input.configHash,
+        runtime_status: "LIVE",
+        reason_code: input.reasonCode ?? "CFG_ACCEPTED",
+        activated_at: nowIso,
+        last_synced_at: nowIso,
+        payload: { authorityId: input.authorityId, correlationId: version.correlation_id },
+      },
+      { onConflict: "user_id,profile_name" },
+    );
   }
 
   await auditGateway(

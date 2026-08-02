@@ -241,15 +241,12 @@ async function mirrorIdentity(
       health: identity.health,
       capabilities: identity.capabilities,
       started_at: identity.startedAtIso,
-      uptime_seconds:
-        identity.uptimeSeconds === null ? null : Math.floor(identity.uptimeSeconds),
+      uptime_seconds: identity.uptimeSeconds === null ? null : Math.floor(identity.uptimeSeconds),
       payload: identity,
     });
   }
 
-  await client
-    .from("engine_runtime_identity")
-    .upsert(row, { onConflict: "user_id,endpoint_id" });
+  await client.from("engine_runtime_identity").upsert(row, { onConflict: "user_id,endpoint_id" });
 
   if (identity) {
     await client
@@ -332,7 +329,11 @@ export interface AuthorityRuntimeView {
     lifecycle: string | null;
     resolutionIso: string | null;
   } | null;
-  scheduler: { status: string | null; tickIntervalMillis: number | null; lastTickIso: string | null } | null;
+  scheduler: {
+    status: string | null;
+    tickIntervalMillis: number | null;
+    lastTickIso: string | null;
+  } | null;
   feed: {
     status: string | null;
     provider: string | null;
@@ -421,12 +422,7 @@ export async function readAuthorityRuntime(
     transport: result.transport,
     latestVersionStatus:
       (latestVersionRow?.["status"] as
-        | "PENDING"
-        | "ACTIVE"
-        | "REJECTED"
-        | "ARCHIVED"
-        | "SUPERSEDED"
-        | undefined) ?? null,
+        "PENDING" | "ACTIVE" | "REJECTED" | "ARCHIVED" | "SUPERSEDED" | undefined) ?? null,
     drifted: verification.state === "DRIFT",
   });
 

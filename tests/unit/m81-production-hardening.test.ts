@@ -224,8 +224,9 @@ describe("M8.1 — deployment checklist", () => {
 
   it("never reports ready without VPS evidence", () => {
     expect(deploymentReady(noEvidence)).toBe(false);
-    expect(noEvidence.some((check) => check.status === "PASS" && check.section === "VPS"))
-      .toBe(false);
+    expect(noEvidence.some((check) => check.status === "PASS" && check.section === "VPS")).toBe(
+      false,
+    );
   });
 
   it("explains every unmet item", () => {
@@ -322,7 +323,9 @@ describe("M8.1 — final security sweep", () => {
   });
 
   it("stores roles in user_roles and never on profiles", () => {
-    const offenders = files.filter((file) => /profiles[^\n]*\.\s*role\b/.test(readFileSync(file, "utf8")));
+    const offenders = files.filter((file) =>
+      /profiles[^\n]*\.\s*role\b/.test(readFileSync(file, "utf8")),
+    );
     expect(offenders).toEqual([]);
   });
 });
