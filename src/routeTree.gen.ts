@@ -27,6 +27,7 @@ import { Route as AuthenticatedTradeMonitorRouteImport } from './routes/_authent
 import { Route as AuthenticatedWindowsRouteImport } from './routes/_authenticated/windows'
 import { Route as ApiPublicHealthIndexRouteImport } from './routes/api/public/health/index'
 import { Route as ApiPublicHealthLiveRouteImport } from './routes/api/public/health/live'
+import { Route as ApiPublicHealthReadyRouteImport } from './routes/api/public/health/ready'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -121,6 +122,11 @@ const ApiPublicHealthLiveRoute = ApiPublicHealthLiveRouteImport.update({
   path: '/api/public/health/live',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHealthReadyRoute = ApiPublicHealthReadyRouteImport.update({
+  id: '/api/public/health/ready',
+  path: '/api/public/health/ready',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
+  '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
   '/api/public/health/': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRoutesByTo {
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
+  '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
   '/api/public/health': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRoutesById {
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/_authenticated/trade-monitor': typeof AuthenticatedTradeMonitorRoute
   '/_authenticated/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
+  '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
   '/api/public/health/': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRouteTypes {
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/trade-monitor'
     | '/windows'
     | '/api/public/health/live'
+    | '/api/public/health/ready'
     | '/api/public/health/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/trade-monitor'
     | '/windows'
     | '/api/public/health/live'
+    | '/api/public/health/ready'
     | '/api/public/health'
   id:
     | '__root__'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/_authenticated/trade-monitor'
     | '/_authenticated/windows'
     | '/api/public/health/live'
+    | '/api/public/health/ready'
     | '/api/public/health/'
   fileRoutesById: FileRoutesById
 }
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiPublicHealthLiveRoute: typeof ApiPublicHealthLiveRoute
+  ApiPublicHealthReadyRoute: typeof ApiPublicHealthReadyRoute
   ApiPublicHealthIndexRoute: typeof ApiPublicHealthIndexRoute
 }
 
@@ -378,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHealthLiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health/ready': {
+      id: '/api/public/health/ready'
+      path: '/api/public/health/ready'
+      fullPath: '/api/public/health/ready'
+      preLoaderRoute: typeof ApiPublicHealthReadyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -421,6 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPublicHealthLiveRoute: ApiPublicHealthLiveRoute,
+  ApiPublicHealthReadyRoute: ApiPublicHealthReadyRoute,
   ApiPublicHealthIndexRoute: ApiPublicHealthIndexRoute,
 }
 export const routeTree = rootRouteImport
