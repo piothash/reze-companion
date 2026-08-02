@@ -79,7 +79,11 @@ describe("market lifecycle", () => {
 
   it("replays a recorded transition list deterministically", () => {
     const clock = new FixedClock("2026-02-01T00:01:00.000Z");
-    const replayed = MarketLifecycleEngine.replay(config, clock, ["ACTIVATE", "BEGIN_CLOSING", "RESOLVE"]);
+    const replayed = MarketLifecycleEngine.replay(config, clock, [
+      "ACTIVATE",
+      "BEGIN_CLOSING",
+      "RESOLVE",
+    ]);
     expect(replayed.state).toBe("RESOLVED");
     expect(replayed.history.map((entry) => entry.to)).toEqual(["ACTIVE", "CLOSING", "RESOLVED"]);
   });
@@ -155,7 +159,13 @@ describe("authoritative market state", () => {
   it("marks the signal unusable once the feed goes stale", async () => {
     const clock = new FixedClock("2026-02-01T00:01:00.000Z");
     const sink = new InMemoryEventSink();
-    const domain = new MarketStateDomain({ config, clock, sink, configVersion: "1.0.0", samples: [] });
+    const domain = new MarketStateDomain({
+      config,
+      clock,
+      sink,
+      configVersion: "1.0.0",
+      samples: [],
+    });
     await domain.adopt(descriptorAt(clock.isoNow()));
     await domain.ingest({ value: 100, observedAt: clock.now() });
     clock.advance(1_000);

@@ -214,7 +214,9 @@ export class MarketDiscoveryService {
         throw new MarketDiscoveryError(`venue metadata query failed: ${response.status}`, slug);
       }
       const body: unknown = await response.json();
-      const raw = Array.isArray(body) ? (body[0] as RawVenueMarket | undefined) : (body as RawVenueMarket);
+      const raw = Array.isArray(body)
+        ? (body[0] as RawVenueMarket | undefined)
+        : (body as RawVenueMarket);
       if (!raw) return null;
 
       const descriptor = parseMarketMetadata({

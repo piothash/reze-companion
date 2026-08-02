@@ -18,7 +18,8 @@ import {
 export function roundTo(value: number, precision: number): number {
   const factor = 10 ** precision;
   const scaled = value * factor;
-  const rounded = Math.sign(scaled) * Math.round(Math.abs(scaled) + Number.EPSILON * Math.abs(scaled));
+  const rounded =
+    Math.sign(scaled) * Math.round(Math.abs(scaled) + Number.EPSILON * Math.abs(scaled));
   return rounded / factor;
 }
 
@@ -137,7 +138,10 @@ export class FeedEngine {
   /** True when the configured observation interval has elapsed. */
   shouldSample(): boolean {
     if (!this.last) return true;
-    return this.clock.now() - fromIsoUtc(this.last.receivedAtIso) >= this.config.feed.observationIntervalMillis;
+    return (
+      this.clock.now() - fromIsoUtc(this.last.receivedAtIso) >=
+      this.config.feed.observationIntervalMillis
+    );
   }
 
   /** Pulls one sample from the provider and ingests it. */

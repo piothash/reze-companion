@@ -8,7 +8,13 @@
 import { fromIsoUtc, type Clock } from "../shared/time";
 import { type MarketDomainConfig } from "./configuration";
 import { roundTo } from "./feed-engine";
-import { twapSnapshotSchema, freezeDeep, type FeedFreshness, type Observation, type TwapSnapshot } from "./types";
+import {
+  twapSnapshotSchema,
+  freezeDeep,
+  type FeedFreshness,
+  type Observation,
+  type TwapSnapshot,
+} from "./types";
 
 /**
  * Time-weighted average across a basket. Each observation's value is weighted

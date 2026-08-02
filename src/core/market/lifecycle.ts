@@ -60,7 +60,10 @@ export function evaluateLifecycle(
   const opensAt = fromIsoUtc(descriptor.opensAtIso);
 
   if (descriptor.venueClosed || now >= resolvesAt) {
-    return { event: "RESOLVE", reason: descriptor.venueClosed ? "venue closed" : "resolution time reached" };
+    return {
+      event: "RESOLVE",
+      reason: descriptor.venueClosed ? "venue closed" : "resolution time reached",
+    };
   }
   if (now >= resolvesAt - config.discovery.closingLeadMillis) {
     return current === "CLOSING"

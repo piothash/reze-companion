@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { loadMarketConfig, marketConfigDigest, parseMarketConfigOrThrow } from "@/core/market/configuration";
+import {
+  loadMarketConfig,
+  marketConfigDigest,
+  parseMarketConfigOrThrow,
+} from "@/core/market/configuration";
 import { MarketDiscoveryService, parseMarketMetadata, renderSlug } from "@/core/market/discovery";
 import { FixedClock } from "@/core/shared/time";
 

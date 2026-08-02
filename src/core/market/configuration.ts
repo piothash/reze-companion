@@ -102,7 +102,9 @@ export type EnvSource = Record<string, string | undefined>;
 
 export class MarketConfigError extends Error {
   constructor(readonly issues: { path: string; message: string }[]) {
-    super(`ARC market configuration invalid — ${issues.map((i) => `${i.path}: ${i.message}`).join("; ")}`);
+    super(
+      `ARC market configuration invalid — ${issues.map((i) => `${i.path}: ${i.message}`).join("; ")}`,
+    );
     this.name = "MarketConfigError";
   }
 }
@@ -110,7 +112,8 @@ export class MarketConfigError extends Error {
 function num(value: string | undefined): number | undefined {
   if (value === undefined || value.trim() === "") return undefined;
   const parsed = Number(value);
-  if (!Number.isFinite(parsed)) throw new MarketConfigError([{ path: "(env)", message: `not a number: ${value}` }]);
+  if (!Number.isFinite(parsed))
+    throw new MarketConfigError([{ path: "(env)", message: `not a number: ${value}` }]);
   return parsed;
 }
 
