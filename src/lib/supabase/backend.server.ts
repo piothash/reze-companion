@@ -7,8 +7,14 @@
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { resolveSupabaseConfig, type SupabaseBackendConfig } from "./config";
+import {
+  maskBackendUrl,
+  projectRefFromUrl,
+  resolveSupabaseConfig,
+  type SupabaseBackendConfig,
+} from "./config";
 import { backendMatchesRequirement } from "./config";
+import { cutoverBlockedMessage, type CutoverGuardedAction } from "./cutover";
 
 function serverEnv(): Record<string, string | undefined> {
   return typeof process !== "undefined" && process.env ? { ...process.env } : {};
@@ -56,12 +62,34 @@ export function createPublishableServerClient(): SupabaseClient | null {
   });
 }
 
+/** The required cutover target, when a deployment guard is configured. */
+export function requiredBackendTarget(): { url: string | null; maskedUrl: string; projectRef: string | null } {
+  const raw = serverEnv()["ARC_REQUIRED_SUPABASE_URL"]?.trim().replace(/\/$/, "") ?? null;
+  return {
+    url: raw,
+    maskedUrl: raw ? maskBackendUrl(raw) : "not enforced",
+    projectRef: projectRefFromUrl(raw),
+  };
+}
+
+/**
+ * Fails closed: throws when a deployment guard is configured and the active
+ * backend is not the required cutover target. Used by every operator action
+ * that mutates ownership, configuration or authority registration.
+ */
+export function assertCutoverSafe(action: CutoverGuardedAction): void {
+  if (!serverBackendMatchesTarget()) throw new Error(cutoverBlockedMessage(action));
+}
+
 export interface BackendDiagnostics {
   readonly provider: "supabase";
   readonly projectRef: string | null;
   readonly maskedUrl: string;
   readonly configured: boolean;
   readonly matchesDeploymentTarget: boolean;
+  readonly deploymentTargetEnforced: boolean;
+  readonly expectedMaskedUrl: string;
+  readonly expectedProjectRef: string | null;
   readonly databaseConnected: boolean;
   readonly authReachable: boolean;
   readonly serviceRoleConfigured: boolean;
@@ -80,6 +108,9 @@ export async function probeBackend(): Promise<BackendDiagnostics> {
     maskedUrl: config.maskedUrl,
     configured: config.configured,
     matchesDeploymentTarget: backendMatchesRequirement(env, config.url),
+    deploymentTargetEnforced: requiredBackendTarget().url !== null,
+    expectedMaskedUrl: requiredBackendTarget().maskedUrl,
+    expectedProjectRef: requiredBackendTarget().projectRef,
     serviceRoleConfigured: hasServiceRoleKey(),
     environment: env["ARC_ENVIRONMENT"] ?? "development",
     network: env["ARC_NETWORK"] ?? "testnet",
