@@ -11,23 +11,23 @@
  */
 import { InMemoryEventSink, type EventEnvelope } from "../contracts/event-envelope";
 import { EventEnvelopeFactory } from "../contracts/event-envelope";
-import {
-  DEFAULT_PROFILE_SEED,
-  offsetToMillis,
-  parseExecutionProfileOrThrow,
-  type ExecutionProfile,
-} from "../decision/configuration";
+import { offsetToMillis, type ExecutionProfile } from "../decision/configuration";
 import { ExecutionWindowManager } from "../decision/window-manager";
 import { type ExecutionIntent } from "../decision/types";
-import { loadMarketConfig, type MarketDomainConfig } from "../market/configuration";
+import { type MarketDomainConfig } from "../market/configuration";
 import { parseMarketMetadata } from "../market/discovery";
 import { MarketStateDomain } from "../market/domain";
 import { type MarketDescriptor } from "../market/types";
-import { parseTradeConfigOrThrow, type TradeDomainConfig } from "../trade/configuration";
+import { type TradeDomainConfig } from "../trade/configuration";
 import { TradeCoordinator, type TradeConditions } from "../trade/trade-coordinator";
 import { type ExecutionReport } from "../trade/types";
 import { RecordingVenueGateway, type BookSnapshot } from "../trade/venue-gateway";
 import { FixedClock } from "../shared/time";
+import {
+  qualificationMarketConfig,
+  qualificationProfile,
+  qualificationTradeConfig,
+} from "./configuration";
 
 export interface QualificationBook {
   bestBid: number;
@@ -82,53 +82,6 @@ export interface QualificationRun {
   duplicateSuppressed: boolean;
   quotaExhausted: boolean;
   ticks: number;
-}
-
-export const QUALIFICATION_MARKET_ENV: Readonly<Record<string, string>> = Object.freeze({
-  MARKET_DISCOVERY_BASE_URL: "https://gamma.testnet.arc",
-  MARKET_SLUG_TEMPLATE: "btc-updown-5m-{slot}",
-  MARKET_CLOSING_LEAD_MS: "30000",
-  TWAP_FEED_ID: "btc-usd-testnet",
-  TWAP_FEED_PROVIDER: "in-memory",
-  TWAP_NETWORK: "testnet",
-  TWAP_PRECISION: "2",
-  TWAP_MAX_STALENESS: "10000",
-  TWAP_WINDOW_SECONDS: "300",
-  TWAP_MIN_OBSERVATIONS: "2",
-  PTB_METADATA_FIELD: "ptb",
-  PTB_MIN_VALUE: "1",
-  PTB_MAX_VALUE: "10000000",
-});
-
-export function qualificationMarketConfig(): MarketDomainConfig {
-  return loadMarketConfig(QUALIFICATION_MARKET_ENV);
-}
-
-export function qualificationProfile(overrides: Record<string, unknown> = {}): ExecutionProfile {
-  return parseExecutionProfileOrThrow({
-    executionProfileId: "qualification",
-    executionMode: "MULTI_TRADE",
-    maxTrades: 2,
-    positionSize: 10,
-    windowActiveMillis: 30_000,
-    ...DEFAULT_PROFILE_SEED,
-    ...overrides,
-  });
-}
-
-export function qualificationTradeConfig(
-  overrides: { risk?: Record<string, unknown>; execution?: Record<string, unknown> } = {},
-): TradeDomainConfig {
-  return parseTradeConfigOrThrow({
-    risk: {
-      maxExposure: 1_000,
-      maxIntentExposure: 100,
-      maxSpread: 0.2,
-      minLiquidity: 1,
-      ...overrides.risk,
-    },
-    execution: { minMeaningfulQuantity: 1, timeoutMillis: 10_000, ...overrides.execution },
-  });
 }
 
 function qualificationDescriptor(
@@ -310,7 +263,7 @@ export async function runQualificationScenario(
         correlationId: manager.correlationId,
         side: "BUY_UP",
         positionSize: profile.positionSize,
-        retryCount: 0,
+        retryCount: profile.retryCount,
         riskProfileVersion: profile.riskProfileVersion,
       },
       conditions("tok-up"),
@@ -340,10 +293,3 @@ export async function runQualificationScenario(
   });
 }
 
-/** Canonical qualification scenario used by the tests, the docs and the console. */
-export const QUALIFICATION_SPEC: QualificationSpec = Object.freeze({
-  startIso: "2026-02-01T00:04:38.000Z",
-  resolvesAtIso: "2026-02-01T00:05:00.000Z",
-  ptb: 64_000,
-  prices: Object.freeze([64_900, 65_000, 65_100, 65_050, 65_200]),
-});
