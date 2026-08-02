@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Panel, StatusPill } from "@/components/arc/primitives";
+import { EmptyState, LoadingState, Panel, StatusPill } from "@/components/arc/primitives";
 import { fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { executionProfileSchema } from "@/core/decision/configuration";
 import { WINDOW_OFFSET_UNITS } from "@/core/decision/types";
 import { getExecutionProfileConfig, saveExecutionProfileConfig } from "@/lib/operations.functions";
 
@@ -316,7 +317,7 @@ function ExecutionProfilesPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  disabled={draft.executionMode === "SINGLE_TRADE"}
+                  disabled={draft.executionMode === "SINGLE_TRADE" && draft.windows.length >= 1}
                   onClick={() =>
                     setDraft({
                       ...draft,
@@ -339,7 +340,7 @@ function ExecutionProfilesPage() {
               </div>
             }
           >
-            {draft.executionMode === "SINGLE_TRADE" ? (
+            {draft.executionMode === "SINGLE_TRADE" && draft.windows.length > 0 ? (
               <p className="py-4 text-sm text-muted-foreground">
                 Execution mode is <span className="font-mono">SINGLE_TRADE</span>. Only the first
                 enabled window is armed per market. Switch to{" "}
@@ -348,7 +349,10 @@ function ExecutionProfilesPage() {
             ) : null}
 
             {draft.windows.length === 0 ? (
-              <EmptyState message="No windows configured." />
+              <EmptyState
+                message="No execution windows defined."
+                hint="Add at least one window (offset before market close plus TWAP buffer). Priority is derived from offset order."
+              />
             ) : (
               <Table>
                 <TableHeader>
