@@ -54,12 +54,22 @@ Legend: `⬜` not started · `🟨` in progress · `✅` complete · `N/A` not a
 
 | Field | Value |
 |---|---|
-| Status | ⬜ Not started |
+| Status | ✅ Complete (domain landed) |
 | Dependencies | M1 |
-| Exit Criteria | Decision/signal telemetry rendered read-only with full provenance to engine payloads |
-| Acceptance Status | ⬜ |
-| Replay Status | ⬜ |
-| Production Status | ⬜ |
+| Exit Criteria | TWAP-native decision engine, execution context, dynamic windows, window FSM, trade quota and immutable execution intents |
+| Acceptance Status | ✅ 23 decision-domain unit tests green (106 total) |
+| Replay Status | ✅ Byte-identical events, intent ids, quota progression (`tests/unit/decision-domain.test.ts`) |
+| Production Status | 🟨 Awaiting M3 execution domain to consume intents |
+
+**M2 evidence log**
+
+- Domain modules: `src/core/decision/{types,configuration,trade-quota,window-fsm,window-instance,decision-engine,events,execution-context,window-manager,index}.ts`
+- Decision Engine is a pure function `f(AuthoritativeMarketState, WindowInstance, ConfigurationSnapshot)`: no I/O, no randomness, no timers, no caches.
+- Strategy: `Effective TWAP ± Window Buffer` compared against official-metadata PTB → `BUY_UP | BUY_DOWN | NO_SIGNAL`. No majority, confidence, crowd sentiment or Binance direction anywhere.
+- Canonical events: `WindowOpened`, `WindowActivated`, `WindowEvaluated`, `WindowCompleted`, `ExecutionIntentCreated`, `TradeQuotaConsumed` (frozen envelope, `source=decision`).
+- Dynamic windows: `EXECUTION_WINDOWS` DSL/JSON; priority derived from offset; `15m,10m,7m,5m,3m` → `20m,12m,8m,4m,2m` requires no code change.
+- Invariants: one window → at most one ExecutionIntent; every window completes exactly once; quota is monotonically decreasing, never negative, never replenished, and checked before the engine is invoked.
+
 
 ### M3 — Trade Domain
 
