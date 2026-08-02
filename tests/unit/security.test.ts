@@ -112,10 +112,29 @@ describe("security — API surface", () => {
     expect(publicRoutes.length).toBeGreaterThan(0);
     for (const route of publicRoutes) {
       const source = read(route);
-      expect(source).not.toMatch(/supabaseAdmin|client\.server|user_id|auth\.uid/);
+      // Authority endpoints are engine-facing: they may reach the privileged
+      // client, but only behind signature verification in the gateway, and
+      // they must never surface operator identifiers or credentials.
+      const isAuthorityEndpoint = route.startsWith("src/routes/api/public/authority/");
+      if (isAuthorityEndpoint) {
+        expect(source).toMatch(/authority-gateway\.server/);
+      } else {
+        expect(source).not.toMatch(/supabaseAdmin|client\.server/);
+      }
+      expect(source).not.toMatch(/user_id|auth\.uid/);
       expect(source).not.toMatch(/SERVICE_ROLE/);
     }
   });
+
+  it("every authority endpoint delegates to the verifying gateway", () => {
+    const gateway = read("src/lib/authority-gateway.server.ts");
+    // Fail-closed: an unconfigured signing key must never accept traffic.
+    expect(gateway).toMatch(/KEY_UNCONFIGURED/);
+    expect(gateway).toMatch(/authority_replay_guard/);
+    // The gateway stores public identity only.
+    expect(gateway).not.toMatch(/private_key|wallet|mnemonic/i);
+  });
+
 
   it("no server function writes to append-only tables through an admin client", () => {
     for (const file of FUNCTION_FILES) {
