@@ -126,17 +126,30 @@ export const getExecutionProfileConfig = createServerFn({ method: "GET" })
       .maybeSingle();
 
     const stored = (data?.config as { executionProfile?: unknown } | null)?.executionProfile;
-    const profile = stored
-      ? parseExecutionProfileOrThrow(stored)
-      : loadExecutionProfile(process.env as Record<string, string | undefined>);
+
+    // Unconfigured is a legitimate operator state, not an error: the console
+    // must offer profile creation instead of failing the page.
+    let profile: ReturnType<typeof parseExecutionProfileOrThrow> | null = null;
+    let invalidReason: string | null = null;
+    try {
+      profile = stored
+        ? parseExecutionProfileOrThrow(stored)
+        : loadExecutionProfile(process.env as Record<string, string | undefined>);
+    } catch (error) {
+      profile = null;
+      invalidReason = stored ? (error as Error).message : null;
+    }
 
     return {
       profile,
-      digest: executionProfileDigest(profile),
-      source: stored ? ("STORED" as const) : ("ENVIRONMENT" as const),
+      digest: profile ? executionProfileDigest(profile) : null,
+      source: profile ? (stored ? ("STORED" as const) : ("ENVIRONMENT" as const)) : ("NONE" as const),
+      unconfigured: profile === null,
+      invalidReason,
       updatedAtIso: (data?.updated_at as string | undefined) ?? null,
     };
   });
+
 
 export const saveExecutionProfileConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
