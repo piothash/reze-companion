@@ -184,7 +184,7 @@ export function buildActivationChecklist(
       evidence:
         "Live telemetry within the sync budget carrying every mandated field.",
       status:
-        telemetry?.source === "LIVE" && missingTelemetryFields(authority).length === 0
+        active && telemetry?.source === "LIVE" && missingTelemetryFields(authority).length === 0
           ? "DONE"
           : active
             ? "WAITING"
