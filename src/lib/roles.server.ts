@@ -13,6 +13,8 @@ export interface OperatorCapabilities {
   readonly roles: readonly string[];
   readonly canWrite: boolean;
   readonly isAdmin: boolean;
+  /** Primary operator of this single-operator deployment (M7.1). */
+  readonly isOwner: boolean;
 }
 
 export async function resolveCapabilities(
@@ -23,8 +25,9 @@ export async function resolveCapabilities(
   const roles = ((data ?? []) as { role: string }[]).map((row) => row.role);
   return {
     roles,
-    isAdmin: roles.includes("admin"),
-    canWrite: roles.includes("admin") || roles.includes("operator"),
+    isAdmin: roles.includes("admin") || roles.includes("owner"),
+    isOwner: roles.includes("owner"),
+    canWrite: roles.includes("admin") || roles.includes("owner") || roles.includes("operator"),
   };
 }
 
