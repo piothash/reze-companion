@@ -96,9 +96,10 @@ function OwnershipPage() {
                 </span>
               </Row>
               <Row label="State">
-                <StatusPill tone={data.finalized ? "positive" : "warning"}>
-                  {data.finalized ? "FINALIZED" : "BOOTSTRAP"}
-                </StatusPill>
+                <StatusPill
+                  tone={data.finalized ? "healthy" : "degraded"}
+                  label={data.finalized ? "FINALIZED" : "BOOTSTRAP"}
+                />
               </Row>
               <Row label="Finalized at">
                 <span className="font-mono text-xs">
@@ -106,9 +107,10 @@ function OwnershipPage() {
                 </span>
               </Row>
               <Row label="Registration">
-                <StatusPill tone={data.finalized ? "neutral" : "warning"}>
-                  {data.finalized ? "CLOSED" : "OPEN (BOOTSTRAP)"}
-                </StatusPill>
+                <StatusPill
+                  tone={data.finalized ? "neutral" : "degraded"}
+                  label={data.finalized ? "CLOSED" : "OPEN (BOOTSTRAP)"}
+                />
               </Row>
             </dl>
             <p className="mt-4 text-xs text-muted-foreground">
