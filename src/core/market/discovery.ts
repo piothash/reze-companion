@@ -93,11 +93,13 @@ export function parseMarketMetadata(input: ParseDiscoveryInput): MarketDescripto
 
   for (const expected of config.discovery.expectedOutcomes) {
     const index = labels.findIndex((label) => label.toLowerCase() === expected.toLowerCase());
-    if (index < 0 || tokenIds[index] === undefined) {
+    const label = index >= 0 ? labels[index] : undefined;
+    const tokenId = index >= 0 ? tokenIds[index] : undefined;
+    if (label === undefined || tokenId === undefined) {
       invalidReasons.push(`missing outcome token for "${expected}"`);
       continue;
     }
-    outcomes.push({ label: labels[index], key: labels[index].toLowerCase(), tokenId: tokenIds[index] });
+    outcomes.push({ label, key: label.toLowerCase(), tokenId });
   }
 
   const venueMarketId = typeof raw.conditionId === "string" ? raw.conditionId : "";
