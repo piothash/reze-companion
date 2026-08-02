@@ -163,16 +163,30 @@ Implementation notes:
 | Replay Status | ✅ deterministic restore verified |
 | Production Status | ✅ |
 
-### M7 — Testnet Qualification
+### M7.0 — Testnet Qualification & Live Engine Integration
 
 | Field | Value |
 |---|---|
-| Status | ⬜ Not started |
-| Dependencies | M6 |
-| Exit Criteria | Companion verified against a non-production engine endpoint through a full session lifecycle |
-| Acceptance Status | ⬜ |
-| Replay Status | ⬜ |
-| Production Status | ⬜ |
+| Status | 🟨 Companion side complete — awaiting live VPS engine |
+| Dependencies | M6.8 |
+| Exit Criteria | Feed provider abstraction (ADR-0005), `/authority/telemetry` contract, live-wired operator surfaces, qualification procedure, 14 observed gates against a live testnet engine |
+| Acceptance Status | 🟨 Gates 1–14 documented in `docs/TESTNET_QUALIFICATION.md`; observation pending engine availability |
+| Replay Status | ✅ determinism suite green (271 tests) |
+| Production Status | ⬜ testnet only — mainnet blocked until the ADR-0005 V2 migration |
+
+Delivered this milestone:
+
+- `src/core/market/feed-provider.ts` — semantic provider registry, V1/V2
+  generation guards, environment-only migration (`describeFeedMigration`).
+- `src/core/platform/runtime-telemetry.ts` — validated `/authority/telemetry`
+  wire contract, freshness classification, window countdown selection.
+- `src/lib/runtime-telemetry.server.ts` — live fetch with mirrored fallback.
+- Live-wired surfaces: Dashboard, Markets, Active Windows, Signal Tank, Trade
+  Monitor, Health — each badged `LIVE` / `MIRRORED` / `AWAITING AUTHORITY`.
+- Docs: `docs/TESTNET_QUALIFICATION.md`, `docs/AUTHORITY_API_CONTRACT.md`,
+  ADR-0005.
+
+
 
 ### M8 — Mainnet Qualification
 
