@@ -3,16 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import {
-  EmptyState,
-  KeyValue,
-  Metric,
-  Panel,
-  StatusPill,
-  fmt,
-  fmtInt,
-  fmtTime,
-} from "@/components/arc/primitives";
+import { EmptyState, KeyValue, Metric, Panel, StatusPill } from "@/components/arc/primitives";
+import { fmt, fmtInt, fmtTime } from "@/lib/format";
 import { getOperationsSnapshot } from "@/lib/operations.functions";
 
 export const Route = createFileRoute("/_authenticated/signal-tank")({

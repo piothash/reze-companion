@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Panel, SeverityBadge, fmtTime } from "@/components/arc/primitives";
+import { EmptyState, Panel, SeverityBadge } from "@/components/arc/primitives";
+import { fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

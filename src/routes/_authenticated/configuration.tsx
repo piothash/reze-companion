@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, KeyValue, Panel, StatusPill, fmtTime } from "@/components/arc/primitives";
+import { EmptyState, KeyValue, Panel, StatusPill } from "@/components/arc/primitives";
+import { fmtTime } from "@/lib/format";
 import { getConfigurationView } from "@/lib/operations.functions";
 import {
   Table,

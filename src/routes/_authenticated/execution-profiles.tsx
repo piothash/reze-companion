@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Panel, StatusPill, fmtTime } from "@/components/arc/primitives";
+import { EmptyState, Panel, StatusPill } from "@/components/arc/primitives";
+import { fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

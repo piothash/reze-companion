@@ -5,7 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
-import { EmptyState, Panel, StatusPill, fmtInt, fmtTime } from "@/components/arc/primitives";
+import { EmptyState, Panel, StatusPill } from "@/components/arc/primitives";
+import { fmtInt, fmtTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { listReplayRuns, runReplay } from "@/lib/platform.functions";
