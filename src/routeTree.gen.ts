@@ -28,6 +28,7 @@ import { Route as AuthenticatedWindowsRouteImport } from './routes/_authenticate
 import { Route as ApiPublicHealthIndexRouteImport } from './routes/api/public/health/index'
 import { Route as ApiPublicHealthLiveRouteImport } from './routes/api/public/health/live'
 import { Route as ApiPublicHealthReadyRouteImport } from './routes/api/public/health/ready'
+import { Route as ApiPublicHealthStartupRouteImport } from './routes/api/public/health/startup'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -127,6 +128,11 @@ const ApiPublicHealthReadyRoute = ApiPublicHealthReadyRouteImport.update({
   path: '/api/public/health/ready',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHealthStartupRoute = ApiPublicHealthStartupRouteImport.update({
+  id: '/api/public/health/startup',
+  path: '/api/public/health/startup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
   '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
+  '/api/public/health/startup': typeof ApiPublicHealthStartupRoute
   '/api/public/health/': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRoutesByTo {
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
   '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
+  '/api/public/health/startup': typeof ApiPublicHealthStartupRoute
   '/api/public/health': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRoutesById {
@@ -188,6 +196,7 @@ export interface FileRoutesById {
   '/_authenticated/windows': typeof AuthenticatedWindowsRoute
   '/api/public/health/live': typeof ApiPublicHealthLiveRoute
   '/api/public/health/ready': typeof ApiPublicHealthReadyRoute
+  '/api/public/health/startup': typeof ApiPublicHealthStartupRoute
   '/api/public/health/': typeof ApiPublicHealthIndexRoute
 }
 export interface FileRouteTypes {
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/windows'
     | '/api/public/health/live'
     | '/api/public/health/ready'
+    | '/api/public/health/startup'
     | '/api/public/health/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/windows'
     | '/api/public/health/live'
     | '/api/public/health/ready'
+    | '/api/public/health/startup'
     | '/api/public/health'
   id:
     | '__root__'
@@ -251,6 +262,7 @@ export interface FileRouteTypes {
     | '/_authenticated/windows'
     | '/api/public/health/live'
     | '/api/public/health/ready'
+    | '/api/public/health/startup'
     | '/api/public/health/'
   fileRoutesById: FileRoutesById
 }
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ApiPublicHealthLiveRoute: typeof ApiPublicHealthLiveRoute
   ApiPublicHealthReadyRoute: typeof ApiPublicHealthReadyRoute
+  ApiPublicHealthStartupRoute: typeof ApiPublicHealthStartupRoute
   ApiPublicHealthIndexRoute: typeof ApiPublicHealthIndexRoute
 }
 
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHealthReadyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health/startup': {
+      id: '/api/public/health/startup'
+      path: '/api/public/health/startup'
+      fullPath: '/api/public/health/startup'
+      preLoaderRoute: typeof ApiPublicHealthStartupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -442,6 +462,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ApiPublicHealthLiveRoute: ApiPublicHealthLiveRoute,
   ApiPublicHealthReadyRoute: ApiPublicHealthReadyRoute,
+  ApiPublicHealthStartupRoute: ApiPublicHealthStartupRoute,
   ApiPublicHealthIndexRoute: ApiPublicHealthIndexRoute,
 }
 export const routeTree = rootRouteImport
