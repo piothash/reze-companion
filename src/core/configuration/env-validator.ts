@@ -254,7 +254,84 @@ export const ARC_ENV_SPECS: readonly EnvVarSpec[] = [
     required: true,
     description: "Publishable control-plane key",
   },
+  {
+    key: "SUPABASE_SERVICE_ROLE_KEY",
+    kind: "secret",
+    minLength: 20,
+    owner: "COMPANION",
+    description:
+      "Server-only privileged control-plane key. Never exposed to the browser; absent means privileged maintenance paths stay disabled.",
+  },
+  {
+    key: "ARC_AUTHORITY_SIGNING_KEY",
+    kind: "secret",
+    minLength: 16,
+    requiredOnMainnet: true,
+    owner: "SHARED",
+    description:
+      "Shared HMAC-SHA256 key the VPS signs authority messages with. Absent means the gateway fail-closes and rejects every inbound authority message.",
+  },
+  {
+    key: "ARC_REQUIRED_SUPABASE_URL",
+    kind: "url",
+    owner: "SHARED",
+    description:
+      "Expected control-plane URL. When set, a mismatch with SUPABASE_URL fail-closes the cutover guard.",
+  },
+  {
+    key: "ENGINE_MODE",
+    kind: "enum",
+    enumValues: ["OBSERVE", "ARMED", "DISABLED"],
+    defaultValue: "OBSERVE",
+    owner: "VPS",
+    description: "Trading authority mode on the VPS. The companion never sets this at runtime.",
+  },
+  {
+    key: "ENGINE_ENVIRONMENT",
+    kind: "enum",
+    enumValues: RUNTIME_ENVIRONMENTS,
+    defaultValue: "staging",
+    owner: "VPS",
+    description: "Engine deployment environment reported in the authority handshake.",
+  },
 ];
+
+/**
+ * Operator-facing rendering of a failed environment validation. Only keys and
+ * explanations are rendered — secret values are never included.
+ */
+export function formatEnvFailure(report: EnvValidationReport): string {
+  if (report.valid) return "Environment validation passed.";
+  const lines = [
+    "ARC startup aborted — the environment is incomplete.",
+    "",
+    "Problem:",
+    `  ${report.issues.length} required environment variable(s) are missing or invalid.`,
+    "",
+    "Details:",
+    ...report.issues.map((entry) => `  - ${entry.key}: ${entry.message} [${entry.reasonCode}]`),
+    "",
+    "Action:",
+    "  Set the variables above in the server environment (see .env.example,",
+    "  .env.production.example and .env.vps.example), then restart the process.",
+    "",
+    "Recovery:",
+    "  ARC never applies silent defaults for required variables; the process stays",
+    "  down until the environment is complete.",
+  ];
+  return lines.join("\n");
+}
+
+/** Throws an operator-friendly error when a required variable is missing or invalid. */
+export function assertEnvironmentValid(
+  source: EnvSource,
+  specs: readonly EnvVarSpec[] = ARC_ENV_SPECS,
+): EnvValidationReport {
+  const report = validateEnvironment(source, specs);
+  if (!report.valid) throw new Error(formatEnvFailure(report));
+  return report;
+}
+
 
 function issue(key: string, message: string, reasonCode: ReasonCode): EnvIssue {
   return { key, message, reasonCode };
