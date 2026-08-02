@@ -132,7 +132,7 @@ export function recoverFromEvents(events: readonly EventEnvelope[]): RecoverySta
   };
 
   for (const event of ordered) {
-    lastSequence = Math.max(lastSequence, event.metadata.sequence ?? 0);
+    lastSequence = Math.max(lastSequence, event.sequence ?? 0);
     lastEventId = event.eventId;
 
     switch (event.type) {
@@ -327,7 +327,7 @@ export function recoverFromEvents(events: readonly EventEnvelope[]): RecoverySta
     reservedTotal: reservationList.reduce((total, entry) => total + (entry.reserved || 0), 0),
     settledIntentIds: [...settledIntentIds].sort(),
     ledgerRecordIds: reconstructLedger(ordered)
-      .map((record) => record.recordId)
+      .records.map((record) => record.recordId)
       .sort(),
   };
 
