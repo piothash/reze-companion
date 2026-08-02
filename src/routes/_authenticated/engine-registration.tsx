@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { OperatorShell } from "@/components/arc/operator-shell";
+import { AuthorityRegistryPanel } from "@/components/arc/authority-registry-panel";
 import {
   AuthorityRuntimePanel,
   useAuthorityRuntime,

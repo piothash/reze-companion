@@ -33,6 +33,9 @@ function AuthPage() {
   const navigate = useNavigate();
   const bootstrap = Route.useLoaderData();
   const registrationOpen = bootstrap.mode === "BOOTSTRAP_OPEN";
+  // Fail closed: when the backend is not the required cutover target, neither
+  // sign-in nor registration is offered.
+  const authAvailable = bootstrap.backendMatchesProduction;
   const [mode, setMode] = useState<"signin" | "signup">(
     registrationOpen ? "signup" : "signin",
   );
@@ -53,6 +56,11 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
+      if (!authAvailable) {
+        throw new Error(
+          "This deployment is not connected to the required control-plane backend.",
+        );
+      }
       if (mode === "signup") {
         if (!registrationOpen) throw new Error("Bootstrap registration is unavailable.");
         const { data, error } = await supabase.auth.signUp({
@@ -112,7 +120,10 @@ function AuthPage() {
               className="font-mono"
             />
           </div>
-          <Button type="submit" disabled={busy || (mode === "signup" && !registrationOpen)}>
+          <Button
+            type="submit"
+            disabled={busy || !authAvailable || (mode === "signup" && !registrationOpen)}
+          >
             {mode === "signin" ? "Sign in" : "Create account"}
           </Button>
         </form>
