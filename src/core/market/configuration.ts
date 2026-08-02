@@ -45,9 +45,15 @@ export const discoveryConfigSchema = z.object({
 });
 
 export const feedConfigSchema = z.object({
+  /** Transport the Feed Engine constructs. */
   provider: z.enum(FEED_PROVIDERS).default("http-json"),
+  /** Semantic provider in force (ADR-0005): testnet, mainnet, data streams. */
+  providerId: z.enum(FEED_PROVIDER_IDS).default("testnet"),
+  /** V1 = testnet qualification, V2 = mainnet production. */
+  generation: z.enum(FEED_GENERATIONS).default("V1"),
   feedId: z.string().min(1),
   network: z.string().min(1).default("testnet"),
+
   /** Endpoint template; `{feedId}` and `{network}` are substituted. */
   endpointTemplate: z.string().min(1).optional(),
   /** Dotted path to the numeric price inside the provider response. */
