@@ -70,7 +70,43 @@ function SystemPage() {
               ]}
             />
           </Panel>
+          <Panel title="Backend Connection">
+            <KeyValue
+              rows={[
+                ["Provider", (data?.backend.provider ?? "supabase").toUpperCase()],
+                ["Project", data?.backend.projectRef ?? "—"],
+                ["URL", data?.backend.maskedUrl ?? "—"],
+                ["Configuration", data?.backend.configured ? "COMPLETE" : "INCOMPLETE"],
+                ["Database", data?.backend.databaseConnected ? "CONNECTED" : "UNREACHABLE"],
+                ["Auth", data?.backend.authReachable ? "HEALTHY" : "UNREACHABLE"],
+                [
+                  "Deployment Target",
+                  data?.backend.matchesDeploymentTarget ? "MATCH" : "MISMATCH",
+                ],
+                [
+                  "Privileged Key",
+                  data?.backend.serviceRoleConfigured ? "CONFIGURED" : "ABSENT",
+                ],
+                [
+                  "Ownership",
+                  data?.authentication.ownershipFinalized
+                    ? "FINALIZED"
+                    : "BOOTSTRAP AVAILABLE",
+                ],
+                [
+                  "Registration",
+                  data?.authentication.mode === "BOOTSTRAP_OPEN" ? "ENABLED" : "DISABLED",
+                ],
+                ["Environment", `${data?.environment ?? "—"} / ${data?.network ?? "—"}`],
+              ]}
+            />
+            <p className="mt-3 text-xs text-muted-foreground">
+              Backend selection is environment-driven only. The project URL is masked and no
+              service-role material is ever sent to the browser.
+            </p>
+          </Panel>
           <Panel title="Authentication Integration">
+
             <KeyValue
               rows={[
                 ["State", data?.authentication.mode ?? "—"],

@@ -247,7 +247,11 @@ export const getSystemInfo = createServerFn({ method: "GET" })
   .handler(async () => {
     const { VERSION_REGISTRY } = await import("@/core/contracts/versions");
     const { resolveOperatorBootstrapState } = await import("@/lib/auth-state.server");
-    const authentication = await resolveOperatorBootstrapState();
+    const { probeBackend } = await import("@/lib/supabase/backend.server");
+    const [authentication, backend] = await Promise.all([
+      resolveOperatorBootstrapState(),
+      probeBackend(),
+    ]);
     return {
       versions: Object.values(VERSION_REGISTRY).map((spec) => ({
         id: spec.id,
@@ -260,13 +264,14 @@ export const getSystemInfo = createServerFn({ method: "GET" })
       configurationVersion: VERSION_REGISTRY.configuration.version,
       replayVersion: VERSION_REGISTRY.replayFormat.version,
       eventSchemaVersion: VERSION_REGISTRY.eventSchema.version,
-      environment: process.env["ARC_ENVIRONMENT"] ?? "development",
-      network: process.env["ARC_NETWORK"] ?? "testnet",
-      runtime: "Lovable Cloud edge worker",
+      environment: backend.environment,
+      network: backend.network,
+      runtime: "Edge worker (serverless control plane)",
       gitCommit: process.env["ARC_GIT_COMMIT"] ?? null,
       deployedAtIso: process.env["ARC_DEPLOYED_AT"] ?? null,
       buildIso: new Date().toISOString(),
       authentication,
+      backend,
     };
   });
 
