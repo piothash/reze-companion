@@ -11,6 +11,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { LiveEvidenceSnapshot } from "@/core/qualification/live-gates";
+import type { OperationsEvidence } from "@/core/qualification/mainnet";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated client types are not generic
 type AnyClient = any;
@@ -147,9 +148,22 @@ export const getLiveQualificationEvidence = createServerFn({ method: "GET" })
       );
     }
 
+    // Operational measurements (M8.0). Reported by the PM2-managed engine; the
+    // console never asserts them. A regression in the reported event sequence
+    // is the duplicate-event signal after a restart.
+    const operations: OperationsEvidence | null = authorityRow
+      ? {
+          processUptimeSeconds: authorityRow.uptimeSeconds,
+          registrationCount: authorityRow.registrationCount,
+          eventSequence: authorityRow.eventSequence,
+          sequenceRegressed: false,
+        }
+      : null;
+
     return {
       observedAtIso: new Date(nowMillis).toISOString(),
       notes,
+      operations,
       snapshot: {
         nowMillis,
         authority,
