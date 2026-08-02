@@ -90,7 +90,11 @@ function DashboardPage() {
         <LoadingState label="Reading operational telemetry" />
       ) : (
         <div className="space-y-4">
+          <LiveFeedPanel view={telemetry.data} />
+          <LiveWindowsPanel view={telemetry.data} />
+          <LiveRuntimePanel view={telemetry.data} />
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
             <Metric
               label="System Status"
               value={worst.toUpperCase()}
